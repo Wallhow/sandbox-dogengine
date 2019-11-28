@@ -58,7 +58,7 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
                     //TODO Временно
                     if (it.type == "collide") {
                         println(name)
-                        add(CJBumpAABB())
+                        add(CJBumpAABB(false).apply { scaleSize.x = 0.2f; scaleSize.y = 0.59f })
                     }
                 }
             }
@@ -95,8 +95,7 @@ class Pety1(val am: AssetManager) : GameEntity(), ControllerListener {
         add(CCameraLook())
         add(CPlayerController(this))
         add(CVelocity(vec2(0f, 0f)))
-        add(CJBumpAABB())
-        println("pety jiv")
+        add(CJBumpAABB(true).apply { scaleSize.x = 0.3f ; scaleSize.y = 0.6f })
     }
 
     private fun createState(): CStateMachine {
@@ -160,22 +159,22 @@ class Pety1(val am: AssetManager) : GameEntity(), ControllerListener {
 
     override fun up() {
         CStateMachine[this].setTrigger(T.W_UP.name)
-        CVelocity[this].vector.y = 50f
+        CVelocity[this].vector.y = 60f
     }
 
     override fun down() {
         CStateMachine[this].setTrigger(T.W_DOWN.name)
-        CVelocity[this].vector.y = -50f
+        CVelocity[this].vector.y = -60f
     }
 
     override fun left() {
         CStateMachine[this].setTrigger(T.W_LEFT.name)
-        CVelocity[this].vector.x = -50f
+        CVelocity[this].vector.x = -60f
     }
 
     override fun right() {
         CStateMachine[this].setTrigger(T.W_RIGHT.name)
-        CVelocity[this].vector.x = 50f
+        CVelocity[this].vector.x = 60f
     }
 
     override fun a() {

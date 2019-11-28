@@ -6,8 +6,8 @@ import com.badlogic.gdx.math.Vector2
 import com.dongbat.jbump.Item
 import dogengine.def.ComponentResolver
 
-class CJBumpAABB : Component {
+class CJBumpAABB(var dynamic: Boolean) : Component {
     var item: Item<Entity>? = null
-    var worldPosition = Vector2()
+    var scaleSize : Vector2 = Vector2(1f,1f)
     companion object : ComponentResolver<CJBumpAABB>(CJBumpAABB::class.java)
 }

@@ -13,9 +13,7 @@ import dogengine.ashley.components.CTransforms
 class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all(CJBumpAABB::class.java, CTransforms::class.java).get()) {
     private val world: World<Entity> = World()
     private val collisionFilter = CollisionFilter { p0, p1 ->
-        println(p0.userData)
-        println(p1.userData)
-        Response.touch
+        Response.bounce
     }
     init {
         engine.addEntityListener(Family.all(CJBumpAABB::class.java).get(), object : EntityListener {
@@ -28,8 +26,11 @@ class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all
             override fun entityAdded(entity: Entity) {
                 val position = CTransforms[entity].position
                 val size = CTransforms[entity].size
-
-                CJBumpAABB[entity].item = world.add(Item<Entity>(entity), position.x, position.y, size.width, size.height)
+                val nW = (size.width - size.width*CJBumpAABB[entity].scaleSize.x)*0.5f
+                val nH = (size.height - size.height*CJBumpAABB[entity].scaleSize.y)*0.5f
+                CJBumpAABB[entity].item = world.add(Item<Entity>(entity), position.x+nW, position.y+nH,
+                        size.width*CJBumpAABB[entity].scaleSize.x,
+                        size.height*CJBumpAABB[entity].scaleSize.y)
                 println(entity)
                 println(CJBumpAABB[entity].item)
             }
@@ -37,14 +38,14 @@ class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all
     }
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val pos = CTransforms[entity].position
-        val result: Response.Result = world.move(CJBumpAABB[entity].item, pos.x, pos.y, collisionFilter)
-        val projectedCollisions: Collisions = result.projectedCollisions
-        val touched = com.badlogic.gdx.utils.Array<Item<Entity>>()
-        for (i in 0 until projectedCollisions.size()) {
-            val col = projectedCollisions[i]
-            touched.add(col.other as Item<Entity>)
+        val size = CTransforms[entity].size
+        val jbump = CJBumpAABB[entity]
+        if(jbump.dynamic) {
+            val nW = (size.width - size.width * jbump.scaleSize.x) * 0.5f
+            val nH = (size.height - size.height * jbump.scaleSize.y) * 0.5f
+            val result: Response.Result = world.move(jbump.item, pos.x + nW, pos.y + nH, collisionFilter)
+            pos.set(result.goalX - nW, result.goalY - nH)
         }
-
     }
 
 }

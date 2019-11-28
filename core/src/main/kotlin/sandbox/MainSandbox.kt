@@ -27,7 +27,7 @@ class MainSandbox : DogeEngineGame() {
 
             add(STiledMapOrtho::class.java)
             add(SJBumpAABB::class.java)
-            add(SDrawDebug::class.java)
+            //add(SDrawDebug::class.java)
         }
 
         kernel.initialize {
