@@ -5,6 +5,7 @@ buildscript {
     jcenter()
     google()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+
   }
   dependencies {
     classpath "com.badlogicgames.gdx:gdx-tools:$gdxVersion"
@@ -32,6 +33,7 @@ subprojects {
     jcenter()
     google()
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+    maven { url 'https://jitpack.io' }
   }
 }
 
@@ -43,8 +45,9 @@ tasks.eclipse.doLast {
 }
 
 // Run `gradle pack` task to generate skin.atlas file at assets/ui.
+
 import com.badlogic.gdx.tools.texturepacker.TexturePacker
-task pack << {
+tasks.create("pack").configure {
   // Note that if you need multiple atlases, you can duplicate the
   // TexturePacker.process invocation and change paths to generate
   // additional atlases with this task.
@@ -52,5 +55,10 @@ task pack << {
     'raw/ui',           // Raw assets path.
     'assets/ui',        // Output directory.
     'skin'              // Name of the generated atlas (without extension).
+  )
+  TexturePacker.process(
+          'pre-assets',
+          'assets/atlas',
+          'matlas'
   )
 }
