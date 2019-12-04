@@ -1,5 +1,6 @@
 package dogengine.ashley.systems.draw
 
+import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
@@ -7,18 +8,30 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.google.inject.Inject
 import dogengine.ashley.components.CTransforms
+import dogengine.utils.TTFFont
 import sandbox.def.CJBumpAABB
 
-class SDrawDebug @Inject constructor(val camera : OrthographicCamera) : IteratingSystem(Family.all(CTransforms::class.java).get()) {
-    val renderer: ShapeRenderer = ShapeRenderer()
+class SDrawDebug @Inject constructor(val camera : OrthographicCamera,val spriteBatch: SpriteBatch) : IteratingSystem(Family.all(CTransforms::class.java).get()) {
+    private val renderer: ShapeRenderer = ShapeRenderer()
+    private val ttf : TTFFont = TTFFont()
+    private lateinit var font : BitmapFont
     init {
         priority = 10
+
     }
+
+    override fun addedToEngine(engine: Engine?) {
+        font = FreeTypeFontGenerator(Gdx.files.internal("assets/pixel.ttf")).generateFont(FreeTypeFontGenerator.FreeTypeFontParameter().apply { size = 24 })
+//        font = TTFFont("assets/pixel.ttf").create(26, Color.DARK_GRAY).get(26)
+    }
+
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val tr = CTransforms[entity]
 
@@ -55,6 +68,11 @@ class SDrawDebug @Inject constructor(val camera : OrthographicCamera) : Iteratin
             renderer.line(v4,v1)
         }
         renderer.end()
+        val x0 = camera.position.x - camera.viewportWidth*0.5f
+        val y0 = camera.position.y - camera.viewportHeight*0.5f
 
+        spriteBatch.begin()
+        font.draw(spriteBatch,"FPS : ${Gdx.graphics.framesPerSecond}",x0,y0)
+        spriteBatch.end()
     }
 }

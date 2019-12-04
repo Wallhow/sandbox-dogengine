@@ -2,8 +2,7 @@ package sandbox
 
 import com.anupcowkur.statelin.TriggerHandler
 import com.badlogic.ashley.core.Engine
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.ScreenAdapter
+import com.badlogic.gdx.*
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -11,15 +10,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
 import com.google.inject.Injector
-import dogengine.ashley.components.CCameraLook
-import dogengine.ashley.components.CStateMachine
-import dogengine.ashley.components.CTransforms
-import dogengine.ashley.components.CVelocity
+import dogengine.ashley.components.*
 import dogengine.ashley.components.draw.*
 import dogengine.ashley.components.tilemap.CTiledMapOrtho
 import dogengine.ashley.systems.STiledMapOrtho
 import dogengine.ashley.systems.controllers.CPlayerController
 import dogengine.ashley.systems.controllers.ControllerListener
+import dogengine.ashley.systems.draw.SDrawable
 import dogengine.def.GameEntity
 import dogengine.utils.Size
 import dogengine.utils.vec2
@@ -43,10 +40,10 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
         val engine = injector.getInstance(Engine::class.java)
         val am = injector.getInstance(AssetManager::class.java)
         am.load(Gdx.files.internal("assets/atlas/matlas.atlas").path(), TextureAtlas::class.java)
-        am.finishLoadingAsset(Gdx.files.internal("assets/atlas/matlas.atlas").path())
+        am.finishLoadingAsset<TextureAtlas>(Gdx.files.internal("assets/atlas/matlas.atlas").path())
         engine.addEntity(mapEntity)
         engine.addEntity(Pety1(am))
-        camera.zoom = 0.8f
+        camera.zoom = .7f
 
         (engine.getSystem(STiledMapOrtho::class.java)).customCreateObject = {
             object : GameEntity() {
@@ -63,6 +60,17 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
                 }
             }
         }
+
+        val inputAdapter = object : InputAdapter() {
+            override fun keyDown(keycode: Int): Boolean {
+                if(keycode == Input.Keys.SPACE) {
+                    engine.getSystem(SDrawable::class.java).drawInFBO = !engine.getSystem(SDrawable::class.java).drawInFBO
+                }
+                return super.keyDown(keycode)
+            }
+        }
+
+        injector.getInstance(InputMultiplexer::class.java).addProcessor(inputAdapter)
     }
 }
 
@@ -78,7 +86,7 @@ class MapEntity : GameEntity() {
 class Pety1(val am: AssetManager) : GameEntity(), ControllerListener {
 
     init {
-        name = "Pety"
+        name = "player"
         add(CTransforms(300f, 100f, Size(64f, 48f)))
         val atlas = am.get("assets/atlas/matlas.atlas", TextureAtlas::class.java)
         add(CAtlasRegion(atlas, "knight"))
@@ -91,6 +99,7 @@ class Pety1(val am: AssetManager) : GameEntity(), ControllerListener {
             currentSequence(T.W_NON.ordinal)
         })
         add(createState())
+        add(CName("player"))
 
         add(CCameraLook())
         add(CPlayerController(this))
