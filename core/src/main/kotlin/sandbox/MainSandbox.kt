@@ -12,7 +12,7 @@ import sandbox.def.SJBumpAABB
 
 class MainSandbox : DogeEngineGame() {
     override val viewport: Viewport
-        get() = FitViewport(800f,640f,OrthographicCamera(800f, 640f))
+        get() = FitViewport(800f,640f,OrthographicCamera(800f, 640f)) as Viewport
 
     override fun resize(width: Int, height: Int) {
         viewport.update(width,height)

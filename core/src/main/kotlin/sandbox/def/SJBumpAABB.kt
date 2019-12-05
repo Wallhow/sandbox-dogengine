@@ -31,8 +31,6 @@ class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all
                 CJBumpAABB[entity].item = world.add(Item<Entity>(entity), position.x+nW, position.y+nH,
                         size.width*CJBumpAABB[entity].scaleSize.x,
                         size.height*CJBumpAABB[entity].scaleSize.y)
-                println(entity)
-                println(CJBumpAABB[entity].item)
             }
         })
     }

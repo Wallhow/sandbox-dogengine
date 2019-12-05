@@ -2,9 +2,9 @@ package sandbox
 
 import com.anupcowkur.statelin.TriggerHandler
 import com.badlogic.ashley.core.Engine
+import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.*
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -16,23 +16,21 @@ import dogengine.ashley.components.tilemap.CTiledMapOrtho
 import dogengine.ashley.systems.STiledMapOrtho
 import dogengine.ashley.systems.controllers.CPlayerController
 import dogengine.ashley.systems.controllers.ControllerListener
+import dogengine.ashley.systems.draw.SDrawDebug
 import dogengine.ashley.systems.draw.SDrawable
 import dogengine.def.GameEntity
 import dogengine.utils.Size
 import dogengine.utils.vec2
 import sandbox.def.CJBumpAABB
-import sandbox.def.SJBumpAABB
 
 class MainScreen(val injector: Injector) : ScreenAdapter() {
     val camera: OrthographicCamera = injector.getInstance(OrthographicCamera::class.java)
     val sb = injector.getInstance(SpriteBatch::class.java)
     val engine: Engine = injector.getInstance(Engine::class.java)
-
+    var spawn = false
     val mapEntity = MapEntity()
-
+    lateinit var player: Pety1
     override fun render(delta: Float) {
-        Gdx.gl.glClearColor(0f, 0.5f, 0.5f, 1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         engine.update(delta)
     }
 
@@ -42,29 +40,25 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
         am.load(Gdx.files.internal("assets/atlas/matlas.atlas").path(), TextureAtlas::class.java)
         am.finishLoadingAsset<TextureAtlas>(Gdx.files.internal("assets/atlas/matlas.atlas").path())
         engine.addEntity(mapEntity)
-        engine.addEntity(Pety1(am))
         camera.zoom = .7f
+        player = Pety1(am,Vector2())
 
-        (engine.getSystem(STiledMapOrtho::class.java)).customCreateObject = {
-            object : GameEntity() {
-                init {
-                    name = it.name
-                    add(CTransforms(Vector2(it.positionObj), it.sizeObj))
-                    add(CTextureRegion(it.textureRegionObj))
-
-                    //TODO Временно
-                    if (it.type == "collide") {
-                        println(name)
-                        add(CJBumpAABB(false).apply { scaleSize.x = 0.2f; scaleSize.y = 0.59f })
-                    }
-                }
+        //TODO важный участок отвечающий за спавн игрока, надо продумать..
+        (engine.getSystem(STiledMapOrtho::class.java))?.customCreateObject = {
+            if(it.name.startsWith("player-spawn")) {
+                CTransforms[player].position.set(CTransforms[it].position)
+                engine.addEntity(player)
             }
+            it
         }
 
         val inputAdapter = object : InputAdapter() {
             override fun keyDown(keycode: Int): Boolean {
                 if(keycode == Input.Keys.SPACE) {
-                    engine.getSystem(SDrawable::class.java).drawInFBO = !engine.getSystem(SDrawable::class.java).drawInFBO
+                    engine.getSystem(SDrawable::class.java).drawToFBO = !engine.getSystem(SDrawable::class.java).drawToFBO
+                }
+                if(keycode == Input.Keys.Z) {
+                    engine.getSystem(SDrawDebug::class.java).visible = !engine.getSystem(SDrawDebug::class.java).visible
                 }
                 return super.keyDown(keycode)
             }
@@ -83,13 +77,16 @@ class MapEntity : GameEntity() {
 
 }
 
-class Pety1(val am: AssetManager) : GameEntity(), ControllerListener {
+class Pety1(val am: AssetManager,pos: Vector2) : GameEntity(), ControllerListener {
 
     init {
         name = "player"
-        add(CTransforms(300f, 100f, Size(64f, 48f)))
+        add(CTransforms().apply {
+            position.set(pos)
+            size = Size(64f, 48f)
+        })
         val atlas = am.get("assets/atlas/matlas.atlas", TextureAtlas::class.java)
-        add(CAtlasRegion(atlas, "knight"))
+        add(CAtlasRegion(atlas, "knight").apply { drawLayer =CDrawable.DrawLayer.YES_EFFECT })
         add(CAtlasRegionAnimation().apply {
             createSequence(T.W_NON.ordinal, 0.4f) { isRepeat = true; putFrames(intArrayOf(1, 5)) }
             createSequence(T.W_DOWN.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(1, 2, 3, 4, 5)) }
@@ -165,25 +162,25 @@ class Pety1(val am: AssetManager) : GameEntity(), ControllerListener {
         W_DOWN(4),
         W_NON(0)
     }
-
+    private val speed = 200f
     override fun up() {
         CStateMachine[this].setTrigger(T.W_UP.name)
-        CVelocity[this].vector.y = 60f
+        CVelocity[this].vector.y = speed
     }
 
     override fun down() {
         CStateMachine[this].setTrigger(T.W_DOWN.name)
-        CVelocity[this].vector.y = -60f
+        CVelocity[this].vector.y = -speed
     }
 
     override fun left() {
         CStateMachine[this].setTrigger(T.W_LEFT.name)
-        CVelocity[this].vector.x = -60f
+        CVelocity[this].vector.x = -speed
     }
 
     override fun right() {
         CStateMachine[this].setTrigger(T.W_RIGHT.name)
-        CVelocity[this].vector.x = 60f
+        CVelocity[this].vector.x = speed
     }
 
     override fun a() {
