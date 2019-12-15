@@ -7,13 +7,19 @@ import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
 import com.dongbat.jbump.*
 import com.google.inject.Inject
+import dogengine.Kernel
 import dogengine.ashley.components.CTransforms
 
 
 class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all(CJBumpAABB::class.java, CTransforms::class.java).get()) {
-    private val world: World<Entity> = World()
+    val world = Kernel.getInjector().getInstance(World::class.java) as World<Entity>
+    init {
+        world.isTileMode = true
+    }
+    var collisionListener : ((e1: Item<Entity>,e2: Item<Entity>) -> Unit)? = null
     private val collisionFilter = CollisionFilter { p0, p1 ->
-        Response.bounce
+        collisionListener?.invoke(p0 as Item<Entity>, p1 as Item<Entity>)
+        Response.slide
     }
     init {
         engine.addEntityListener(Family.all(CJBumpAABB::class.java).get(), object : EntityListener {
@@ -35,15 +41,17 @@ class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all
         })
     }
     override fun processEntity(entity: Entity, deltaTime: Float) {
-        val pos = CTransforms[entity].position
-        val size = CTransforms[entity].size
+        /*val pos = CTransforms[entity].position
         val jbump = CJBumpAABB[entity]
         if(jbump.dynamic) {
-            val nW = (size.width - size.width * jbump.scaleSize.x) * 0.5f
-            val nH = (size.height - size.height * jbump.scaleSize.y) * 0.5f
-            val result: Response.Result = world.move(jbump.item, pos.x + nW, pos.y + nH, collisionFilter)
-            pos.set(result.goalX - nW, result.goalY - nH)
-        }
+            val result: Response.Result = world.check(jbump.item, pos.x + jbump.positionOffset.x, pos.y + jbump.positionOffset.y, collisionFilter)
+            result.projectedCollisions.items.forEach {
+                println(CTransforms[it.userData as Entity].position)
+            }
+            result.projectedCollisions.others.forEach {
+                println(CTransforms[it.userData as Entity].position)
+            }
+        }*/
     }
 
 }

@@ -26,8 +26,9 @@ class SDrawDebug @Inject constructor(val camera : OrthographicCamera,val spriteB
     private lateinit var font : BitmapFont
     private lateinit var layout: GlyphLayout
     init {
-        priority = 10
+        priority = Int.MAX_VALUE-1
         font = ttf.create(36, Color.FIREBRICK).get(36)
+        ttf.create(16, Color.FIREBRICK).get(8)
         layout = GlyphLayout(font,"")
         layout.setText(font,"FPS: 00")
 
@@ -59,11 +60,14 @@ class SDrawDebug @Inject constructor(val camera : OrthographicCamera,val spriteB
 
             if (CJBumpAABB[entity] != null) {
                 val ss = CJBumpAABB[entity].scaleSize
-                val nW = (tr.size.width - tr.size.width * ss.x) * 0.5f
-                val nH = (tr.size.height - tr.size.height * ss.y) * 0.5f
-                v1.set(tr.position.x + nW, tr.position.y + nH)
-                v2.set(tr.position.x + tr.size.width - nW, v1.y)
-                v3.set(v2.x, tr.position.y + tr.size.height - nH)
+                val of = CJBumpAABB[entity].positionOffset
+                val nW = (tr.size.width * ss.x)
+                val nH = (tr.size.height * ss.y)
+                val nX = tr.position.x +of.x
+                val nY = tr.position.y+of.y
+                v1.set(nX, nY + nH)
+                v2.set(nX + nW, v1.y)
+                v3.set(v2.x , nY)
                 v4.set(v1.x, v3.y)
 
                 renderer.color = Color.RED
@@ -73,16 +77,19 @@ class SDrawDebug @Inject constructor(val camera : OrthographicCamera,val spriteB
                 renderer.line(v4, v1)
             }
             renderer.end()
-            val x0 = camera.position.x - camera.viewportWidth * 0.5f
-            val y0 = (camera.position.y - camera.viewportHeight * 0.5f) + camera.viewportHeight
+            val x0 = camera.position.x - (camera.viewportWidth * 0.5f)
+            val y0 = camera.position.y - (camera.viewportHeight * 0.5f + camera.viewportHeight)*camera.zoom
             val fps = Gdx.graphics.framesPerSecond
 
-            val g_padding = layout.width + layout.width * 0.3f
+            val g_padding = layout.width + layout.width * 0.5f
             val v_padding = layout.height + layout.height * 0.3f
 
             spriteBatch.projectionMatrix = camera.combined
             spriteBatch.begin()
-            font.draw(spriteBatch, "FPS: ${fps}", x0 + g_padding, y0 - 100)
+            font = ttf.get(36)
+            font.draw(spriteBatch, "FPS: ${fps}", x0+g_padding, camera.position.y)
+            /*font = ttf.get(8)
+            font.draw(spriteBatch,"${CTransforms[entity].position}",v1.x,v1.y)*/
             spriteBatch.end()
         }
     }
