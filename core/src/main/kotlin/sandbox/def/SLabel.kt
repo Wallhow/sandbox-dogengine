@@ -6,7 +6,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.google.inject.Inject
-import dogengine.ashley.components.CTransforms
+import sandbox.dogengine.ashley.components.utility.CTransforms
 
 class SLabel @Inject constructor(val batch:SpriteBatch) : IteratingSystem(Family.all(CTransforms::class.java,CLabel::class.java).get()) {
     init {
@@ -24,7 +24,7 @@ class SLabel @Inject constructor(val batch:SpriteBatch) : IteratingSystem(Family
             println("draw ${label.labelText} ${CTransforms[entity].position.toString()}")
         }
         batch.color= label.fnt?.color
-        label.fnt?.draw(batch,label.labelText,CTransforms[entity].position.x,CTransforms[entity].position.y)
+        label.fnt?.draw(batch,label.labelText, CTransforms[entity].position.x, CTransforms[entity].position.y)
         batch.color= Color.WHITE
     }
 }

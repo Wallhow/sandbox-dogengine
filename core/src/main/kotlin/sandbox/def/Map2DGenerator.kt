@@ -5,7 +5,6 @@ import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.Logger
 import com.github.czyzby.noise4j.map.Grid
 import com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator
 import com.github.czyzby.noise4j.map.generator.util.Generators
@@ -15,13 +14,12 @@ import sandbox.sandbox.def.map2D.*
 import java.util.*
 
 
-class Map2DGenerator() {
+class Map2DGenerator(val tileSize: Int) {
 
     val width = 64
     val height = 64
     val generator: NoiseGenerator = NoiseGenerator()
     val grid = Grid(width, height)
-    val tileSize = 24
     val seed = 148865L
     val pixmap = Pixmap(width, height, Pixmap.Format.RGBA8888)
     val prop = LayerProperties(grid.width, grid.height, tileSize, tileSize, 0)
@@ -31,9 +29,9 @@ class Map2DGenerator() {
     }
 
     fun generate(): Map2D {
-        val terrainOctaves = 1 // простота мира
-        val terrainRidgeOctaves = 4 // детализация
-        val terrainFrequency = 2.0 //
+        val terrainOctaves = 2 // простота мира
+        val terrainRidgeOctaves = 3 // детализация
+        val terrainFrequency = 1.5 //
         val terrainNoiseScale = 0.8
 
         val basis = ModuleBasisFunction()
@@ -115,7 +113,7 @@ class Map2DGenerator() {
         val layer = GridLayer(prop)
 
         for (x in 0 until grid.width) {
-            for (y in 0 until grid.height) {
+            for (y in grid.height-1 downTo 0) {
                 val cell = grid[x, y]
                 layer.setCell(configCell(cell, pixel, x, y), x, y)
             }
@@ -131,8 +129,26 @@ class Map2DGenerator() {
         pixel.fill()
         val tex = Texture(pixel)
         for (x in 0 until grid.width) {
-            for (y in 0 until grid.height) {
+            for (y in 0 until grid.width) {
                 GridLayer.updateBitmask(layer.getCell(x, y))
+                if (layer.getCell(x, y).heightType == 2) {
+                    setTileSand(layer.getCell(x, y))
+                }
+                if (layer.getCell(x, y).heightType == 1) {
+                    setTileWater(layer.getCell(x, y))
+                }
+                if (layer.getCell(x, y).heightType == 3) {
+                    layer.getCell(x, y).userData = 27
+                }
+                if (layer.getCell(x, y).heightType == 4) {
+                    layer.getCell(x, y).userData = 21
+                }
+                if (layer.getCell(x, y).heightType == 5) {
+                    layer.getCell(x, y).userData = 150
+                }
+                if (layer.getCell(x, y).heightType == 6) {
+                    layer.getCell(x, y).userData = 149
+                }
                 if (layer.getCell(x, y).bitmask != 15) {
                     //layer.getCell(x, y).userData = tex
                 }
@@ -150,21 +166,148 @@ class Map2DGenerator() {
         return map2D
     }
 
+    private fun setTileSand(cell: Cell) {
+        when (cell.bitmask) {
+            15 -> {
+                when (MathUtils.random(1, 4)) {
+                    1 -> {
+                        cell.userData = 15
+                    }
+                    2 -> {
+                        cell.userData = 38
+                    }
+                    3 -> {
+                        cell.userData = 30
+                    }
+                    4 -> {
+                        cell.userData = 37
+                    }
+                }
+            }
+            6-> {
+                if(cell.leftNeighbors.heightType==HeightTypes.GRASS.heightType &&
+                        cell.topNeighbors.heightType==HeightTypes.GRASS.heightType)
+                cell.userData = 6
+            }
+            14 -> {
+                if(cell.topNeighbors.heightType==HeightTypes.GRASS.heightType)
+                    cell.userData = 7
+            }
+            else -> {
+                cell.userData = 15
+            }
+
+        }
+    }
+
+    private fun setTileWater(cell: Cell) {
+        when (cell.bitmask) {
+            15 -> {
+                when (MathUtils.random(1, 5)) {
+                    1 -> {
+                        cell.userData = 50
+                    }
+                    2 -> {
+                        cell.userData = 74
+                    }
+                    3 -> {
+                        cell.userData = 76
+                    }
+                    4 -> {
+                        cell.userData = 77
+                    }
+                    5 -> {
+                        cell.userData = 78
+                    }
+                }
+            }
+            else-> {cell.userData = 78}
+        }
+    }
+
+    private fun ifBitMask(str: String): Int {
+        if (str ==
+                "000" +
+                "0#0" +
+                "000") return 0
+        else if (str ==
+                "0#0" +
+                "0#0" +
+                "000") return 1
+        else if (str ==
+                "000" +
+                "0##" +
+                "000") return 2
+        else if (str ==
+                "0#0" +
+                "0##" +
+                "000") return 3
+        else if (str ==
+                "000" +
+                "0#0" +
+                "0#0") return 4
+        else if (str ==
+                "0#0" +
+                "0#0" +
+                "0#0") return 5
+        else if (str ==
+                "000" +
+                "0##" +
+                "0#0") return 6
+        else if (str ==
+                "0#0" +
+                "0##" +
+                "0#0") return 7
+        else if (str ==
+                "000" +
+                "##0" +
+                "000") return 8
+        else if (str ==
+                "0#0" +
+                "##0" +
+                "000") return 9
+        else if (str ==
+                "000" +
+                "###" +
+                "000") return 10
+        else if (str ==
+                "0#0" +
+                "###" +
+                "000") return 11
+        else if (str ==
+                "000" +
+                "##0" +
+                "0#0") return 12
+        else if (str ==
+                "0#0" +
+                "##0" +
+                "0#0") return 13
+        else if (str ==
+                "000" +
+                "###" +
+                "0#0") return 14
+        else return 15
+    }
+
     private fun findAndAddNeighbors(cell: Cell, layer: GridLayer) {
         cell.topNeighbors = getTopCell(cell, layer)
         cell.bottomNeighbors = getBottomCell(cell, layer)
         cell.leftNeighbors = getLeftCell(cell, layer)
         cell.rightNeighbors = getRightCell(cell, layer)
     }
-
+    private val defCell = Cell.DefCell2D()
     private fun GridLayer.getCell(cell: Cell, dx: Int, dy: Int): Cell {
         val nx = 0.coerceAtLeast((width - 1).coerceAtMost(cell.x + dx))
         val ny = 0.coerceAtLeast((height - 1).coerceAtMost(cell.y + dy))
-        return getCell(nx, ny)
+        return if(getCell(nx, ny)!=cell) {
+            getCell(nx, ny)
+        } else {
+            defCell
+        }
     }
 
-    private fun getTopCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 0, -1)
-    private fun getBottomCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 0, 1)
+    private fun getTopCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 0, 1)
+    private fun getBottomCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 0, -1)
     private fun getLeftCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, -1, 0)
     private fun getRightCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 1, 0)
 
@@ -173,33 +316,33 @@ class Map2DGenerator() {
         val cell2d = Cell2D(x, y, 0)
         val color = Color.WHITE.cpy().apply {
             when {
-                cell <= 0.3f -> {
-                    Objects.WATER.getColor(this)
-                    cell2d.heightType = 1
+                cell <= HeightTypes.WATER.depth -> {
+                    HeightTypes.WATER.getColor(this)
+                    cell2d.heightType = HeightTypes.WATER.heightType
                 }
-                cell > 0.3f && cell <= 0.4f -> {
-                    Objects.SAND.getColor(this)
-                    cell2d.heightType = 2
+                cell > HeightTypes.WATER.depth && cell <= HeightTypes.SAND.depth -> {
+                    HeightTypes.SAND.getColor(this)
+                    cell2d.heightType = HeightTypes.SAND.heightType
                     cell2d.collidable = true
                 }
-                cell > 0.4f && cell <= 0.45f -> {
-                    Objects.GROUND.getColor(this)
-                    cell2d.heightType = 3
+                cell > HeightTypes.SAND.depth && cell <= HeightTypes.GROUND.depth -> {
+                    HeightTypes.GROUND.getColor(this)
+                    cell2d.heightType = HeightTypes.GROUND.heightType
                     cell2d.collidable = true
                 }
-                cell > 0.45f && cell <= 0.6f -> {
-                    Objects.GRASS.getColor(this)
-                    cell2d.heightType = 4
+                cell > HeightTypes.GROUND.depth && cell <= HeightTypes.GRASS.depth -> {
+                    HeightTypes.GRASS.getColor(this)
+                    cell2d.heightType = HeightTypes.GRASS.heightType
                     cell2d.collidable = true
                 }
-                cell > 0.6f && cell <= 0.80f -> {
-                    Objects.ROCK.getColor(this)
-                    cell2d.heightType = 5
+                cell > HeightTypes.GRASS.depth && cell <= HeightTypes.ROCK.depth -> {
+                    HeightTypes.ROCK.getColor(this)
+                    cell2d.heightType = HeightTypes.ROCK.heightType
                     cell2d.collidable = true
                 }
-                cell > 0.80f && cell <= 1f -> {
-                    Objects.SNOW.getColor(this)
-                    cell2d.heightType = 6
+                cell > HeightTypes.ROCK.depth && cell <= HeightTypes.SNOW.depth -> {
+                    HeightTypes.SNOW.getColor(this)
+                    cell2d.heightType = HeightTypes.SNOW.heightType
                     cell2d.collidable = true
                 }
                 else -> set(cell, cell, cell, 1f)
@@ -208,7 +351,7 @@ class Map2DGenerator() {
         color.set(color.r, color.g, color.b, 1f)
         pixel.setColor(color)
         pixel.fill()
-        cell2d.userData = Texture(pixel)
+        //cell2d.userData = Texture(pixel)
         pixmap.setColor(color)
         pixmap.drawPixel(x, y)
         return cell2d
@@ -224,13 +367,14 @@ class Map2DGenerator() {
         noiseGenerator.generate(grid)
     }
 
-    enum class Objects(val r: Float, val g: Float, val b: Float) {
-        WATER(Color.SKY.r, Color.SKY.g, Color.SKY.b),
-        SAND(Color.YELLOW.r, Color.YELLOW.g, Color.YELLOW.b),
-        GROUND(Color.BROWN.r, Color.BROWN.g, Color.BROWN.b),
-        GRASS(Color.GREEN.r, Color.GREEN.g - 0.2f, Color.GREEN.b),
-        ROCK(Color.GRAY.r, Color.GRAY.g, Color.GRAY.b),
-        SNOW(Color.LIGHT_GRAY.r + 0.1f, Color.LIGHT_GRAY.g + 0.1f, Color.LIGHT_GRAY.b + 0.2f);
+    enum class HeightTypes(val r: Float, val g: Float, val b: Float,
+                           val depth: Float, val heightType: Int) {
+        WATER(Color.SKY.r, Color.SKY.g, Color.SKY.b,0.3f,1),
+        SAND(Color.YELLOW.r, Color.YELLOW.g, Color.YELLOW.b,0.45f,2),
+        GROUND(Color.BROWN.r, Color.BROWN.g, Color.BROWN.b,0f,3),
+        GRASS(Color.GREEN.r, Color.GREEN.g - 0.2f, Color.GREEN.b,0.6f,4),
+        ROCK(Color.GRAY.r, Color.GRAY.g, Color.GRAY.b,0.85f,5),
+        SNOW(Color.LIGHT_GRAY.r + 0.1f, Color.LIGHT_GRAY.g + 0.1f, Color.LIGHT_GRAY.b + 0.2f,1f,6);
 
         fun getColor(color: Color) {
             color.set(r, g, b, 1f)
@@ -242,9 +386,11 @@ class Map2DGenerator() {
         WATER,
         LAND
     }
+
     class CellGroup(val type: CellGroupType) {
         val cells = Array<Cell>()
     }
+
     private val landCellGroups = Array<CellGroup>()
     private val waterCellGroups = Array<CellGroup>()
     private fun fillGroup(layer: GridLayer, groupType: CellGroupType): Layer {

@@ -8,7 +8,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.dongbat.jbump.*
 import com.google.inject.Inject
 import dogengine.Kernel
-import dogengine.ashley.components.CTransforms
+import sandbox.dogengine.ashley.components.utility.CTransforms
 
 
 class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all(CJBumpAABB::class.java, CTransforms::class.java).get()) {

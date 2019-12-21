@@ -21,8 +21,8 @@ class GridLayer(properties: LayerProperties) : Layer {
     override var index: Int = properties.index
 
     //TODO доработать чанки
-    val chunkWidth : Int = 32
-    val chunkHeight : Int = 32
+    val chunkWidth : Int = 8
+    val chunkHeight : Int = 8
     val chunkCols = width/chunkWidth
     val chunkRows = height / chunkHeight
     val chunks: Array<Chunk?> = arrayOfNulls(chunkCols * chunkRows)

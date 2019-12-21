@@ -3,7 +3,7 @@ package sandbox.sandbox.def.map2D
 class Cell2D(override var x: Int,
            override var y: Int,override var heightType: Int) : Cell {
     private val defCell = Cell.DefCell2D()
-    override var bitmask: Int = 0
+    override var bitmask: Int = -1
     //соседи
     override var topNeighbors : Cell = defCell
     override var bottomNeighbors : Cell = defCell

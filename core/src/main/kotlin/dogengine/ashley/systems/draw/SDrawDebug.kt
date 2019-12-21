@@ -1,6 +1,5 @@
 package dogengine.ashley.systems.draw
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
@@ -11,11 +10,10 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.google.inject.Inject
-import dogengine.ashley.components.CTransforms
+import sandbox.dogengine.ashley.components.utility.CTransforms
 import dogengine.utils.TTFFont
 import sandbox.def.CJBumpAABB
 

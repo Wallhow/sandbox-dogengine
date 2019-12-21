@@ -8,9 +8,8 @@ import com.dongbat.jbump.World
 import dogengine.DogeEngineGame
 import dogengine.Kernel
 import sandbox.dogengine.ashley.systems.utility.SDeleteMe
-import dogengine.ashley.systems.STiledMapOrtho
 import dogengine.ashley.systems.draw.SDrawDebug
-import dogengine.ashley.systems.update.SUpdateAfterTime
+import dogengine.ashley.systems.update.SUpdate
 import sandbox.def.SJBumpAABB
 import sandbox.def.SLabel
 import sandbox.dogengine.ashley.systems.utility.SDeleteComponent
@@ -32,7 +31,7 @@ class MainSandbox : DogeEngineGame() {
             use(Kernel.DefSystems.Controller)
             use(Kernel.DefSystems.CameraLook)
 
-            add(SUpdateAfterTime::class.java)
+            add(SUpdate::class.java)
             add(SMap2DRenderer::class.java)
             add(SJBumpAABB::class.java)
             add(SDrawDebug::class.java)
