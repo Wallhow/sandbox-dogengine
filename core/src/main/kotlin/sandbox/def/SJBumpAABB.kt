@@ -5,16 +5,19 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.dongbat.jbump.*
+import com.dongbat.jbump.CollisionFilter
+import com.dongbat.jbump.Item
+import com.dongbat.jbump.Response
+import com.dongbat.jbump.World
 import com.google.inject.Inject
 import dogengine.Kernel
-import sandbox.dogengine.ashley.components.utility.CTransforms
+import sandbox.dogengine.ecs.components.utility.logic.CTransforms
 
 
 class SJBumpAABB @Inject constructor(engine: Engine): IteratingSystem(Family.all(CJBumpAABB::class.java, CTransforms::class.java).get()) {
     val world = Kernel.getInjector().getInstance(World::class.java) as World<Entity>
     init {
-        world.isTileMode = true
+        world.isTileMode = false
     }
     var collisionListener : ((e1: Item<Entity>,e2: Item<Entity>) -> Unit)? = null
     private val collisionFilter = CollisionFilter { p0, p1 ->

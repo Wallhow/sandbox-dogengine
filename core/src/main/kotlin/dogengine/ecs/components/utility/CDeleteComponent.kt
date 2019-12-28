@@ -1,8 +1,8 @@
-package sandbox.dogengine.ashley.components.utility
+package dogengine.ecs.components.utility
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.Pool
-import dogengine.def.ComponentResolver
+import dogengine.ecs.def.ComponentResolver
 
 class CDeleteComponent : Component, Pool.Poolable {
     companion object : ComponentResolver<CDeleteComponent>(CDeleteComponent::class.java)

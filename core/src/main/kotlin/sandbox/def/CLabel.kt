@@ -2,7 +2,7 @@ package sandbox.def
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.g2d.BitmapFont
-import dogengine.def.ComponentResolver
+import dogengine.ecs.def.ComponentResolver
 
 class CLabel : Component {
     companion object : ComponentResolver<CLabel>(CLabel::class.java)

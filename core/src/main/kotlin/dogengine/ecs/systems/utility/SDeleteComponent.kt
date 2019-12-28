@@ -1,9 +1,9 @@
-package sandbox.dogengine.ashley.systems.utility
+package dogengine.ecs.systems.utility
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import sandbox.dogengine.ashley.components.utility.CDeleteComponent
+import dogengine.ecs.components.utility.CDeleteComponent
 
 class SDeleteComponent : IteratingSystem(Family.all(CDeleteComponent::class.java).get()) {
     init {

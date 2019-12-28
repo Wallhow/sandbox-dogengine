@@ -2,7 +2,7 @@ package sandbox.dogengine.ashley.components.utility
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.Pool
-import dogengine.def.ComponentResolver
+import dogengine.ecs.def.ComponentResolver
 
 class CName : Component, Pool.Poolable {
     var name: String? = null

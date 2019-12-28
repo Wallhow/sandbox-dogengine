@@ -1,7 +1,8 @@
 package sandbox
 
 import com.anupcowkur.statelin.TriggerHandler
-import com.badlogic.ashley.core.*
+import com.badlogic.ashley.core.Engine
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.*
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -12,22 +13,24 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.google.inject.Injector
-import dogengine.ashley.components.draw.*
-import dogengine.ashley.systems.controllers.CPlayerController
-import dogengine.ashley.systems.controllers.ControllerListener
-import dogengine.ashley.systems.draw.SDrawDebug
-import dogengine.def.GameEntity
+import dogengine.ecs.components.draw.*
+import dogengine.ecs.def.GameEntity
+import dogengine.ecs.systems.controllers.CPlayerController
+import dogengine.ecs.systems.controllers.ControllerListener
+import dogengine.ecs.systems.draw.SDrawDebug
 import dogengine.utils.Size
+import dogengine.utils.system
 import dogengine.utils.vec2
-import ktx.ashley.add
-import sandbox.def.*
+import sandbox.def.CJBumpAABB
 import sandbox.dogengine.ashley.components.components
-import sandbox.dogengine.ashley.components.utility.*
-import sandbox.sandbox.def.Map2DGenerator
-import sandbox.sandbox.def.map2D.CMap2D
-import sandbox.sandbox.def.map2D.SMap2DRenderer
 import sandbox.dogengine.ashley.components.create
 import sandbox.dogengine.ashley.components.createEntity
+import sandbox.dogengine.ashley.components.utility.*
+import sandbox.dogengine.ecs.components.utility.logic.CTransforms
+import sandbox.dogengine.ecs.components.utility.logic.updateZIndex
+import sandbox.sandbox.def.Map2DGenerator
+import sandbox.sandbox.def.map2D.CMap2D
+import sandbox.sandbox.def.map2D.SMap2D
 
 class MainScreen(val injector: Injector) : ScreenAdapter() {
     val camera: OrthographicCamera = injector.getInstance(OrthographicCamera::class.java)
@@ -37,14 +40,6 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
     private val tilesSize = 36f
     //val mapEntity = MapEntity(tilesSize.toInt())
 
-    inline fun <reified T : EntitySystem> system(apply: T.() -> Unit) : Boolean {
-        val sys = engine.getSystem(T::class.java)
-        return if (sys != null) {
-            apply.invoke(sys)
-            true
-        }
-        else false
-    }
 
     override fun render(delta: Float) {
         engine.update(delta)
@@ -58,61 +53,33 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
         engine.addEntity(createMapEntity(tilesSize.toInt()))
 
         camera.zoom = 0.8f
-        player = Pety1(am,Vector2(100f,100f))
-        engine.addEntity(player.entity)
-        engine.addEntity(PetyBot(am, vec2(400f,1400f)))
+        player = Pety1(am, Vector2(100f, 100f))
+        engine.addEntity(player)
+        engine.addEntity(PetyBot(am, vec2(400f, 1400f)))
 
 
-        system<SMap2DRenderer> {
-            tileSize.set(tilesSize,tilesSize)
-        }
-
-        system<SJBumpAABB> {
-            collisionListener = {e1,e2 ->
-                var obj: Entity? = null
-                if(CTiledObject[e1.userData]!=null) {
-                    if(CTiledObject[e1.userData].properties[CTiledObject.Properties.Alert]!= null) {
-                        obj = e1.userData
-                    }
-                }
-                if(CTiledObject[e2.userData]!=null) {
-                    if(CTiledObject[e2.userData].properties[CTiledObject.Properties.Alert]!= null) {
-                        obj = e2.userData
-                    }
-                }
-
-                if(obj!=null) {
-                    engine.createEntity {
-                        components {
-                            create<CTransforms> {
-                                position = CTransforms[obj!!].position.cpy()
-                            }
-                        }
-
-
-                    }
-                }
-            }
+        system<SMap2D> {
+            tileSize.set(tilesSize, tilesSize)
         }
 
         val inputAdapter = object : InputAdapter() {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-                val pos = camera.unproject(Vector3(screenX.toFloat(),screenY.toFloat(),0f))
-                CTransforms[player].position.set(pos.x,pos.y)
+                val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
+                CTransforms[player].position.set(pos.x, pos.y)
                 return true
             }
 
             var idxLayer = 0
             override fun keyDown(keycode: Int): Boolean {
-                if(keycode == Input.Keys.SPACE) {
+                if (keycode == Input.Keys.SPACE) {
                     //engine.getSystem(SDrawable::class.java).drawToFBO = !engine.getSystem(SDrawable::class.java).drawToFBO
                     /*if(CMap2D[mapEntity].map2D!=null) {
                         idxLayer = if(idxLayer==0) 1 else 0
                         CMap2D[mapEntity].currentLayer=idxLayer
                     }*/
                 }
-                if(keycode == Input.Keys.Z) {
-                    engine.getSystem(SDrawDebug::class.java).visible = !engine.getSystem(SDrawDebug::class.java).visible
+                if (keycode == Input.Keys.Z) {
+                    system<SDrawDebug> { this.visible =!visible }
                 }
                 return super.keyDown(keycode)
             }
@@ -130,11 +97,11 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
                 val scale = 4
                 create<CTextureRegion> {
                     texture = TextureRegion(t)
-                    texture?.flip(true,false)
+                    texture?.flip(true, false)
                 }
                 create<CTransforms> {
-                    position = vec2(-t.width.toFloat()*scale,0f)
-                    size = Size(t.width.toFloat()*scale,t.height.toFloat()*scale)
+                    position = vec2(-t.width.toFloat() * scale, 0f)
+                    size = Size(t.width.toFloat() * scale, t.height.toFloat() * scale)
                     rotation = 180f
                 }
                 create<CMap2D> {
@@ -147,89 +114,58 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
 
 }
 
-class MapEntity(tilesSize: Int) : GameEntity() {
+class Pety1(val am: AssetManager, pos: Vector2) : GameEntity(), ControllerListener {
 
-    init {
-        name = "map"
-        //add(CTiledMapOrtho(R.map20))
-        /*add(CTiledMapOrtho(null).apply {
-            tiledMap = TileMapGenerator().getTileMap()
-        })*/
-        val gen = Map2DGenerator(tilesSize)
-        val map2d = gen.generate()
-        val t = Texture(gen.pixmap)
-        val scale = 4
-        create<CTextureRegion> {
-            texture = TextureRegion(t)
-            texture?.flip(true,false)
-        }
-        create<CTransforms> {
-            position.set(vec2(-t.width.toFloat()*scale,0f))
-            size = Size(t.width.toFloat()*scale,t.height.toFloat()*scale)
-            rotation = 180f
-        }
-        create<CMap2D> {
-            map2D = map2d
-        }
-
-    }
-
-}
-
-class Pety1(val am: AssetManager,pos: Vector2) : GameEntity(), ControllerListener {
-    val entity: Entity
     init {
         name = "player"
 
-        entity = engine.createEntity {
-            components {
-                create<CTransforms> {
-                    position.set(pos)
-                    size = Size(64f, 48f)
-                }
-                create<CAtlasRegion> {
-                    atlas = am.get("assets/atlas/matlas.atlas", TextureAtlas::class.java)
-                    nameRegion = "knight"
-                    drawLayer =CDrawable.DrawLayer.YES_EFFECT
-                }
-                create<CAtlasRegionAnimation> {
-                    createSequence(T.W_NON.ordinal, 0.4f) { isRepeat = true; putFrames(intArrayOf(1, 5)) }
-                    createSequence(T.W_DOWN.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(1, 2, 3, 4, 5)) }
-                    createSequence(T.W_UP.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(6, 7, 8, 9, 10)) }
-                    createSequence(T.W_LEFT.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(11, 12, 13, 14)) }
-                    createSequence(T.W_RIGHT.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(16, 17, 18, 19, 20)) }
-                    currentSequence(T.W_NON.ordinal)
-                }
-                create<CName> {
-                    name = "player"
-                }
 
-                create<CCameraLook> {}
-                create<CPlayerController> { controllerListener = this@Pety1 }
-                create<CVelocity> {
-                    vector.set(0f,0f)
-                }
-                create<CJBumpAABB> {
-                    scaleSize.x = 0.2f
-                    scaleSize.y = 0.2f
-                    dynamic= true
-                    positionOffset.x=32-5f
-                    positionOffset.y = 10f
-                }
-                create<CUpdate> {
-                    CTransforms[this@components].updateZIndex()
-                }
-            }
+        create<CTransforms> {
+            position.set(pos)
+            size = Size(64f, 48f)
         }
-        entity.create<CStateMachine> { createState(this) }
-        println(entity)
+        create<CAtlasRegion> {
+            atlas = am.get(R.matlas0, TextureAtlas::class.java)
+            nameRegion = "knight"
+            drawLayer = CDrawable.DrawLayer.YES_EFFECT
+        }
+        create<CAtlasRegionAnimation> {
+            createSequence(T.W_NON.ordinal, 0.4f) { isRepeat = true; putFrames(intArrayOf(1, 5)) }
+            createSequence(T.W_DOWN.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(1, 2, 3, 4, 5)) }
+            createSequence(T.W_UP.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(6, 7, 8, 9, 10)) }
+            createSequence(T.W_LEFT.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(11, 12, 13, 14)) }
+            createSequence(T.W_RIGHT.ordinal, 0.15f) { isRepeat = true; putFrames(intArrayOf(16, 17, 18, 19, 20)) }
+            currentSequence(T.W_NON.ordinal)
+        }
+        create<CName> {
+            name = "player"
+        }
+
+        create<CCameraLook> {}
+        create<CPlayerController> { controllerListener = this@Pety1 }
+        create<CVelocity> {
+            vector.set(0f, 0f)
+        }
+        create<CJBumpAABB> {
+            scaleSize.x = 0.2f
+            scaleSize.y = 0.2f
+            dynamic = true
+            positionOffset.x = 32 - 5f
+            positionOffset.y = 10f
+        }
+        create<CUpdate> {
+            CTransforms[this@Pety1].updateZIndex()
+        }
+
+        create<CStateMachine> { createState(this) }
 
         //randomGenerate(128)
+
     }
 
     private fun randomGenerate(num: Int) {
         for (i in 0..num) {
-            val pos = Vector2(MathUtils.random(0,300)*1f,MathUtils.random(0,400)*1f)
+            val pos = Vector2(MathUtils.random(0, 300) * 1f, MathUtils.random(0, 400) * 1f)
             engine.addEntity(engine.createEntity {
                 components {
                     create<CTransforms> {
@@ -239,7 +175,7 @@ class Pety1(val am: AssetManager,pos: Vector2) : GameEntity(), ControllerListene
                     create<CAtlasRegion> {
                         atlas = am.get("assets/atlas/matlas.atlas", TextureAtlas::class.java)
                         nameRegion = "knight"
-                        drawLayer =CDrawable.DrawLayer.YES_EFFECT
+                        drawLayer = CDrawable.DrawLayer.YES_EFFECT
                     }
                     create<CAtlasRegionAnimation> {
                         createSequence(T.W_NON.ordinal, 0.4f) { isRepeat = true; putFrames(intArrayOf(1, 5)) }
@@ -255,8 +191,8 @@ class Pety1(val am: AssetManager,pos: Vector2) : GameEntity(), ControllerListene
                     create<CJBumpAABB> {
                         scaleSize.x = 0.2f
                         scaleSize.y = 0.2f
-                        dynamic= true
-                        positionOffset.x=32-5f
+                        dynamic = true
+                        positionOffset.x = 32 - 5f
                         positionOffset.y = 10f
                     }
                 }
@@ -268,19 +204,19 @@ class Pety1(val am: AssetManager,pos: Vector2) : GameEntity(), ControllerListene
     private fun createState(component: CStateMachine) {
         component.apply {
             val sWalkRight = createState(T.W_RIGHT.name) {
-                CAtlasRegionAnimation[entity].currentSequence(T.W_RIGHT.ordinal)
+                CAtlasRegionAnimation[this@Pety1].currentSequence(T.W_RIGHT.ordinal)
             }
             val sWalkLeft = createState(T.W_LEFT.name) {
-                CAtlasRegionAnimation[entity].currentSequence(T.W_LEFT.ordinal)
+                CAtlasRegionAnimation[this@Pety1].currentSequence(T.W_LEFT.ordinal)
             }
             val sWalkUp = createState(T.W_UP.name) {
-                CAtlasRegionAnimation[entity].currentSequence(T.W_UP.ordinal)
+                CAtlasRegionAnimation[this@Pety1].currentSequence(T.W_UP.ordinal)
             }
             val sWalkDown = createState(T.W_DOWN.name) {
-                CAtlasRegionAnimation[entity].currentSequence(T.W_DOWN.ordinal)
+                CAtlasRegionAnimation[this@Pety1].currentSequence(T.W_DOWN.ordinal)
             }
             val sWalkNon = createState(T.W_NON.name) {
-                CAtlasRegionAnimation[entity].currentSequence(T.W_NON.ordinal)
+                CAtlasRegionAnimation[this@Pety1].currentSequence(T.W_NON.ordinal)
             }
             initMachine(sWalkNon)
             addTriggerHandler(TriggerHandler(sWalkNon, addTrigger(T.W_RIGHT.name.hashCode())) { setState(T.W_RIGHT.name) })
@@ -318,25 +254,26 @@ class Pety1(val am: AssetManager,pos: Vector2) : GameEntity(), ControllerListene
         W_DOWN(4),
         W_NON(0)
     }
+
     private val speed = 200f
     override fun up() {
-        CStateMachine[entity].setTrigger(T.W_UP.name.hashCode())
-        CVelocity[entity].vector.y = speed
+        CStateMachine[this@Pety1].setTrigger(T.W_UP.name.hashCode())
+        CVelocity[this@Pety1].vector.y = speed
     }
 
     override fun down() {
-        CStateMachine[entity].setTrigger(T.W_DOWN.name.hashCode())
-        CVelocity[entity].vector.y = -speed
+        CStateMachine[this@Pety1].setTrigger(T.W_DOWN.name.hashCode())
+        CVelocity[this@Pety1].vector.y = -speed
     }
 
     override fun left() {
-        CStateMachine[entity].setTrigger(T.W_LEFT.name.hashCode())
-        CVelocity[entity].vector.x = -speed
+        CStateMachine[this@Pety1].setTrigger(T.W_LEFT.name.hashCode())
+        CVelocity[this@Pety1].vector.x = -speed
     }
 
     override fun right() {
-        CStateMachine[entity].setTrigger(T.W_RIGHT.name.hashCode())
-        CVelocity[entity].vector.x = speed
+        CStateMachine[this@Pety1].setTrigger(T.W_RIGHT.name.hashCode())
+        CVelocity[this@Pety1].vector.x = speed
     }
 
     override fun a() {
@@ -349,12 +286,12 @@ class Pety1(val am: AssetManager,pos: Vector2) : GameEntity(), ControllerListene
     }
 
     override fun none(keyCode: Int) {
-        CStateMachine[entity].setTrigger(T.W_NON.name.hashCode())
-        CVelocity[entity].vector.setZero()
+        CStateMachine[this@Pety1].setTrigger(T.W_NON.name.hashCode())
+        CVelocity[this@Pety1].vector.setZero()
     }
 }
 
-class PetyBot(val am: AssetManager,pos: Vector2) : GameEntity() {
+class PetyBot(val am: AssetManager, pos: Vector2) : GameEntity() {
 
     init {
         name = "player_bot"
@@ -381,12 +318,12 @@ class PetyBot(val am: AssetManager,pos: Vector2) : GameEntity() {
             name = "player_bot"
         }
         create<CJBumpAABB> {
-            scaleSize.x = 0.2f ; scaleSize.y = 0.2f ; dynamic= true ; positionOffset.x=32-5f;positionOffset.y = 10f
+            scaleSize.x = 0.2f; scaleSize.y = 0.2f; dynamic = true; positionOffset.x = 32 - 5f;positionOffset.y = 10f
         }
 
         create<CTransforms> {
             position.set(pos)
-            size = Size(64f*2, 48f*2)
+            size = Size(64f * 2, 48f * 2)
         }
         create<CStateMachine> { createState(this) }
     }

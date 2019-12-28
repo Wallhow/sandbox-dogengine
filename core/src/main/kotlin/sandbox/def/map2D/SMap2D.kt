@@ -4,33 +4,34 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.graphics.*
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
 import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.dongbat.jbump.Item
 import com.google.inject.Inject
-import sandbox.dogengine.ashley.components.utility.CTransforms
-import dogengine.ashley.components.draw.CDrawable
-import dogengine.def.ComponentResolver
+import dogengine.ecs.components.draw.CTextureRegion
+import dogengine.ecs.components.utility.CDeleteMe
+import dogengine.ecs.def.ComponentResolver
 import dogengine.utils.Size
+import dogengine.utils.isElse
+import dogengine.utils.isTrue
+import dogengine.utils.viewBoundsRect
 import sandbox.R
 import sandbox.def.CJBumpAABB
 import sandbox.dogengine.ashley.components.components
 import sandbox.dogengine.ashley.components.create
 import sandbox.dogengine.ashley.components.createEntity
+import sandbox.dogengine.ecs.components.utility.logic.CTransforms
+import sandbox.dogengine.ecs.components.utility.logic.updateZIndex
+import sandbox.sandbox.def.CVisibleEntityListener
 
-class SMap2DRenderer @Inject constructor(private val viewport: Viewport, private val camera: OrthographicCamera) : IteratingSystem(Family.all(CMap2D::class.java).get()) {
-    private val rectViewBounds: Rectangle = Rectangle()
+class SMap2D @Inject constructor(private val viewport: Viewport, private val camera: OrthographicCamera) : IteratingSystem(Family.all(CMap2D::class.java).get()) {
     private var firstRun = true
-    private var entityBuffer: Array<Entity> = Array()
     val tileSize = Size()
     val tilemap: ArrayMap<Int, TextureAtlas.AtlasRegion> = ArrayMap()
-
     init {
         priority = 2
         for (i in 1..280) {
@@ -40,53 +41,44 @@ class SMap2DRenderer @Inject constructor(private val viewport: Viewport, private
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         if (CMap2D[entity].map2D != null) {
+            val scaleViewBounds = camera.viewBoundsRect
             val map = CMap2D[entity].map2D!!
             if (firstRun) {
-                firstRun = false
-                updateViewport(map)
+                firstRun = false; updateViewport(map)
             }
-            updateRectViewBounds(camera)
-            if (CMap2D[entity].currentLayer == -1) {
-                val cells = map.getLayer(0).getCellsInViewBounds(rectViewBounds)
-                cells.forEach {
-                    createDrawableEntity(it)
-
-                }
-            } else {
-                map.getLayer(CMap2D[entity].currentLayer).getCellsInViewBounds(rectViewBounds).forEach {
-                    createDrawableEntity(it)
-                }
+            var indexLayer: Int = 0
+            (CMap2D[entity].currentLayer == -1).isTrue { indexLayer = 0 }.isElse { indexLayer = CMap2D[entity].currentLayer}
+            map.getLayer(indexLayer).getCellsInViewBounds(scaleViewBounds).forEach {
+                initCreate(it)
             }
-
         }
     }
 
-    var countDrawableObj = 0
-    override fun update(deltaTime: Float) {
-        countDrawableObj = 0
-        super.update(deltaTime)
-        //println(countDrawableObj)
+    private fun initCreate(it: Cell) {
+        if (!it.isInEngine) {
+            val e = createDrawableEntity(it) ?: return
+            engine.addEntity(e)
+            it.isInEngine = true
+        }
     }
 
     fun reset() {
         firstRun = true
-        rectViewBounds.set(0f, 0f, 0f, 0f)
     }
 
-    private fun createDrawableEntity(it: Cell) {
-        countDrawableObj++
-        if ((it.userData is String)) return
+    private fun createDrawableEntity(it: Cell): Entity? {
+        if ((it.userData is String)) return null
         val s = Size(tileSize.width, tileSize.height)
         val pos = Vector2(it.x * s.width, it.y * s.height)
-        val e = engine.createEntity {
+        return engine.createEntity {
             components {
                 create<CTransforms> {
                     position = pos
                     size = s
+                    updateZIndex()
                 }
-                create<CDrawable> {
+                create<CTextureRegion> {
                     texture = tilemap.get(it.userData as Int)
-                    isDeleteAfterDraw = true
                 }
 
                 if (!it.collidable) {
@@ -95,15 +87,18 @@ class SMap2DRenderer @Inject constructor(private val viewport: Viewport, private
                     }
 
                 }
+                create<CCell> { cell = it }
+                create<CVisibleEntityListener> {
+                    hide = { e ->
+                        CCell[e].cell?.isInEngine = false
+                        create<CDeleteMe> {  }
+                    }
+                    visible = { e ->
+                        CCell[e].cell?.isInEngine = true
+                    }
+                }
             }
         }
-        engine.addEntity(e)
-    }
-
-    private fun updateRectViewBounds(camera: Camera) {
-        rectViewBounds.set(camera.position.x - camera.viewportWidth * 0.5f,
-                camera.position.y - camera.viewportHeight * 0.5f,
-                camera.viewportWidth, camera.viewportHeight)
     }
 
     private fun updateViewport(map: Map2D) {

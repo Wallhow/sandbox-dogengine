@@ -1,4 +1,4 @@
-package dogengine.ashley.systems.draw
+package dogengine.ecs.systems.draw
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
@@ -13,11 +13,12 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.math.Vector2
 import com.google.inject.Inject
-import sandbox.dogengine.ashley.components.utility.CTransforms
 import dogengine.utils.TTFFont
 import sandbox.def.CJBumpAABB
+import sandbox.dogengine.ecs.components.utility.logic.CTransforms
+import sandbox.dogengine.ecs.components.utility.visible.CHide
 
-class SDrawDebug @Inject constructor(val camera : OrthographicCamera,val spriteBatch: SpriteBatch) : IteratingSystem(Family.all(CTransforms::class.java).get()) {
+class SDrawDebug @Inject constructor(val camera : OrthographicCamera,val spriteBatch: SpriteBatch) : IteratingSystem(Family.all(CTransforms::class.java).exclude(CHide::class.java).get()) {
     var visible: Boolean = false
     private val renderer: ShapeRenderer = ShapeRenderer()
     private val ttf : TTFFont = TTFFont()
@@ -39,9 +40,9 @@ class SDrawDebug @Inject constructor(val camera : OrthographicCamera,val spriteB
         if (visible) {
             val tr = CTransforms[entity]
 
-            Gdx.gl.glEnable(GL20.GL_BLEND);
-            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
-            Gdx.gl.glDisable(GL20.GL_BLEND);
+            Gdx.gl.glEnable(GL20.GL_BLEND)
+            Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA)
+            Gdx.gl.glDisable(GL20.GL_BLEND)
 
             renderer.projectionMatrix = camera.combined
             renderer.begin(ShapeRenderer.ShapeType.Line)

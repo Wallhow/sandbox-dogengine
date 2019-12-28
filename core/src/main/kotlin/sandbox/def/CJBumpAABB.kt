@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
 import com.dongbat.jbump.Item
-import dogengine.def.ComponentResolver
+import dogengine.ecs.def.ComponentResolver
 
 class CJBumpAABB : Component, Pool.Poolable {
     var item: Item<Entity>? = null

@@ -7,7 +7,7 @@ import com.anupcowkur.statelin.TriggerHandler
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.ArrayMap
 import com.badlogic.gdx.utils.Pool
-import dogengine.def.ComponentResolver
+import dogengine.ecs.def.ComponentResolver
 
 class CStateMachine : Component, Pool.Poolable {
     companion object : ComponentResolver<CStateMachine>(CStateMachine::class.java)
