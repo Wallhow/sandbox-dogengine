@@ -1,10 +1,21 @@
 package sandbox.sandbox.def.map2D
 
+import com.github.czyzby.noise4j.array.Array2D
 
-class Chunk(width: Int,height: Int) {
+
+class Chunk(width: Int,height: Int) : Array2D(width,height) {
     var x: Int = 0
     var y: Int = 0
-    var index : Int = 0
+    val index : Int
+        get() = x+y * width
+
     var cells: Array<Cell?> = arrayOfNulls(width * height)
-    var neighborses : Array<Chunk?> = arrayOfNulls(3*3)
+
+    fun setCell(cell: Cell,tx: Int,ty: Int) {
+        cells[toIndex(tx,ty)] = cell
+    }
+    fun getCell(tx: Int,ty: Int) : Cell? {
+        return cells[toIndex(tx,ty)]
+    }
+    data class ChunkXY(var x: Int,var y: Int)
 }

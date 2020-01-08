@@ -1,32 +1,29 @@
 package sandbox.sandbox.def.map2D
 
-import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ArrayMap
-import com.badlogic.gdx.utils.Pool
 import com.badlogic.gdx.utils.viewport.Viewport
-import com.dongbat.jbump.Item
 import com.google.inject.Inject
+import dogengine.ecs.components.components
+import dogengine.ecs.components.create
+import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.def.ComponentResolver
 import dogengine.utils.Size
 import dogengine.utils.isElse
 import dogengine.utils.isTrue
-import dogengine.utils.viewBoundsRect
 import sandbox.R
-import sandbox.def.CJBumpAABB
-import sandbox.dogengine.ashley.components.components
-import sandbox.dogengine.ashley.components.create
-import sandbox.dogengine.ashley.components.createEntity
 import sandbox.dogengine.ecs.components.utility.logic.CTransforms
-import sandbox.dogengine.ecs.components.utility.logic.updateZIndex
-import sandbox.sandbox.def.CVisibleEntityListener
+import sandbox.dogengine.ecs.components.utility.visible.CVisibleEntityListener
+import sandbox.dogengine.ecs.def.PoolableComponent
+import sandbox.sandbox.def.redkin.physicsengine2d.CDefaultPhysics2d
 
 class SMap2D @Inject constructor(private val viewport: Viewport, private val camera: OrthographicCamera) : IteratingSystem(Family.all(CMap2D::class.java).get()) {
     private var firstRun = true
@@ -34,14 +31,14 @@ class SMap2D @Inject constructor(private val viewport: Viewport, private val cam
     val tilemap: ArrayMap<Int, TextureAtlas.AtlasRegion> = ArrayMap()
     init {
         priority = 2
-        for (i in 1..280) {
+        for (i in 1..12) {
             tilemap.put(i, TextureAtlas(R.matlas0).findRegion("tile", i))
         }
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         if (CMap2D[entity].map2D != null) {
-            val scaleViewBounds = camera.viewBoundsRect
+            val scaleViewBounds = Rectangle(camera.position.x,camera.position.y,0f,0f)
             val map = CMap2D[entity].map2D!!
             if (firstRun) {
                 firstRun = false; updateViewport(map)
@@ -75,19 +72,26 @@ class SMap2D @Inject constructor(private val viewport: Viewport, private val cam
                 create<CTransforms> {
                     position = pos
                     size = s
-                    updateZIndex()
+                    size.scale = 2f
+                    zIndex = Int.MIN_VALUE + it.heightType + pos.y.toInt()
+
                 }
                 create<CTextureRegion> {
                     texture = tilemap.get(it.userData as Int)
+                    /*offsetX = -16
+                    offsetY = -16*/
+
                 }
 
                 if (!it.collidable) {
-                    create<CJBumpAABB> {
+                    /*create<CJBumpAABB> {
                         item = Item(this@components)
+                    }*/
+                    create<CDefaultPhysics2d> {
                     }
 
                 }
-                create<CCell> { cell = it }
+                create<CCell> { cell = it; cell?.isInEngine = true }
                 create<CVisibleEntityListener> {
                     hide = { e ->
                         CCell[e].cell?.isInEngine = false
@@ -102,17 +106,12 @@ class SMap2D @Inject constructor(private val viewport: Viewport, private val cam
     }
 
     private fun updateViewport(map: Map2D) {
-        val widthWorld = map.getWidthMap()
-        val heightWorld = map.getHeightMap()
-        val widthTile = map.getTileWidth()
-        val heightTile = map.getTileHeight()
-        viewport.setWorldSize((widthWorld * widthTile) * 1f,
-                (heightWorld * heightTile) * 1f)
+        viewport.setWorldSize(map.getWidthMapInPixels(), map.getHeightMapInPixels())
         viewport.camera.update()
     }
 }
 
-class CMap2D : Component, Pool.Poolable {
+class CMap2D : PoolableComponent {
     var map2D: Map2D? = null
     var currentLayer = -1
     override fun reset() {

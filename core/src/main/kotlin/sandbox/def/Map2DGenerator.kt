@@ -2,33 +2,48 @@ package sandbox.sandbox.def
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Array
+import com.github.czyzby.noise4j.array.Array2D
 import com.github.czyzby.noise4j.map.Grid
 import com.github.czyzby.noise4j.map.generator.noise.NoiseGenerator
 import com.github.czyzby.noise4j.map.generator.util.Generators
+import com.google.gson.GsonBuilder
 import com.sudoplay.joise.module.*
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
+import dogengine.utils.log
 import sandbox.sandbox.def.map2D.*
+import java.io.File
 import java.util.*
 
 
 class Map2DGenerator(val tileSize: Int) {
 
-    val width = 64
-    val height = 64
-    val generator: NoiseGenerator = NoiseGenerator()
-    val grid = Grid(width, height)
+    val width = 256
+    val height = 256
+    //val generator: NoiseGenerator = NoiseGenerator()
     val seed = 148865L
-    val pixmap = Pixmap(width, height, Pixmap.Format.RGBA8888)
-    val prop = LayerProperties(grid.width, grid.height, tileSize, tileSize, 0)
+    val pixmap = Pixmap(width, height, Pixmap.Format.RGBA4444)
+    val prop = LayerProperties(width, height, tileSize, tileSize, 0)
+    val g = GsonBuilder().create()
 
     init {
 
     }
 
-    fun generate(): Map2D {
+    fun getFromFS(): IntGrid? {
+        return try {
+            val file = File("map.2d")
+            val str = file.readText()
+            log("map loaded from FS")
+            g.fromJson(str, IntGrid::class.java)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    fun generateGrid(): IntGrid {
+        log("create map")
         val terrainOctaves = 2 // простота мира
         val terrainRidgeOctaves = 3 // детализация
         val terrainFrequency = 1.5 //
@@ -66,8 +81,7 @@ class Map2DGenerator(val tileSize: Int) {
         scaleDomain.setScaleX(terrainNoiseScale)
         scaleDomain.setScaleY(terrainNoiseScale)
 
-
-        //val heightData = Grid(width, height)
+        val grid = IntGrid(width, height)
 
         for (x in 0 until width) {
             for (y in 0 until height) { // Noise range
@@ -86,15 +100,23 @@ class Map2DGenerator(val tileSize: Int) {
                 val nz: Float = x1 + MathUtils.sin(s * 2 * MathUtils.PI) * dx / (2 * MathUtils.PI)
                 val nw: Float = y1 + MathUtils.sin(t * 2 * MathUtils.PI) * dy / (2 * MathUtils.PI)
                 val heightValue = scaleDomain[nx * terrainNoiseScale, ny * terrainNoiseScale, nz * terrainNoiseScale, nw * terrainNoiseScale].toFloat()
-                // keep track of the max and min values found
-                // if (heightValue > heightData.max) heightData.max = heightValue
-                // if (heightValue < heightData.min) heightData.min = heightValue
-                grid[x, y] = heightValue
-
-
+                grid[x, y] = (heightValue * 100).toInt()
+                println(grid[x, y])
             }
 
         }
+
+        File("map.2d").bufferedWriter().use { out ->
+            out.write(g.toJson(grid))
+        }
+
+        return grid
+    }
+
+    fun generate(): Map2D {
+        val fs = getFromFS()
+        val grid = fs ?: generateGrid()
+
 
         //noiseStage(grid, generator, 64, 0.8f);
         //noiseStage(grid, generator, 32, 0.6f);
@@ -102,19 +124,18 @@ class Map2DGenerator(val tileSize: Int) {
         //noiseStage(grid, generator, 8, 0.1f);
 
 
-        val map2D = getMap2D()
-
+        val map2D = getMap2D(grid)
 
         return map2D
     }
 
-    private fun getMap2D(): Map2D {
+    private fun getMap2D(grid: IntGrid): Map2D {
         val pixel = Pixmap(tileSize, tileSize, Pixmap.Format.RGBA8888)
         val layer = GridLayer(prop)
 
-        for (x in 0 until grid.width) {
-            for (y in grid.height-1 downTo 0) {
-                val cell = grid[x, y]
+        for (x in 0 until width) {
+            for (y in 0 until height) {
+                val cell = grid[x, y] / 100f
                 layer.setCell(configCell(cell, pixel, x, y), x, y)
             }
         }
@@ -127,10 +148,9 @@ class Map2DGenerator(val tileSize: Int) {
         //прощитываем битовую маску и играем с выдилением крайних тайлов
         pixel.setColor(Color.BLACK)
         pixel.fill()
-        val tex = Texture(pixel)
         for (x in 0 until grid.width) {
             for (y in 0 until grid.width) {
-                GridLayer.updateBitmask(layer.getCell(x, y))
+                ChunkGridLayer.updateBitmask(layer.getCell(x, y), layer)
                 if (layer.getCell(x, y).heightType == 2) {
                     setTileSand(layer.getCell(x, y))
                 }
@@ -138,16 +158,33 @@ class Map2DGenerator(val tileSize: Int) {
                     setTileWater(layer.getCell(x, y))
                 }
                 if (layer.getCell(x, y).heightType == 3) {
-                    layer.getCell(x, y).userData = 27
+                    //земля
+                    layer.getCell(x, y).userData = 6
                 }
                 if (layer.getCell(x, y).heightType == 4) {
-                    layer.getCell(x, y).userData = 21
+                    //трава
+                    when (MathUtils.random(1, 4)) {
+                        1 -> {
+                            layer.getCell(x, y).userData = 1
+                        }
+                        2 -> {
+                            layer.getCell(x, y).userData = 2
+                        }
+                        3 -> {
+                            layer.getCell(x, y).userData = 3
+                        }
+                        4 -> {
+                            layer.getCell(x, y).userData = 4
+                        }
+                    }
                 }
                 if (layer.getCell(x, y).heightType == 5) {
-                    layer.getCell(x, y).userData = 150
+                    //Горы
+                    layer.getCell(x, y).userData = 5
                 }
                 if (layer.getCell(x, y).heightType == 6) {
-                    layer.getCell(x, y).userData = 149
+                    //Снег
+                    layer.getCell(x, y).userData = 5
                 }
                 if (layer.getCell(x, y).bitmask != 15) {
                     //layer.getCell(x, y).userData = tex
@@ -156,72 +193,42 @@ class Map2DGenerator(val tileSize: Int) {
         }
 
         //Разбиваем на группы суша и вода
-        val landGroup = fillGroup(layer, CellGroupType.LAND)
-        val waterGroup = fillGroup(layer, CellGroupType.WATER)
+        //val landGroup = fillGroup(layer, CellGroupType.LAND,grid)
+        //val waterGroup = fillGroup(layer, CellGroupType.WATER,grid)
 
         val map2D = Map2D(layer)
-        map2D.addLayer(landGroup)
-        map2D.addLayer(waterGroup)
+        //map2D.addLayer(landGroup)
+        //map2D.addLayer(waterGroup)
 
         return map2D
     }
 
     private fun setTileSand(cell: Cell) {
-        when (cell.bitmask) {
-            15 -> {
-                when (MathUtils.random(1, 4)) {
-                    1 -> {
-                        cell.userData = 15
-                    }
-                    2 -> {
-                        cell.userData = 38
-                    }
-                    3 -> {
-                        cell.userData = 30
-                    }
-                    4 -> {
-                        cell.userData = 37
-                    }
-                }
+        when (MathUtils.random(1, 3)) {
+            1 -> {
+                cell.userData = 10
             }
-            6-> {
-                if(cell.leftNeighbors.heightType==HeightTypes.GRASS.heightType &&
-                        cell.topNeighbors.heightType==HeightTypes.GRASS.heightType)
-                cell.userData = 6
+            2 -> {
+                cell.userData = 11
             }
-            14 -> {
-                if(cell.topNeighbors.heightType==HeightTypes.GRASS.heightType)
-                    cell.userData = 7
+            3 -> {
+                cell.userData = 12
             }
-            else -> {
-                cell.userData = 15
-            }
-
         }
+
     }
 
     private fun setTileWater(cell: Cell) {
-        when (cell.bitmask) {
-            15 -> {
-                when (MathUtils.random(1, 5)) {
-                    1 -> {
-                        cell.userData = 50
-                    }
-                    2 -> {
-                        cell.userData = 74
-                    }
-                    3 -> {
-                        cell.userData = 76
-                    }
-                    4 -> {
-                        cell.userData = 77
-                    }
-                    5 -> {
-                        cell.userData = 78
-                    }
-                }
+        when (MathUtils.random(1, 3)) {
+            1 -> {
+                cell.userData = 7
             }
-            else-> {cell.userData = 78}
+            2 -> {
+                cell.userData = 8
+            }
+            3 -> {
+                cell.userData = 9
+            }
         }
     }
 
@@ -289,27 +296,28 @@ class Map2DGenerator(val tileSize: Int) {
         else return 15
     }
 
-    private fun findAndAddNeighbors(cell: Cell, layer: GridLayer) {
-        cell.topNeighbors = getTopCell(cell, layer)
-        cell.bottomNeighbors = getBottomCell(cell, layer)
-        cell.leftNeighbors = getLeftCell(cell, layer)
-        cell.rightNeighbors = getRightCell(cell, layer)
+    private fun findAndAddNeighbors(cell: Cell, layerChunk: Layer) {
+        cell.topNeighbors = getTopCell(cell, layerChunk)
+        cell.bottomNeighbors = getBottomCell(cell, layerChunk)
+        cell.leftNeighbors = getLeftCell(cell, layerChunk)
+        cell.rightNeighbors = getRightCell(cell, layerChunk)
     }
-    private val defCell = Cell.DefCell2D()
-    private fun GridLayer.getCell(cell: Cell, dx: Int, dy: Int): Cell {
+
+    private val defCell = Cell.CellXY.tmp
+    private fun Layer.getCell(cell: Cell, dx: Int, dy: Int): Cell.CellXY {
         val nx = 0.coerceAtLeast((width - 1).coerceAtMost(cell.x + dx))
         val ny = 0.coerceAtLeast((height - 1).coerceAtMost(cell.y + dy))
-        return if(getCell(nx, ny)!=cell) {
-            getCell(nx, ny)
+        return if (getCell(nx, ny) != cell) {
+            Cell.CellXY(nx, ny)
         } else {
             defCell
         }
     }
 
-    private fun getTopCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 0, 1)
-    private fun getBottomCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 0, -1)
-    private fun getLeftCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, -1, 0)
-    private fun getRightCell(cell: Cell, layer: GridLayer): Cell = layer.getCell(cell, 1, 0)
+    private fun getTopCell(cell: Cell, layerChunk: Layer): Cell.CellXY = layerChunk.getCell(cell, 0, 1)
+    private fun getBottomCell(cell: Cell, layerChunk: Layer): Cell.CellXY = layerChunk.getCell(cell, 0, -1)
+    private fun getLeftCell(cell: Cell, layerChunk: Layer): Cell.CellXY = layerChunk.getCell(cell, -1, 0)
+    private fun getRightCell(cell: Cell, layerChunk: Layer): Cell.CellXY = layerChunk.getCell(cell, 1, 0)
 
 
     private fun configCell(cell: Float, pixel: Pixmap, x: Int, y: Int): Cell2D {
@@ -369,12 +377,12 @@ class Map2DGenerator(val tileSize: Int) {
 
     enum class HeightTypes(val r: Float, val g: Float, val b: Float,
                            val depth: Float, val heightType: Int) {
-        WATER(Color.SKY.r, Color.SKY.g, Color.SKY.b,0.3f,1),
-        SAND(Color.YELLOW.r, Color.YELLOW.g, Color.YELLOW.b,0.45f,2),
-        GROUND(Color.BROWN.r, Color.BROWN.g, Color.BROWN.b,0f,3),
-        GRASS(Color.GREEN.r, Color.GREEN.g - 0.2f, Color.GREEN.b,0.6f,4),
-        ROCK(Color.GRAY.r, Color.GRAY.g, Color.GRAY.b,0.85f,5),
-        SNOW(Color.LIGHT_GRAY.r + 0.1f, Color.LIGHT_GRAY.g + 0.1f, Color.LIGHT_GRAY.b + 0.2f,1f,6);
+        WATER(Color.SKY.r, Color.SKY.g, Color.SKY.b, 0.3f, 1),
+        SAND(Color.YELLOW.r, Color.YELLOW.g, Color.YELLOW.b, 0.45f, 2),
+        GROUND(Color.BROWN.r, Color.BROWN.g, Color.BROWN.b, 0f, 3),
+        GRASS(Color.GREEN.r, Color.GREEN.g - 0.2f, Color.GREEN.b, 0.6f, 4),
+        ROCK(Color.GRAY.r, Color.GRAY.g, Color.GRAY.b, 0.85f, 5),
+        SNOW(Color.LIGHT_GRAY.r + 0.1f, Color.LIGHT_GRAY.g + 0.1f, Color.LIGHT_GRAY.b + 0.2f, 1f, 6);
 
         fun getColor(color: Color) {
             color.set(r, g, b, 1f)
@@ -393,22 +401,22 @@ class Map2DGenerator(val tileSize: Int) {
 
     private val landCellGroups = Array<CellGroup>()
     private val waterCellGroups = Array<CellGroup>()
-    private fun fillGroup(layer: GridLayer, groupType: CellGroupType): Layer {
+    private fun fillGroup(layerChunk: ChunkGridLayer, groupType: CellGroupType, grid: Grid): Layer {
         return when (groupType) {
             CellGroupType.LAND -> {
-                fillGroupLand(layer)
+                fillGroupLand(layerChunk, grid)
             }
             CellGroupType.WATER -> {
-                fillGroupWater(layer)
+                fillGroupWater(layerChunk, grid)
             }
         }
     }
 
-    private fun fillGroupLand(layer: GridLayer): Layer {
+    private fun fillGroupLand(layerChunk: ChunkGridLayer, grid: Grid): Layer {
         val stack = Stack<Cell>()
         for (x in 0 until grid.width) {
             for (y in 0 until grid.height) {
-                val cell = layer.getCell(x, y)
+                val cell = layerChunk.getCell(x, y)
 
                 if (cell.floodFilled)
                     continue
@@ -417,7 +425,7 @@ class Map2DGenerator(val tileSize: Int) {
                     val group = CellGroup(CellGroupType.LAND)
                     stack.push(cell)
                     while (!stack.empty()) {
-                        floodFill(stack.pop(), group, stack)
+                        floodFill(stack.pop(), group, stack, layerChunk)
                     }
                     if (!group.cells.isEmpty) {
                         landCellGroups.add(group)
@@ -426,7 +434,7 @@ class Map2DGenerator(val tileSize: Int) {
 
             }
         }
-        val layerLand = GridLayer(prop)
+        val layerLand = ChunkGridLayer(prop)
         landCellGroups.forEach {
             it.cells.forEach { cell ->
                 layerLand.setCell(cell, cell.x, cell.y)
@@ -436,11 +444,11 @@ class Map2DGenerator(val tileSize: Int) {
         return layerLand
     }
 
-    private fun fillGroupWater(layer: GridLayer): GridLayer {
+    private fun fillGroupWater(layerChunk: ChunkGridLayer, grid: Grid): ChunkGridLayer {
         val stack = Stack<Cell>()
         for (x in 0 until grid.width) {
             for (y in 0 until grid.height) {
-                val cell = layer.getCell(x, y)
+                val cell = layerChunk.getCell(x, y)
                 println("${cell.x}-${cell.y}")
                 if (cell.floodFilled)
                     continue
@@ -448,7 +456,7 @@ class Map2DGenerator(val tileSize: Int) {
                     val group = CellGroup(CellGroupType.WATER)
                     stack.push(cell)
                     while (!stack.empty()) {
-                        floodFill(stack.pop(), group, stack)
+                        floodFill(stack.pop(), group, stack, layerChunk)
                     }
                     if (!group.cells.isEmpty) {
                         waterCellGroups.add(group)
@@ -457,7 +465,7 @@ class Map2DGenerator(val tileSize: Int) {
             }
         }
 
-        return GridLayer(prop).apply {
+        return ChunkGridLayer(prop).apply {
             waterCellGroups.forEach {
                 it.cells.forEach { cell ->
                     setCell(cell, cell.x, cell.y)
@@ -467,7 +475,7 @@ class Map2DGenerator(val tileSize: Int) {
 
     }
 
-    private fun floodFill(c: Cell, cells: CellGroup, stack: Stack<Cell>) {
+    private fun floodFill(c: Cell, cells: CellGroup, stack: Stack<Cell>, layerChunk: ChunkGridLayer) {
         // Валидация
         if (c.floodFilled)
             return;
@@ -482,19 +490,48 @@ class Map2DGenerator(val tileSize: Int) {
 
 
         // заливка соседей
-        var t = c.topNeighbors;
+        var t = c.topNeighbors.getCell(layerChunk)
         if (!t.floodFilled && c.collidable == t.collidable)
             stack.push(t)
-        t = c.bottomNeighbors;
+        t = c.bottomNeighbors.getCell(layerChunk);
         if (!t.floodFilled && c.collidable == t.collidable)
             stack.push(t)
-        t = c.leftNeighbors;
+        t = c.leftNeighbors.getCell(layerChunk)
         if (!t.floodFilled && c.collidable == t.collidable)
             stack.push(t)
-        t = c.rightNeighbors;
+        t = c.rightNeighbors.getCell(layerChunk)
         if (!t.floodFilled && c.collidable == t.collidable)
             stack.push(t)
 
     }
 
+}
+
+fun Cell.CellXY.getCell(layerChunk: Layer): Cell {
+    return if (x != -1 && y != -1)
+        layerChunk.getCell(x, y)
+    else Cell.defCell2D
+}
+
+class ByteArrayGrid(width: Int, height: Int) : Array2D(width, height) {
+    private val grid: kotlin.Array<kotlin.ByteArray> = kotlin.Array(width * height) { kotlin.ByteArray(4) }
+    operator fun get(x: Int, y: Int): kotlin.ByteArray {
+        return grid[toIndex(x, y)]
+    }
+
+    operator fun set(x: Int, y: Int, value: kotlin.ByteArray): kotlin.ByteArray {
+        return value.also { grid[toIndex(x, y)] = it }
+    }
+}
+
+class IntGrid(width: Int, height: Int) : Array2D(width, height) {
+    private val grid: IntArray = IntArray(width * height)
+    operator fun get(x: Int, y: Int): Int {
+        return grid[toIndex(x, y)]
+    }
+
+    operator fun set(x: Int, y: Int, value: Int): Int {
+        grid[toIndex(x, y)] = value
+        return grid[toIndex(x, y)]
+    }
 }
