@@ -6,12 +6,6 @@ import com.badlogic.gdx.math.Rectangle
 import com.github.czyzby.noise4j.array.Array2D
 import dogengine.utils.vec2
 
-
-private val Cell.CellXY.isTmp: Boolean
-    get() {
-        return (x == -1 || y == -1)
-    }
-
 class GridLayer(properties: LayerProperties) : Layer {
     override var isVisible: Boolean = true
     override var width: Int = properties.width
@@ -64,20 +58,4 @@ class GridLayer(properties: LayerProperties) : Layer {
         return ImmutableArray(array)
     }
 
-
-    private fun inArray(x: Int, y: Int): Int = x + y * (width)
-
-
-    fun initChunks() {
-        /*val g = GsonBuilder().create()
-        val json = g.toJson(chunks)
-        println(json)*/
-
-    }
-}
-
-private fun <E> List<E>.toGdxArray(): com.badlogic.gdx.utils.Array<E> {
-    val array: com.badlogic.gdx.utils.Array<E> = com.badlogic.gdx.utils.Array()
-    this.forEach { array.add(it) }
-    return array
 }

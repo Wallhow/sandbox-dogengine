@@ -12,10 +12,11 @@ import dogengine.es.redkin.physicsengine2d.world.World
 import sandbox.dogengine.ecs.components.utility.logic.CTransforms
 import sandbox.dogengine.ecs.components.utility.visible.CHide
 
-class SDefaultPhysics2d @Inject constructor(val world: World) : IteratingSystem(Family.all(CTransforms::class.java,CDefaultPhysics2d::class.java).exclude(CHide::class.java).get()) {
+class SDefaultPhysics2d @Inject constructor(val world: World) : IteratingSystem(Family.all(CTransforms::class.java, CDefaultPhysics2d::class.java).exclude(CHide::class.java).get()) {
     init {
         priority = 200
     }
+
     override fun addedToEngine(engine: Engine) {
         super.addedToEngine(engine)
         engine.addEntityListener(Family.all(CDefaultPhysics2d::class.java).get(),
@@ -28,7 +29,7 @@ class SDefaultPhysics2d @Inject constructor(val world: World) : IteratingSystem(
         val t = CTransforms[entity]
         physics.rectangleBody?.apply {
             if (type == Types.TYPE.DYNAMIC)
-                t.position.set(x*world.PPU, y*world.PPU)
+                t.position.set(x * world.PPU - physics.offset.x, y * world.PPU - physics.offset.y)
 
         }
     }
@@ -41,7 +42,7 @@ class SDefaultPhysics2d @Inject constructor(val world: World) : IteratingSystem(
     private class DefaultPhysics2dComponentListener(private val world: World) : EntityListener {
         override fun entityRemoved(entity: Entity) {
             CDefaultPhysics2d[entity]?.apply {
-                if (rectangleBody!=null) {
+                if (rectangleBody != null) {
                     world.removeRectangleBody(rectangleBody!!)
                 }
             }
@@ -50,21 +51,20 @@ class SDefaultPhysics2d @Inject constructor(val world: World) : IteratingSystem(
         override fun entityAdded(entity: Entity) {
             CDefaultPhysics2d[entity]?.apply {
                 val t = CTransforms[entity]
-                if(rectangleBody == null) {
-                    val rectBody = RectangleBody(t.position.x/world.PPU,
-                            t.position.y/world.PPU,
-                            t.size.width/world.PPU,
-                            t.size.height/world.PPU
-                            ,type, name)
+                if (rectangleBody == null) {
+                    val rectBody = RectangleBody(t.position.x / world.PPU,
+                            t.position.y / world.PPU,
+                            t.size.width / world.PPU,
+                            t.size.height / world.PPU
+                            , type, name)
                     rectangleBody = rectBody
                     world.addRectangleBody(rectBody)
-                }
-                else {
+                } else {
                     world.addRectangleBody(rectangleBody!!.apply {
-                        x /= world.PPU
-                        y /=world.PPU
-                        width /=world.PPU
-                        height /=world.PPU
+                        x = (x + offset.x) / world.PPU
+                        y = (y + offset.y) / world.PPU
+                        width /= world.PPU
+                        height /= world.PPU
                     })
                 }
             }
