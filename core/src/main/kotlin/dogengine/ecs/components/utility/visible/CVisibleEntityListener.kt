@@ -1,4 +1,4 @@
-package sandbox.dogengine.ecs.components.utility.visible
+package dogengine.ecs.components.utility.visible
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity

@@ -4,12 +4,12 @@ import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Array
-import com.github.czyzby.noise4j.array.Array2D
 import com.google.gson.GsonBuilder
 import com.sudoplay.joise.module.*
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
+import dogengine.tilemap.map2D.*
+import dogengine.utils.Array2D
 import dogengine.utils.log
-import sandbox.sandbox.def.map2D.*
 import java.io.File
 import java.util.*
 

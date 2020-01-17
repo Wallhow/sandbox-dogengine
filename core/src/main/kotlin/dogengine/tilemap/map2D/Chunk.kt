@@ -1,6 +1,6 @@
-package sandbox.sandbox.def.map2D
+package dogengine.tilemap.map2D
 
-import com.github.czyzby.noise4j.array.Array2D
+import dogengine.utils.Array2D
 
 
 class Chunk(width: Int,height: Int) : Array2D(width,height) {
@@ -11,7 +11,7 @@ class Chunk(width: Int,height: Int) : Array2D(width,height) {
 
     var cells: Array<Cell?> = arrayOfNulls(width * height)
 
-    fun setCell(cell: Cell,tx: Int,ty: Int) {
+    fun setCell(cell: Cell, tx: Int, ty: Int) {
         cells[toIndex(tx,ty)] = cell
     }
     fun getCell(tx: Int,ty: Int) : Cell? {

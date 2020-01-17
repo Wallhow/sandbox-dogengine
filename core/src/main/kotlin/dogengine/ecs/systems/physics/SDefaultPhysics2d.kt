@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.redkin.physicsengine2d
+package dogengine.ecs.systems.physics
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -6,21 +6,23 @@ import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
 import com.google.inject.Inject
+import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
+import dogengine.ecs.components.utility.logic.CTransforms
+import dogengine.ecs.components.utility.visible.CHide
+import dogengine.ecs.systems.SystemPriority
 import dogengine.es.redkin.physicsengine2d.bodies.RectangleBody
 import dogengine.es.redkin.physicsengine2d.variables.Types
 import dogengine.es.redkin.physicsengine2d.world.World
-import sandbox.dogengine.ecs.components.utility.logic.CTransforms
-import sandbox.dogengine.ecs.components.utility.visible.CHide
 
 class SDefaultPhysics2d @Inject constructor(val world: World) : IteratingSystem(Family.all(CTransforms::class.java, CDefaultPhysics2d::class.java).exclude(CHide::class.java).get()) {
     init {
-        priority = 200
+        priority = SystemPriority.PHYSICS
     }
 
     override fun addedToEngine(engine: Engine) {
         super.addedToEngine(engine)
         engine.addEntityListener(Family.all(CDefaultPhysics2d::class.java).get(),
-                99,
+                SystemPriority.PHYSICS-1,
                 DefaultPhysics2dComponentListener(world))
     }
 
@@ -28,9 +30,11 @@ class SDefaultPhysics2d @Inject constructor(val world: World) : IteratingSystem(
         val physics = CDefaultPhysics2d[entity]
         val t = CTransforms[entity]
         physics.rectangleBody?.apply {
-            if (type == Types.TYPE.DYNAMIC)
-                t.position.set(x * world.PPU - physics.offset.x, y * world.PPU - physics.offset.y)
-
+            if (type == Types.TYPE.DYNAMIC) {
+                val x = (x * world.PPU - physics.offset.x)
+                val y = (y * world.PPU - physics.offset.y)
+                t.position.set(x, y)
+            }
         }
     }
 

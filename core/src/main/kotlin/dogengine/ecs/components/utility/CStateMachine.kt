@@ -1,15 +1,14 @@
-package sandbox.dogengine.ashley.components.utility
+package dogengine.ecs.components.utility
 
 import com.anupcowkur.statelin.Machine
 import com.anupcowkur.statelin.State
 import com.anupcowkur.statelin.Trigger
 import com.anupcowkur.statelin.TriggerHandler
-import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.utils.ArrayMap
-import com.badlogic.gdx.utils.Pool
 import dogengine.ecs.def.ComponentResolver
+import dogengine.ecs.def.PoolableComponent
 
-class CStateMachine : Component, Pool.Poolable {
+class CStateMachine : PoolableComponent {
     companion object : ComponentResolver<CStateMachine>(CStateMachine::class.java)
     private var machine: Machine? = null
     private val triggers: ArrayMap<Int,Trigger> = ArrayMap()

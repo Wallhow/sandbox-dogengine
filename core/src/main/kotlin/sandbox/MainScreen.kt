@@ -15,25 +15,27 @@ import dogengine.ecs.components.components
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.draw.CTextureRegion
+import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.systems.draw.SDrawDebug
+import dogengine.ecs.systems.physics.SDefaultPhysics2d
+import dogengine.ecs.systems.tilemap.CMap2D
+import dogengine.ecs.systems.tilemap.SMap2D
 import dogengine.es.redkin.physicsengine2d.world.World
 import dogengine.utils.Size
+import dogengine.utils.log
 import dogengine.utils.system
 import dogengine.utils.vec2
-import sandbox.dogengine.ecs.components.utility.logic.CTransforms
 import sandbox.sandbox.def.Map2DGenerator
-import sandbox.sandbox.def.map2D.CMap2D
-import sandbox.sandbox.def.map2D.SMap2D
-import sandbox.sandbox.go.Bot
+import sandbox.sandbox.def.SGUI
 import sandbox.sandbox.go.Player
+import sandbox.sandbox.go.PlayerToolsListener
+import sandbox.sandbox.go.environment.Wood
 
-class MainScreen(val injector: Injector) : ScreenAdapter() {
+class MainScreen(private val injector: Injector) : ScreenAdapter() {
     val camera: OrthographicCamera = injector.getInstance(OrthographicCamera::class.java)
     val engine: Engine = injector.getInstance(Engine::class.java)
     lateinit var player: Player
-
     private val tilesSize = 32f
-    //val mapEntity = MapEntity(tilesSize.toInt())
 
 
     override fun render(delta: Float) {
@@ -41,17 +43,20 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
     }
 
     override fun show() {
-        val engine = injector.getInstance(Engine::class.java)
         val am = injector.getInstance(AssetManager::class.java)
         am.load(Gdx.files.internal(R.matlas0).path(), TextureAtlas::class.java)
         am.finishLoadingAsset<TextureAtlas>(Gdx.files.internal(R.matlas0).path())
-        engine.addEntity(createMapEntity(tilesSize.toInt()))
-
-        camera.zoom = 0.8f
         player = Player(am, Vector2(100f, 100f))
-        engine.addEntity(player)
-        engine.addEntity(Bot(am, vec2(400f, 1400f)))
+        camera.zoom = 0.8f
 
+        engine.addEntity(createMapEntity(tilesSize.toInt()))
+        engine.addEntity(player)
+        engine.addEntity(Wood(Vector2(100f,200f),"wood"))
+        engine.addEntity(Wood(Vector2(250f,210f),"wood"))
+        engine.addEntity(Wood(Vector2(350f,220f),"wood"))
+        engine.addEntity(Wood(Vector2(450f,190f),"wood"))
+
+        engine.addSystem(SGUI(player))
 
         system<SMap2D> {
             tileSize.set(tilesSize, tilesSize)
@@ -60,6 +65,9 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
             customDebug = {
                 injector.getInstance(World::class.java).drawDebugWorld(camera,it)
             }
+        }
+        system<SDefaultPhysics2d> {
+            this.world.addContactListener(PlayerToolsListener(player))
         }
 
         val inputAdapter = object : InputAdapter() {
@@ -71,16 +79,9 @@ class MainScreen(val injector: Injector) : ScreenAdapter() {
 
             var idxLayer = 0
             override fun keyDown(keycode: Int): Boolean {
-                if (keycode == Input.Keys.SPACE) {
-                    //engine.getSystem(SDrawable::class.java).drawToFBO = !engine.getSystem(SDrawable::class.java).drawToFBO
-                    /*if(CMap2D[mapEntity].map2D!=null) {
-                        idxLayer = if(idxLayer==0) 1 else 0
-                        CMap2D[mapEntity].currentLayer=idxLayer
-                    }*/
-                }
                 if (keycode == Input.Keys.Z) {
                     system<SDrawDebug> {
-                        println("debug info drawing")
+                        log("debug info drawing")
                         this.visible =!visible }
                 }
                 return super.keyDown(keycode)

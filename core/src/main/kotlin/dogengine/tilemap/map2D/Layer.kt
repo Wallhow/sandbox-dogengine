@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.map2D
+package dogengine.tilemap.map2D
 
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.Rectangle

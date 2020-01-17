@@ -1,9 +1,10 @@
-package sandbox.sandbox.def.map2D
+package dogengine.tilemap.map2D
 
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
-import com.github.czyzby.noise4j.array.Array2D
+import dogengine.utils.Array2D
+
 import dogengine.utils.vec2
 
 class GridLayer(properties: LayerProperties) : Layer {
@@ -23,7 +24,7 @@ class GridLayer(properties: LayerProperties) : Layer {
         fun getCell(x: Int,y: Int) : Cell? {
             return cells[toIndex(x,y)]
         }
-        fun setCell(cell: Cell,x: Int,y: Int) {
+        fun setCell(cell: Cell, x: Int, y: Int) {
             cells[toIndex(x,y)] = cell
         }
     }

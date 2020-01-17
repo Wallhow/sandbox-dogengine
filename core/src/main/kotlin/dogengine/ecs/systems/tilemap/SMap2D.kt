@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.map2D
+package dogengine.ecs.systems.tilemap
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
@@ -15,22 +15,27 @@ import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.CDeleteMe
+import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
+import dogengine.ecs.components.utility.logic.CTransforms
+import dogengine.ecs.components.utility.visible.CVisibleEntityListener
 import dogengine.ecs.def.ComponentResolver
+import dogengine.ecs.def.PoolableComponent
+import dogengine.ecs.systems.SystemPriority
+import dogengine.tilemap.map2D.CCell
+import dogengine.tilemap.map2D.Cell
+import dogengine.tilemap.map2D.Map2D
 import dogengine.utils.Size
 import dogengine.utils.isElse
 import dogengine.utils.isTrue
 import sandbox.R
-import sandbox.dogengine.ecs.components.utility.logic.CTransforms
-import sandbox.dogengine.ecs.components.utility.visible.CVisibleEntityListener
-import sandbox.dogengine.ecs.def.PoolableComponent
-import sandbox.sandbox.def.redkin.physicsengine2d.CDefaultPhysics2d
 
+//TODO ТУТ ВСЁ ЗАХАРДКОДЕНО, ЭТО НЕ ДОЛЖНО БЫТЬ ТАК, ПЕРЕСМОТРЕТЬ ДАННЫЙ КЛАСС В БУДУЩЕМ
 class SMap2D @Inject constructor(private val viewport: Viewport, private val camera: OrthographicCamera) : IteratingSystem(Family.all(CMap2D::class.java).get()) {
     private var firstRun = true
     val tileSize = Size()
     val tilemap: ArrayMap<Int, TextureAtlas.AtlasRegion> = ArrayMap()
     init {
-        priority = 2
+        priority = SystemPriority.UPDATE+100
         for (i in 1..12) {
             tilemap.put(i, TextureAtlas(R.matlas0).findRegion("tile", i))
         }
@@ -78,15 +83,9 @@ class SMap2D @Inject constructor(private val viewport: Viewport, private val cam
                 }
                 create<CTextureRegion> {
                     texture = tilemap.get(it.userData as Int)
-                    /*offsetX = -16
-                    offsetY = -16*/
-
                 }
 
                 if (!it.collidable) {
-                    /*create<CJBumpAABB> {
-                        item = Item(this@components)
-                    }*/
                     create<CDefaultPhysics2d> {
                     }
 

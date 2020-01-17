@@ -18,8 +18,7 @@ dependencies {
   compile "com.google.inject:guice:4.1.+"
   compile 'com.anupcowkur:statelin:0.1.0'
   compile "org.mini2Dx:universal-tween-engine:6.3.3"
-  implementation 'com.github.czyzby:noise4j:0.1.0'
-  implementation 'com.github.implicit-invocation:jbump:d6032bd27c'
+  //implementation 'com.github.czyzby:noise4j:0.1.0'
   implementation 'com.crashinvaders.vfx:gdx-vfx-core:0.4.3'
   implementation 'com.crashinvaders.vfx:gdx-vfx-effects:0.4.3'    // Optional, if you need standard filter/effects.
   implementation 'com.sudoplay.joise:joise:1.1.0'
