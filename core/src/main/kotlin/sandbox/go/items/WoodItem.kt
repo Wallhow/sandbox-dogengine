@@ -11,6 +11,7 @@ import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.logic.updateZIndex
 import dogengine.utils.Size
 import sandbox.R
+import sandbox.sandbox.def.def.comp.CDrop
 
 class WoodItem(pos: Vector2) : Entity() {
     init {
@@ -24,6 +25,9 @@ class WoodItem(pos: Vector2) : Entity() {
         create<CAtlasRegion> {
             atlas = region
             nameRegion = "wood_item"
+        }
+        create<CDrop> {
+            time = 0.3f
         }
     }
 }

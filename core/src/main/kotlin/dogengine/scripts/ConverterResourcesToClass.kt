@@ -1,10 +1,8 @@
 package dogengine.scripts
 
 import com.badlogic.gdx.utils.ArrayMap
-import ktx.assets.file
 import java.io.File
 import java.io.PrintWriter
-import java.nio.file.Files
 
 
 class ConverterResourcesToClass {
@@ -15,6 +13,8 @@ class ConverterResourcesToClass {
             typeFiles.add("ttf")
             typeFiles.add("tmx")
             typeFiles.add("glsl")
+            typeFiles.add("part")
+            typeFiles.add("png")
             ConverterResourcesToClass().generate(path)
         }
         var path = "C://Users/Андрей/IdeaProjects/sandbox-dogengine/assets"

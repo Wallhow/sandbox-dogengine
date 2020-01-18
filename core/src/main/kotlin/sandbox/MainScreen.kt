@@ -6,6 +6,8 @@ import com.badlogic.gdx.*
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.ParticleEffect
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
@@ -21,25 +23,32 @@ import dogengine.ecs.systems.physics.SDefaultPhysics2d
 import dogengine.ecs.systems.tilemap.CMap2D
 import dogengine.ecs.systems.tilemap.SMap2D
 import dogengine.es.redkin.physicsengine2d.world.World
+import dogengine.particles2d.EffectsManager
 import dogengine.utils.Size
 import dogengine.utils.log
 import dogengine.utils.system
 import dogengine.utils.vec2
 import sandbox.sandbox.def.Map2DGenerator
 import sandbox.sandbox.def.SGUI
+import sandbox.sandbox.def.def.sys.SDrop
 import sandbox.sandbox.go.Player
 import sandbox.sandbox.go.PlayerToolsListener
 import sandbox.sandbox.go.environment.Wood
 
 class MainScreen(private val injector: Injector) : ScreenAdapter() {
+    private val batch: SpriteBatch = injector.getInstance(SpriteBatch::class.java)
     val camera: OrthographicCamera = injector.getInstance(OrthographicCamera::class.java)
     val engine: Engine = injector.getInstance(Engine::class.java)
     lateinit var player: Player
     private val tilesSize = 32f
-
+    private lateinit var ef: EffectsManager
 
     override fun render(delta: Float) {
         engine.update(delta)
+        ef.update(delta)
+        batch.begin()
+        ef.draw(batch)
+        batch.end()
     }
 
     override fun show() {
@@ -49,6 +58,12 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         player = Player(am, Vector2(100f, 100f))
         camera.zoom = 0.8f
 
+        ef = injector.getInstance(EffectsManager::class.java)
+        am.load(Gdx.files.internal(R.dot_particles0).path(),ParticleEffect::class.java)
+        am.finishLoadingAsset<ParticleEffect>(Gdx.files.internal(R.dot_particles0).path())
+        ef.createEffect(1,am[Gdx.files.internal(R.dot_particles0).path()])
+
+
         engine.addEntity(createMapEntity(tilesSize.toInt()))
         engine.addEntity(player)
         engine.addEntity(Wood(Vector2(100f,200f),"wood"))
@@ -57,6 +72,8 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         engine.addEntity(Wood(Vector2(450f,190f),"wood"))
 
         engine.addSystem(SGUI(player))
+        engine.addSystem(SDrop())
+
 
         system<SMap2D> {
             tileSize.set(tilesSize, tilesSize)
@@ -73,7 +90,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         val inputAdapter = object : InputAdapter() {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
                 val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
-                CTransforms[player].position.set(pos.x, pos.y)
+                ef.effectToPosition(1, pos.x,pos.y)
                 return true
             }
 

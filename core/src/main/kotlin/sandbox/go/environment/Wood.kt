@@ -25,14 +25,15 @@ class Wood (position : Vector2, textureName : String) : Entity() {
         create<CName> {
             name = "wood"
         }
-        create<CTransforms> {
-            this.position.set(position)
-            size = Size(64f*2.5f,76f*2.5f)
-            updateZIndex()
-        }
         create<CAtlasRegion> {
             atlas = region
             nameRegion = textureName
+        }
+        val tex = CAtlasRegion[this@Wood].atlas!!.findRegion(CAtlasRegion[this@Wood].nameRegion)
+        create<CTransforms> {
+            this.position.set(position)
+            size = Size(tex.regionWidth * 2f,tex.regionHeight * 2f)
+            updateZIndex()
         }
         create<CDefaultPhysics2d> {
             val t = CTransforms[this@Wood]

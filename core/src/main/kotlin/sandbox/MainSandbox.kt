@@ -12,6 +12,7 @@ import dogengine.ecs.systems.tilemap.SMap2D
 import dogengine.ecs.systems.update.SUpdate
 import dogengine.ecs.systems.utility.SDeleteComponent
 import dogengine.ecs.systems.utility.SDeleteMe
+import dogengine.particles2d.EffectsManager
 import sandbox.sandbox.def.def.sys.SExtraction
 import sandbox.sandbox.def.def.sys.SShack
 
@@ -20,7 +21,7 @@ class MainSandbox : DogeEngineGame() {
     private val defWorld: WorldDef = WorldDef(0f)
     override val viewport: Viewport
         get() = FitViewport(800f,640f,OrthographicCamera(800f, 640f)) as Viewport
-
+    private val effectsManager = EffectsManager()
 
     override fun resize(width: Int, height: Int) {
         viewport.update(width,height)
@@ -49,6 +50,7 @@ class MainSandbox : DogeEngineGame() {
             bind(Viewport::class.java).toInstance(viewport)
             bind(OrthographicCamera::class.java).toInstance(viewport.camera as OrthographicCamera)
             bind(dogengine.es.redkin.physicsengine2d.world.World::class.java).toInstance(defWorld)
+            bind(EffectsManager::class.java).toInstance(effectsManager)
         }
 
         setScreen(MainScreen(kernel.getInjector()))
