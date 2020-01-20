@@ -22,12 +22,13 @@ import dogengine.utils.Size
 import sandbox.R
 import sandbox.dogengine.ecs.components.controllers.CControllable
 import sandbox.dogengine.ecs.components.controllers.EventListener
+import sandbox.sandbox.go.items.inventory.Inventory
 
 
 class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
     var directionSee = DirectionSee.DOWN
     private val tool = AxeTools(this, engine, am)
-
+    private val inventory = Inventory(this)
 
     init {
         name = "player"
@@ -248,6 +249,10 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
 
     private fun hit() {
         tool.hit()
+    }
+
+    fun getInventory() : Inventory {
+        return inventory
     }
 
     interface ITool {

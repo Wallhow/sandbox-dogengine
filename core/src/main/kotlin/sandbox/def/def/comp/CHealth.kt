@@ -6,6 +6,7 @@ import dogengine.ecs.def.PoolableComponent
 class CHealth : PoolableComponent {
     companion object : ComponentResolver<CHealth>(CHealth::class.java)
     var health = 0f
+    var beforeDead : (() -> Unit)? = null
     override fun reset() {
         health = 0f
     }

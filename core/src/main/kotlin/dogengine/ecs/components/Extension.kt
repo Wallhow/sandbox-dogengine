@@ -52,7 +52,7 @@ fun Size.toVector2(): Vector2 {
 }
 
 // DefaultPhysics
-fun CDefaultPhysics2d.createBody(tr: CTransforms, x: Float, y: Float, width: Float, height: Float, types: Types.TYPE, name: String) : RectangleBody {
+fun CDefaultPhysics2d.createBody(tr: CTransforms, x: Float, y: Float, width : Float= tr.size.width, height: Float = tr.size.height, types: Types.TYPE = Types.TYPE.STATIC, name: String = "") : RectangleBody {
     offset.set(x, y)
     rectangleBody = RectangleBody(tr.position.x, tr.position.y, width, height, types, name)
      return rectangleBody!!
