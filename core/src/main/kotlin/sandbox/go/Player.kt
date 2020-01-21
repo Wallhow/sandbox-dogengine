@@ -291,7 +291,7 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
     class AxeTools(private val player: Player, private val engine: Engine, am: AssetManager) : Tools() {
         init {
             hitSpeed = 0.5f
-            power = 15f
+            power = 2f
             name = "axe_item"
             image = am.get(R.matlas0, TextureAtlas::class.java).findRegion(name)
         }

@@ -28,12 +28,14 @@ import dogengine.utils.Size
 import dogengine.utils.log
 import dogengine.utils.system
 import dogengine.utils.vec2
+import sandbox.sandbox.def.CreatedCellMapListener
 import sandbox.sandbox.def.Map2DGenerator
 import sandbox.sandbox.def.SGUI
 import sandbox.sandbox.def.def.sys.SDrop
 import sandbox.sandbox.go.Player
 import sandbox.sandbox.go.PlayerToolsListener
-import sandbox.sandbox.go.environment.Wood
+import sandbox.sandbox.go.environment.models.Rock
+import sandbox.sandbox.go.environment.models.Wood
 
 class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private val batch: SpriteBatch = injector.getInstance(SpriteBatch::class.java)
@@ -66,13 +68,16 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
 
         engine.addEntity(createMapEntity(tilesSize.toInt()))
         engine.addEntity(player)
-        engine.addEntity(Wood(Vector2(100f,200f),"wood"))
-        engine.addEntity(Wood(Vector2(250f,210f),"wood"))
-        engine.addEntity(Wood(Vector2(350f,220f),"wood"))
-        engine.addEntity(Wood(Vector2(450f,190f),"wood"))
+        engine.addEntity(Wood(Vector2(100f, 200f)))
+        engine.addEntity(Wood(Vector2(250f, 210f)))
+        engine.addEntity(Wood(Vector2(350f, 220f)))
+        engine.addEntity(Wood(Vector2(450f, 190f)))
+
+        engine.addEntity(Rock(Vector2(470f, 590f)))
+        engine.addEntity(Rock(Vector2(350f, 690f)))
 
         engine.addSystem(SGUI(player))
-        engine.addSystem(SDrop())
+        engine.addSystem(SDrop(player))
 
 
         system<SMap2D> {
@@ -111,7 +116,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private fun createMapEntity(toInt: Int): Entity {
         return engine.createEntity {
             components {
-                val gen = Map2DGenerator(toInt)
+                val gen = Map2DGenerator(toInt, CreatedCellMapListener(toInt*1f))
                 val map2d = gen.generate()
                 val t = Texture(gen.pixmap)
                 val scale = 4
@@ -122,7 +127,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
                 create<CTransforms> {
                     position = vec2(-t.width.toFloat() * scale, 0f)
                     size = Size(t.width.toFloat() * scale, t.height.toFloat() * scale)
-                    rotation = 180f
+                    angle = 180f
                 }
                 create<CMap2D> {
                     map2D = map2d

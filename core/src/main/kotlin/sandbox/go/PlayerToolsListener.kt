@@ -1,6 +1,8 @@
 package sandbox.sandbox.go
 
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import dogengine.Kernel
 import dogengine.ecs.components.create
 import dogengine.ecs.components.utility.logic.CTransforms
@@ -10,11 +12,14 @@ import dogengine.es.redkin.physicsengine2d.contactListener.ContactListener
 import dogengine.es.redkin.physicsengine2d.sensors.Sensor
 import dogengine.particles2d.EffectsManager
 import dogengine.utils.log
+import sandbox.R
 import sandbox.sandbox.def.def.comp.CExtraction
 import sandbox.sandbox.def.def.comp.CShack
 
 class PlayerToolsListener (private val player: Player) : ContactListener {
     private val effects = Kernel.getInjector().getInstance(EffectsManager::class.java)
+    protected val assets = Kernel.getInjector().getInstance(AssetManager::class.java)
+    protected val atlas = assets.get<TextureAtlas>(R.matlas0)
     override fun sensorSensorIn(sensorA: Sensor?, sensorB: Sensor?) {
 
     }
@@ -24,9 +29,10 @@ class PlayerToolsListener (private val player: Player) : ContactListener {
     }
 
     override fun sensorBodyIn(sensor: Sensor?, rectangleBody: RectangleBody?) {
-        log("sensor ${player.getCurrentTool().name} collide ${rectangleBody?.name}")
+        log("sensor ${sensor?.name} collide ${rectangleBody?.name}")
         sensor?.apply {
             if(this.name == player.getCurrentTool().name) {
+                log(""+rectangleBody?.userData)
                 if(rectangleBody?.userData!=null) {
                     val e = rectangleBody.userData as Entity
                     val tr = CTransforms[e]

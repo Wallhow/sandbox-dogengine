@@ -14,7 +14,7 @@ import java.io.File
 import java.util.*
 
 
-class Map2DGenerator(val tileSize: Int) {
+class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: CreatedCellMapListener? = null) {
 
     val width = 256
     val height = 256
@@ -156,12 +156,12 @@ class Map2DGenerator(val tileSize: Int) {
 
     private fun tileConfigure(cell: Cell) {
         when (cell.heightType) {
-            1 -> createTileWater(cell) //Вода
-            2 -> createTileSand(cell) //Песок
-            3 -> cell.userData = 6 //земля
-            4 -> createTileGrass(cell) //трава
-            5 -> cell.userData = 5 //Горы
-            6 -> cell.userData = 5 //снег
+            1 -> {createTileWater(cell);createdCellMapListener?.createCell(cell,HeightTypes.WATER)} //Вода
+            2 -> {createTileSand(cell); createdCellMapListener?.createCell(cell,HeightTypes.SAND)} //Песок
+            3 -> {cell.userData = 6 ; createdCellMapListener?.createCell(cell,HeightTypes.GROUND)} //земля
+            4 -> { createTileGrass(cell); createdCellMapListener?.createCell(cell,HeightTypes.GRASS)} //трава
+            5 -> {cell.userData = 5 ; createdCellMapListener?.createCell(cell,HeightTypes.ROCK)} //Горы
+            6 -> {cell.userData = 5 ; createdCellMapListener?.createCell(cell,HeightTypes.SNOW)} //снег
         }
 
     }
@@ -208,70 +208,6 @@ class Map2DGenerator(val tileSize: Int) {
                 cell.userData = 9
             }
         }
-    }
-
-    private fun ifBitMask(str: String): Int {
-        if (str ==
-                "000" +
-                "0#0" +
-                "000") return 0
-        else if (str ==
-                "0#0" +
-                "0#0" +
-                "000") return 1
-        else if (str ==
-                "000" +
-                "0##" +
-                "000") return 2
-        else if (str ==
-                "0#0" +
-                "0##" +
-                "000") return 3
-        else if (str ==
-                "000" +
-                "0#0" +
-                "0#0") return 4
-        else if (str ==
-                "0#0" +
-                "0#0" +
-                "0#0") return 5
-        else if (str ==
-                "000" +
-                "0##" +
-                "0#0") return 6
-        else if (str ==
-                "0#0" +
-                "0##" +
-                "0#0") return 7
-        else if (str ==
-                "000" +
-                "##0" +
-                "000") return 8
-        else if (str ==
-                "0#0" +
-                "##0" +
-                "000") return 9
-        else if (str ==
-                "000" +
-                "###" +
-                "000") return 10
-        else if (str ==
-                "0#0" +
-                "###" +
-                "000") return 11
-        else if (str ==
-                "000" +
-                "##0" +
-                "0#0") return 12
-        else if (str ==
-                "0#0" +
-                "##0" +
-                "0#0") return 13
-        else if (str ==
-                "000" +
-                "###" +
-                "0#0") return 14
-        else return 15
     }
 
     private fun findAndAddNeighbors(cell: Cell, layerChunk: Layer) {

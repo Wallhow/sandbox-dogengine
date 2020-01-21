@@ -11,7 +11,7 @@ class CDefaultPhysics2d : PoolableComponent {
     var name: String = PoolableComponent.tmpString
     var rectangleBody : RectangleBody? = null
     var offset: Vector2 = Vector2()
-    var userData = null
+    var userData : Any? = null
     companion object : ComponentResolver<CDefaultPhysics2d>(CDefaultPhysics2d::class.java)
     override fun reset() {
         rectangleBody = null
