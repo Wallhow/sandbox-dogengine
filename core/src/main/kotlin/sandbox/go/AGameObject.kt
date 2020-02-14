@@ -2,6 +2,7 @@ package sandbox.sandbox.go
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
@@ -63,8 +64,8 @@ abstract class AGameObject (name: String) : Entity(), IGameObject {
 
     protected fun createCUpdate(process: (delta: Float) -> Unit) {
         create<CUpdate> {
-            func = process
-            CTransforms[this@AGameObject].updateZIndex()
+            func = {process.invoke(Gdx.graphics.deltaTime); CTransforms[this@AGameObject].updateZIndex()}
+
         }
     }
 

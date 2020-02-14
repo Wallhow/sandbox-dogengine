@@ -1,4 +1,4 @@
-package sandbox.sandbox.go
+package sandbox.sandbox.go.player
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager

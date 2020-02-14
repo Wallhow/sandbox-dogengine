@@ -12,9 +12,9 @@ import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import sandbox.sandbox.def.def.comp.CDrop
-import sandbox.sandbox.go.Player
+import sandbox.sandbox.go.player.Player
 
-class SDrop (private val player:Player) : IteratingSystem(Family.all(CDrop::class.java).exclude(CHide::class.java).get()) {
+class SDrop (private val player: Player) : IteratingSystem(Family.all(CDrop::class.java).exclude(CHide::class.java).get()) {
     private var interpolation: Interpolation = Interpolation.linear
 
     override fun processEntity(entity: Entity, deltaTime: Float) {

@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.google.inject.Injector
@@ -28,14 +29,18 @@ import dogengine.utils.Size
 import dogengine.utils.log
 import dogengine.utils.system
 import dogengine.utils.vec2
+import sandbox.go.environment.drop.models.GrassDrop
+import sandbox.go.environment.drop.models.RockDrop
+import sandbox.go.environment.drop.models.WoodDrop
 import sandbox.sandbox.def.CreatedCellMapListener
 import sandbox.sandbox.def.Map2DGenerator
-import sandbox.sandbox.def.SGUI
+import sandbox.sandbox.def.SGuiDraw
 import sandbox.sandbox.def.def.sys.SDrop
-import sandbox.sandbox.go.Player
-import sandbox.sandbox.go.PlayerToolsListener
+import sandbox.sandbox.go.environment.drop.models.SandstoneDrop
 import sandbox.sandbox.go.environment.models.Rock
 import sandbox.sandbox.go.environment.models.Wood
+import sandbox.sandbox.go.player.Player
+import sandbox.sandbox.go.player.PlayerToolsListener
 
 class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private val batch: SpriteBatch = injector.getInstance(SpriteBatch::class.java)
@@ -76,7 +81,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         engine.addEntity(Rock(Vector2(470f, 590f)))
         engine.addEntity(Rock(Vector2(350f, 690f)))
 
-        engine.addSystem(SGUI(player))
+        engine.addSystem(SGuiDraw(player))
         engine.addSystem(SDrop(player))
 
 
@@ -95,7 +100,12 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         val inputAdapter = object : InputAdapter() {
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
                 val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
-                ef.effectToPosition(1, pos.x,pos.y)
+                when (MathUtils.random(4)) {
+                  0-> {engine.addEntity(SandstoneDrop(Vector2(pos.x,pos.y),pos.y))}
+                  1-> {engine.addEntity(WoodDrop(Vector2(pos.x,pos.y),pos.y))}
+                  2-> {engine.addEntity(GrassDrop(Vector2(pos.x,pos.y),pos.y))}
+                  3-> {engine.addEntity(RockDrop(Vector2(pos.x,pos.y),pos.y))}
+                }
                 return true
             }
 

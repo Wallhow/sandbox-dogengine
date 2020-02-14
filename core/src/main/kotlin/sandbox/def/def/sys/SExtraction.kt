@@ -18,6 +18,7 @@ class SExtraction : IteratingSystem(Family.all(CHealth::class.java,CExtraction::
         val health = CHealth[entity]
         val ext = CExtraction[entity]
         health.health-=ext.force
+        health.shot?.invoke()
         if(health.health<0) {
             health.beforeDead?.invoke()
         }

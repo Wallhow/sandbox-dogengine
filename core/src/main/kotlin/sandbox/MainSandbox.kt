@@ -13,6 +13,7 @@ import dogengine.ecs.systems.update.SUpdate
 import dogengine.ecs.systems.utility.SDeleteComponent
 import dogengine.ecs.systems.utility.SDeleteMe
 import dogengine.particles2d.EffectsManager
+import dogengine.utils.TTFFont
 import sandbox.sandbox.def.def.sys.SExtraction
 import sandbox.sandbox.def.def.sys.SShack
 
@@ -22,13 +23,14 @@ class MainSandbox : DogeEngineGame() {
     override val viewport: Viewport
         get() = FitViewport(800f,640f,OrthographicCamera(800f, 640f)) as Viewport
     private val effectsManager = EffectsManager()
-
+    private lateinit var fnt : TTFFont
     override fun resize(width: Int, height: Int) {
         viewport.update(width,height)
     }
 
 
     override fun create() {
+        fnt = TTFFont(R.pixel0)
         VisUI.load(VisUI.SkinScale.X2)
 
         systems.apply {
@@ -51,6 +53,7 @@ class MainSandbox : DogeEngineGame() {
             bind(OrthographicCamera::class.java).toInstance(viewport.camera as OrthographicCamera)
             bind(dogengine.es.redkin.physicsengine2d.world.World::class.java).toInstance(defWorld)
             bind(EffectsManager::class.java).toInstance(effectsManager)
+            bind(TTFFont::class.java).toInstance(fnt)
         }
 
         setScreen(MainScreen(kernel.getInjector()))

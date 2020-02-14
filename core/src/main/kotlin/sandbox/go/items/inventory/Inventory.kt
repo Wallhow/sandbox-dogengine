@@ -2,9 +2,9 @@ package sandbox.sandbox.go.items.inventory
 
 
 import com.badlogic.gdx.utils.ArrayMap
-import sandbox.sandbox.go.Player
 import sandbox.sandbox.go.items.ItemID
 import sandbox.sandbox.go.items.ObjectList
+import sandbox.sandbox.go.player.Player
 import java.util.*
 
 class Inventory (private val player: Player) {
