@@ -65,7 +65,7 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
         val viewWidth = view.camera.viewportWidth
         val viewHeight = view.camera.viewportHeight
         val halfWidth = viewWidth / 2
-        val halfHeight = viewHeight / 2
+        val halfHeight = viewHeight * 0.5f
         inventoryView.addActor(table {
             setPosition(halfWidth - 36f * 4, 50f)
             setSize(36f * 8, 36f)
