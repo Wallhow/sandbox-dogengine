@@ -17,7 +17,7 @@ import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.logic.CUpdate
 import dogengine.ecs.components.utility.logic.updateZIndex
-import dogengine.es.redkin.physicsengine2d.variables.Types
+import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.R
 import sandbox.sandbox.go.items.ItemID

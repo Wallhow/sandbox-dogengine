@@ -6,10 +6,10 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import dogengine.Kernel
 import dogengine.ecs.components.create
 import dogengine.ecs.components.utility.logic.CTransforms
-import dogengine.es.redkin.physicsengine2d.bodies.LineBody
-import dogengine.es.redkin.physicsengine2d.bodies.RectangleBody
-import dogengine.es.redkin.physicsengine2d.contactListener.ContactListener
-import dogengine.es.redkin.physicsengine2d.sensors.Sensor
+import dogengine.redkin.physicsengine2d.bodies.LineBody
+import dogengine.redkin.physicsengine2d.bodies.RectangleBody
+import dogengine.redkin.physicsengine2d.contactListener.ContactListener
+import dogengine.redkin.physicsengine2d.sensors.Sensor
 import dogengine.particles2d.EffectsManager
 import dogengine.utils.log
 import sandbox.R

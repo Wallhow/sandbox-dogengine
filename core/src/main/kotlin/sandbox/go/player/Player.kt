@@ -13,14 +13,14 @@ import dogengine.ecs.components.utility.CStateMachine
 import dogengine.ecs.components.utility.logic.*
 import dogengine.ecs.components.utility.visible.CCameraLook
 import dogengine.ecs.def.GameEntity
-import dogengine.es.redkin.physicsengine2d.variables.Types
+import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.R
 import sandbox.dogengine.ecs.components.controllers.CControllable
 import sandbox.dogengine.ecs.components.controllers.EventListener
 import sandbox.go.player.tools.ATool
 import sandbox.go.player.tools.ToolAxeWood
-import sandbox.sandbox.go.items.inventory.Inventory
+import sandbox.go.items.inventory.Inventory
 
 
 class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {

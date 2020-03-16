@@ -3,8 +3,6 @@ package sandbox.sandbox.def
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.Pixmap
-import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Interpolation
@@ -17,10 +15,13 @@ import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisTable
 import dogengine.Kernel
 import dogengine.ecs.systems.SystemPriority
+import dogengine.ecs.systems.controllers.InputEvent
+import dogengine.ecs.systems.controllers.SInputHandler
 import dogengine.utils.TTFFont
-import dogengine.utils.vec2
+import dogengine.utils.system
 import ktx.vis.table
 import sandbox.R
+import sandbox.def.InventoryView
 import sandbox.sandbox.go.player.Player
 
 class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 10) {
@@ -38,12 +39,15 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     private val invImage: Array<VisImage> = Array(8) { VisImage() }
     private val atlas: TextureAtlas = Kernel.getInjector().getInstance(AssetManager::class.java).get<TextureAtlas>(R.matlas0)
     private val fnt = Kernel.getInjector().getInstance(TTFFont::class.java)
-    private val invDockBarViewer = InvDockBarViewer(sb,fnt)
+    private val invDockBarViewer = InventoryView(sb, fnt)
 
     init {
         toolHitInit()
-        inventoryViewerInit()
+        //Подписка на событие !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO
         invDockBarViewer.init()
+        Kernel.getInjector().getInstance(SInputHandler::class.java).
+            sign(InputEvent.SCREEN_TOUCH,invDockBarViewer)
+
         fnt.create(26,Color.LIGHT_GRAY)
     }
 
@@ -61,61 +65,10 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
         gui.addActor(table)
     }
 
-    private fun inventoryViewerInit() {
-        val viewWidth = view.camera.viewportWidth
-        val viewHeight = view.camera.viewportHeight
-        val halfWidth = viewWidth / 2
-        val halfHeight = viewHeight * 0.5f
-        inventoryView.addActor(table {
-            setPosition(halfWidth - 36f * 4, 50f)
-            setSize(36f * 8, 36f)
-            center()
-            left()
-            group = table {
-                var index = 0
-                player.getInventory().readAll().forEach {
-                    invImage[index].drawable = TextureRegionDrawable(atlas.findRegion(it.first.name_res))
-                    val label = label("${it.second}")
-                    this.add(invImage[index])
-                    add(label)
-                    index++
-                }
-            }
-            add(group)
-            debug = true
-        })
-    }
-
-
     override fun update(deltaTime: Float) {
         toolHit()
-        val array = player.getInventory().readAll()
-        array.forEach {
-            var isItemOnInv = false
-            val cells = invDockBarViewer.invArray.cells
-            for (i in 0 until cells.size) {
-                val cell = cells[i]
-                if (cell.itemID == it.first.id) {
-                    cell.countItem = it.second
-                    isItemOnInv = true
-                    break
-                } else {
-                    isItemOnInv = false
-                }
-            }
-            if (!isItemOnInv) {
-                invDockBarViewer.invArray.getEmptyCell()?.apply {
-                    itemID = it.first.id
-                    countItem = it.second
-                    name_res = it.first.name_res
-                }
-            }
-        }
+        invDockBarViewer.update(player.getInventory().readAll())
         invDockBarViewer.draw(view.camera.viewportWidth, view.camera.viewportHeight,atlas)
-
-
-        inventoryView.act()
-        inventoryView.draw()
     }
 
     private fun toolHit() {
@@ -162,78 +115,4 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
         }
     }
 
-    class InvDockBarViewer(private val sb: SpriteBatch,private val fnt: TTFFont) {
-        private val dot: Texture = Texture(Pixmap(1, 1, Pixmap.Format.RGBA8888).apply {
-            setColor(Color.WHITE)
-            fill() })
-        val invArray = InventoryCellArray()
-        val colorBG = Color.BLACK.cpy().apply { a = 0.5f }
-        val colorCell = Color.BLUE.cpy().apply { a = 0.4f }
-        fun init() {
-            invArray.init()
-        }
-
-        fun draw(width: Float, height: Float,atlas: TextureAtlas) {
-            val x = (width / 2f) - invArray.width/2
-            sb.begin()
-            sb.color = colorBG
-            sb.draw(dot, x, invArray.pos.y, invArray.width, invArray.height)
-            invArray.cells.forEach { cell ->
-                sb.color = colorCell
-                sb.draw(dot, x + cell.x, invArray.pos.y + cell.y, cell.size, cell.size)
-                if (!cell.isEmpty) {
-                    sb.color = Color.WHITE
-                    sb.draw(atlas.findRegion(cell.name_res), x + cell.x, invArray.pos.y + cell.y, cell.size, cell.size)
-                    fnt.get(26).draw(sb,"${cell.countItem}",x + cell.x,invArray.pos.y + cell.y+16)
-                }
-            }
-            sb.color = Color.WHITE
-            sb.end()
-        }
-    }
-
-    class InventoryCell {
-        var size: Float = 0f
-        var x: Float = 0f
-        var y: Float = 0f
-        var countItem = -1
-        var itemID = -1
-        val isEmpty: Boolean
-            get() = (countItem==-1 && itemID==-1)
-        var name_res = ""
-    }
-    class InventoryCellArray {
-        private val invCells = com.badlogic.gdx.utils.Array<InventoryCell>()
-        var width = 0f
-        var height = 0f
-        var separatorSize = 3f
-        val pos = vec2(0f, 0f)
-        var cellSize = 36f
-        var cellCount = 12
-        val cells: com.badlogic.gdx.utils.Array<InventoryCell>
-            get() = invCells
-
-        fun getEmptyCell() : InventoryCell? {
-            var cell: InventoryCell? = null
-            cells.forEach {
-                if(it.isEmpty) {
-                    cell = it
-                }
-            }
-            return cell
-        }
-
-        fun init() {
-            width = (cellSize * cellCount + (cellCount+1) * separatorSize)
-            height = cellSize + separatorSize * 2
-            for (i in 0 until cellCount) {
-                val paddingLeft = separatorSize*(i+1)
-                val cell = InventoryCell()
-                cell.x = i * cellSize + paddingLeft
-                cell.y = separatorSize
-                cell.size = cellSize
-                invCells.add(cell)
-            }
-        }
-    }
 }

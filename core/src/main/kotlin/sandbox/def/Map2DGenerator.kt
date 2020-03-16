@@ -7,7 +7,7 @@ import com.badlogic.gdx.utils.Array
 import com.google.gson.GsonBuilder
 import com.sudoplay.joise.module.*
 import com.sudoplay.joise.module.ModuleBasisFunction.BasisType
-import dogengine.tilemap.map2D.*
+import dogengine.map2D.*
 import dogengine.utils.Array2D
 import dogengine.utils.log
 import java.io.File

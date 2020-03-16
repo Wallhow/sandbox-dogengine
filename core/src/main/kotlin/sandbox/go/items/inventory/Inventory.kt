@@ -1,6 +1,7 @@
-package sandbox.sandbox.go.items.inventory
+package sandbox.go.items.inventory
 
 
+import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
 import sandbox.sandbox.go.items.ItemID
 import sandbox.sandbox.go.items.ObjectList
@@ -10,8 +11,8 @@ import java.util.*
 class Inventory (private val player: Player) {
     private val arrayItemID: ArrayMap<Int,Stack<ItemID>> = ArrayMap(8)
 
-    fun readAll() : com.badlogic.gdx.utils.Array<Pair<ObjectList,Int>> {
-        val arrayMap: com.badlogic.gdx.utils.Array<Pair<ObjectList,Int>> = com.badlogic.gdx.utils.Array()
+    fun readAll() : Array<Pair<ObjectList,Int>> {
+        val arrayMap: Array<Pair<ObjectList,Int>> = Array()
         arrayItemID.forEach { stack ->
             arrayMap.add(Pair(stack.value.peek().dropID,stack.value.size))
         }

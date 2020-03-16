@@ -2,7 +2,7 @@ package sandbox.sandbox.go.environment.models
 
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.draw.CAtlasRegion
-import dogengine.es.redkin.physicsengine2d.variables.Types
+import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.go.environment.drop.models.RockDrop
 import sandbox.sandbox.def.def.comp.CHealth

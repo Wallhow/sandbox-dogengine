@@ -3,7 +3,7 @@ package sandbox.sandbox.def
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.MathUtils
 import dogengine.Kernel
-import dogengine.tilemap.map2D.Cell
+import dogengine.map2D.Cell
 import dogengine.utils.vec2
 import sandbox.sandbox.go.environment.models.Rock
 import sandbox.sandbox.go.environment.models.Sandstone

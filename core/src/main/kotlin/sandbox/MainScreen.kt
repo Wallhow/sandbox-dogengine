@@ -10,37 +10,31 @@ import com.badlogic.gdx.graphics.g2d.ParticleEffect
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.math.Vector3
 import com.google.inject.Injector
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.logic.CTransforms
-import dogengine.ecs.systems.draw.SDrawDebug
+import dogengine.ecs.systems.draw.SDrawDebug20
 import dogengine.ecs.systems.physics.SDefaultPhysics2d
 import dogengine.ecs.systems.tilemap.CMap2D
 import dogengine.ecs.systems.tilemap.SMap2D
-import dogengine.es.redkin.physicsengine2d.world.World
+import dogengine.redkin.physicsengine2d.world.World
 import dogengine.particles2d.EffectsManager
 import dogengine.utils.Size
-import dogengine.utils.log
 import dogengine.utils.system
 import dogengine.utils.vec2
-import sandbox.go.environment.drop.models.GrassDrop
-import sandbox.go.environment.drop.models.RockDrop
-import sandbox.go.environment.drop.models.WoodDrop
 import sandbox.sandbox.def.CreatedCellMapListener
 import sandbox.sandbox.def.Map2DGenerator
 import sandbox.sandbox.def.SGuiDraw
 import sandbox.sandbox.def.def.sys.SDrop
-import sandbox.sandbox.go.environment.drop.models.SandstoneDrop
 import sandbox.sandbox.go.environment.models.Rock
 import sandbox.sandbox.go.environment.models.Wood
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.PlayerToolsListener
+import sandbox.sandbox.input.MainInput
 
 class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private val batch: SpriteBatch = injector.getInstance(SpriteBatch::class.java)
@@ -87,40 +81,23 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
 
         system<SMap2D> {
             tileSize.set(tilesSize, tilesSize)
+            setTileset = {
+                for (i in 1..12) {
+                    it.put(i, TextureAtlas(R.matlas0).findRegion("tile", i))
+                }
+            }
         }
-        system<SDrawDebug> {
+        system<SDrawDebug20> {
             customDebug = {
-                injector.getInstance(World::class.java).drawDebugWorld(camera,it)
+                injector.getInstance(World::class.java).drawDebug(camera,it)
             }
         }
         system<SDefaultPhysics2d> {
             this.world.addContactListener(PlayerToolsListener(player))
         }
 
-        val inputAdapter = object : InputAdapter() {
-            override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-                val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
-                when (MathUtils.random(4)) {
-                  0-> {engine.addEntity(SandstoneDrop(Vector2(pos.x,pos.y),pos.y))}
-                  1-> {engine.addEntity(WoodDrop(Vector2(pos.x,pos.y),pos.y))}
-                  2-> {engine.addEntity(GrassDrop(Vector2(pos.x,pos.y),pos.y))}
-                  3-> {engine.addEntity(RockDrop(Vector2(pos.x,pos.y),pos.y))}
-                }
-                return true
-            }
-
-            var idxLayer = 0
-            override fun keyDown(keycode: Int): Boolean {
-                if (keycode == Input.Keys.Z) {
-                    system<SDrawDebug> {
-                        log("debug info drawing")
-                        this.visible =!visible }
-                }
-                return super.keyDown(keycode)
-            }
-        }
-
-        injector.getInstance(InputMultiplexer::class.java).addProcessor(inputAdapter)
+        //Добавляем главный инпут
+        injector.getInstance(InputMultiplexer::class.java).addProcessor(MainInput(injector))
     }
 
     private fun createMapEntity(toInt: Int): Entity {

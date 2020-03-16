@@ -1,0 +1,24 @@
+ext {
+    shapedrawerVersion = '2.2.0'
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    compile "com.badlogicgames.gdx:gdx:$gdxVersion"
+    compile "com.badlogicgames.ashley:ashley:$ashleyVersion"
+    compile "com.google.inject:guice:4.1.+"
+
+    compile "org.mini2Dx:universal-tween-engine:6.3.3"
+
+    compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+
+    compile "com.badlogicgames.box2dlights:box2dlights:$box2dlightsVersion"
+
+    compile "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
+
+    compile 'com.anupcowkur:statelin:0.1.0'
+
+    //БатчДравер для дебага
+    compile "space.earlygrey:shapedrawer:$shapedrawerVersion"
+
+}

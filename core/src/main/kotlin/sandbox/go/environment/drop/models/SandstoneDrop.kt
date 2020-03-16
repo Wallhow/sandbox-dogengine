@@ -1,4 +1,4 @@
-package sandbox.sandbox.go.environment.drop.models
+package sandbox.go.environment.drop.models
 
 import com.badlogic.gdx.math.Vector2
 import dogengine.utils.Size

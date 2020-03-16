@@ -4,10 +4,10 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.draw.CAtlasRegion
 import dogengine.ecs.components.utility.logic.CTransforms
-import dogengine.es.redkin.physicsengine2d.variables.Types
+import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.sandbox.go.environment.AGOMap
-import sandbox.sandbox.go.environment.drop.models.SandstoneDrop
+import sandbox.go.environment.drop.models.SandstoneDrop
 import sandbox.sandbox.go.items.ObjectList
 
 class Sandstone(position : Vector2) : AGOMap(ObjectList.SANDSTONE.nameMainObj) {

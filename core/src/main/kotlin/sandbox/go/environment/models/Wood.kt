@@ -6,7 +6,7 @@ import dogengine.ecs.components.create
 import dogengine.ecs.components.draw.CAtlasRegion
 import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.components.utility.logic.CTransforms
-import dogengine.es.redkin.physicsengine2d.variables.Types
+import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.go.environment.drop.models.GrassDrop
 import sandbox.go.environment.drop.models.WoodDrop

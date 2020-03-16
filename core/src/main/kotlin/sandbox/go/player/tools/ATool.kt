@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import dogengine.Kernel
 import dogengine.ecs.components.utility.logic.CTransforms
-import dogengine.es.redkin.physicsengine2d.bodies.RectangleBody
+import dogengine.redkin.physicsengine2d.bodies.RectangleBody
 import sandbox.sandbox.go.player.Player
 
 abstract class ATool {

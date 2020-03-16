@@ -6,18 +6,21 @@ import com.badlogic.gdx.utils.viewport.Viewport
 import com.kotcrab.vis.ui.VisUI
 import dogengine.DogeEngineGame
 import dogengine.Kernel
+import dogengine.ecs.systems.controllers.SInputHandler
 import dogengine.ecs.systems.draw.SDrawDebug
+import dogengine.ecs.systems.draw.SDrawDebug20
 import dogengine.ecs.systems.physics.SDefaultPhysics2d
 import dogengine.ecs.systems.tilemap.SMap2D
 import dogengine.ecs.systems.update.SUpdate
 import dogengine.ecs.systems.utility.SDeleteComponent
 import dogengine.ecs.systems.utility.SDeleteMe
 import dogengine.particles2d.EffectsManager
+import dogengine.redkin.physicsengine2d.world.World
 import dogengine.utils.TTFFont
 import sandbox.sandbox.def.def.sys.SExtraction
 import sandbox.sandbox.def.def.sys.SShack
 
-typealias WorldDef = dogengine.es.redkin.physicsengine2d.world.World
+typealias WorldDef = World
 class MainSandbox : DogeEngineGame() {
     private val defWorld: WorldDef = WorldDef(0f)
     override val viewport: Viewport
@@ -40,8 +43,9 @@ class MainSandbox : DogeEngineGame() {
 
             add(SDefaultPhysics2d::class.java)
             add(SUpdate::class.java)
+            add(SInputHandler::class.java)
             add(SMap2D::class.java)
-            add(SDrawDebug::class.java)
+            add(SDrawDebug20::class.java)
             add(SDeleteMe::class.java)
             add(SDeleteComponent::class.java)
             add(SShack::class.java)
@@ -51,7 +55,7 @@ class MainSandbox : DogeEngineGame() {
         kernel.initialize {
             bind(Viewport::class.java).toInstance(viewport)
             bind(OrthographicCamera::class.java).toInstance(viewport.camera as OrthographicCamera)
-            bind(dogengine.es.redkin.physicsengine2d.world.World::class.java).toInstance(defWorld)
+            bind(World::class.java).toInstance(defWorld)
             bind(EffectsManager::class.java).toInstance(effectsManager)
             bind(TTFFont::class.java).toInstance(fnt)
         }
