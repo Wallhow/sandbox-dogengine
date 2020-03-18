@@ -1,4 +1,4 @@
-package sandbox.def
+package sandbox.go.player.inventory
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
@@ -14,7 +14,7 @@ import dogengine.utils.TTFFont
 import dogengine.utils.vec2
 import sandbox.sandbox.go.items.ObjectList
 
-class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont) : EventInputListener() {
+class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont, private val inventory: Inventory) : EventInputListener() {
     private val dot: Texture = Texture(Pixmap(1, 1, Pixmap.Format.RGBA8888).apply {
         setColor(Color.WHITE)
         fill() })
@@ -22,7 +22,6 @@ class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont) : Eve
     val colorBG = Color.BLACK.cpy().apply { a = 0.5f }
     val colorCell = Color.BLUE.cpy().apply { a = 0.4f }
     private val view = Kernel.getInjector().getInstance(Viewport::class.java)
-    var currentCell = 0
     private var x = 0f
     fun init() {
         invArray.init()
@@ -32,7 +31,7 @@ class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont) : Eve
         invArray.cells.forEach { cell ->
             val rectCell = Rectangle(x + cell.x,invArray.pos.y + cell.y,cell.size, cell.size)
             if(rectCell.contains(x_,y_)) {
-                currentCell = invArray.getIndex(cell)
+                inventory.currentItem = invArray.getIndex(cell)
             }
         }
         return false
@@ -53,7 +52,7 @@ class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont) : Eve
 
         sb.color = Color.GOLD
 
-        val cell = invArray.getCell(currentCell)
+        val cell = invArray.getCell(inventory.currentItem)
         sb.draw(dot, x + cell.x, invArray.pos.y + cell.y, cell.size, cell.size)
 
         invArray.cells.forEach { cell ->
@@ -69,7 +68,11 @@ class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont) : Eve
         sb.end()
     }
 
-    fun update(array: Array<Pair<ObjectList, Int>>) {
+    fun update() {
+
+        invArray.reset()
+
+        val array = inventory.readAll()
         array.forEach {
             var isItemOnInv = false
             val cells = invArray.cells
@@ -125,6 +128,13 @@ class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont) : Eve
                 }
             }
             return cell
+        }
+
+        fun reset() {
+            for (i in 0 until cellCount) {
+                invCells[i].countItem = -1
+                invCells[i].itemID = -1
+            }
         }
 
         fun init() {

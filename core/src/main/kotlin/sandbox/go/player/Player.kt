@@ -20,7 +20,7 @@ import sandbox.dogengine.ecs.components.controllers.CControllable
 import sandbox.dogengine.ecs.components.controllers.EventListener
 import sandbox.go.player.tools.ATool
 import sandbox.go.player.tools.ToolAxeWood
-import sandbox.go.items.inventory.Inventory
+import sandbox.go.player.inventory.Inventory
 
 
 class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
@@ -207,6 +207,7 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
             Input.Keys.A -> moveLeft = true
             Input.Keys.D -> moveRight = true
             //Input.Keys.SPACE -> hit()
+            Input.Keys.Q -> { inventory.dropCurrentItem() }
         }
     }
 

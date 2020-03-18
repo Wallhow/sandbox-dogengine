@@ -16,7 +16,7 @@ import sandbox.sandbox.go.player.Player
 
 class SDrop (private val player: Player) : IteratingSystem(Family.all(CDrop::class.java).exclude(CHide::class.java).get()) {
     private var interpolation: Interpolation = Interpolation.linear
-
+    private val durationNotTake = 1.5f
     override fun processEntity(entity: Entity, deltaTime: Float) {
         drop(entity,deltaTime)
         takingObj(entity,deltaTime)
@@ -24,9 +24,12 @@ class SDrop (private val player: Player) : IteratingSystem(Family.all(CDrop::cla
     private fun takingObj(entity: Entity, deltaTime: Float) {
         val drop = CDrop[entity]
         val tr = CTransforms[entity]
-        if(tr.getRect().overlaps(CDefaultPhysics2d[player].rectangleBody)) {
-            player.getInventory().push(drop.itemID!!)
-            entity.create<CDeleteMe>()
+        //можно поднять только после заданного времени
+        if(drop.currentTime >= 0) {
+            if (tr.getRect().overlaps(CDefaultPhysics2d[player].rectangleBody)) {
+                player.getInventory().push(drop.itemID!!)
+                entity.create<CDeleteMe>()
+            }
         }
     }
 
