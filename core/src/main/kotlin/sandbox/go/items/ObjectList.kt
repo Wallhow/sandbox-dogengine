@@ -1,6 +1,7 @@
 package sandbox.sandbox.go.items
 
 enum class ObjectList(val name_res: String, val id: Int,val nameMainObj: String = "") {
+    ZERO("null",-1),
     WOOD("wood_item",1),
     GRASS("grass_item", 0),
     ROCK("rock_item",3),

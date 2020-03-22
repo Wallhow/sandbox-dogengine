@@ -11,6 +11,7 @@ import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
+import dogengine.utils.log
 import sandbox.sandbox.def.def.comp.CDrop
 import sandbox.sandbox.go.player.Player
 
@@ -27,7 +28,7 @@ class SDrop (private val player: Player) : IteratingSystem(Family.all(CDrop::cla
         //можно поднять только после заданного времени
         if(drop.currentTime >= 0) {
             if (tr.getRect().overlaps(CDefaultPhysics2d[player].rectangleBody)) {
-                player.getInventory().push(drop.itemID!!)
+                log(player.getInventory().push(drop.itemID!!))
                 entity.create<CDeleteMe>()
             }
         }

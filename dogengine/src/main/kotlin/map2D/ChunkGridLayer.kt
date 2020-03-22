@@ -27,7 +27,7 @@ class ChunkGridLayer(properties: LayerProperties) : Layer {
 
     class ChunkManager(widthWorld: Int, heightWorld: Int, val sizeChunk: Int) :
             Array2D(widthWorld / sizeChunk, heightWorld / sizeChunk) {
-        private val chunks: Array<Chunk?> = arrayOfNulls(width * height)
+        private val chunks: Array<Chunk?> = arrayOfNulls(col * row)
         private val buffer: com.badlogic.gdx.utils.Array<Chunk> = com.badlogic.gdx.utils.Array()
 
         fun updateBuffer(point: Vector2, viewChunkSize: Int): com.badlogic.gdx.utils.Array<Chunk> {

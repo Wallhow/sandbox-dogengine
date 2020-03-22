@@ -127,16 +127,16 @@ class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: Creat
             }
         }
         // ищем соседей
-        for (x in 0 until grid.width) {
-            for (y in 0 until grid.height) {
+        for (x in 0 until grid.col) {
+            for (y in 0 until grid.row) {
                 findAndAddNeighbors(layer.getCell(x, y), layer)
             }
         }
         //прощитываем битовую маску и играем с выдилением крайних тайлов
         pixel.setColor(Color.BLACK)
         pixel.fill()
-        for (x in 0 until grid.width) {
-            for (y in 0 until grid.width) {
+        for (x in 0 until grid.col) {
+            for (y in 0 until grid.col) {
                 ChunkGridLayer.updateBitmask(layer.getCell(x, y), layer)
                 //настройка тайла
                 tileConfigure(layer.getCell(x, y))
@@ -318,8 +318,8 @@ class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: Creat
 
     private fun fillGroupLand(layerChunk: Layer, grid: IntGrid): Layer {
         val stack = Stack<Cell>()
-        for (x in 0 until grid.width) {
-            for (y in 0 until grid.height) {
+        for (x in 0 until grid.col) {
+            for (y in 0 until grid.row) {
                 val cell = layerChunk.getCell(x, y)
 
                 if (cell.floodFilled)
@@ -350,8 +350,8 @@ class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: Creat
 
     private fun fillGroupWater(layerChunk: Layer, grid: IntGrid): Layer {
         val stack = Stack<Cell>()
-        for (x in 0 until grid.width) {
-            for (y in 0 until grid.height) {
+        for (x in 0 until grid.col) {
+            for (y in 0 until grid.row) {
                 val cell = layerChunk.getCell(x, y)
                 if (cell.floodFilled)
                     continue

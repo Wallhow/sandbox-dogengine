@@ -7,7 +7,7 @@ class Chunk(width: Int,height: Int) : Array2D(width,height) {
     var x: Int = 0
     var y: Int = 0
     val index : Int
-        get() = x+y * width
+        get() = x+y * col
 
     var cells: Array<Cell?> = arrayOfNulls(width * height)
 

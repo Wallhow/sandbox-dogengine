@@ -5,15 +5,15 @@ package dogengine.utils
  * @author MJ
  */
 abstract class Array2D
-/** @param width amount of columns.
- * @param height amount of rows.
+/** @param col amount of columns.
+ * @param row amount of rows.
  */(
         /** @return amount of columns.
          */
-        val width: Int,
+        val col: Int,
         /** @return amount of rows.
          */
-        val height: Int) {
+        val row: Int) {
 
     /** @param size amount of columns and rows.
      */
@@ -24,7 +24,7 @@ abstract class Array2D
      * @return true if the coordinates are valid and can be safely used with getter methods.
      */
     fun isIndexValid(x: Int, y: Int): Boolean {
-        return (x >= 0 && x < width) && y >= 0 && y < height
+        return (x in 0 until col) && y >= 0 && y < row
     }
 
     /** @param x column index.
@@ -32,21 +32,21 @@ abstract class Array2D
      * @return actual array index of the cell.
      */
     fun toIndex(x: Int, y: Int): Int {
-        return x + y * width
+        return x + y * col
     }
 
     /** @param index actual array index of a cell.
      * @return column index.
      */
     fun toX(index: Int): Int {
-        return index % width
+        return index % col
     }
 
     /** @param index actual array index of a cell.
      * @return row index.
      */
     fun toY(index: Int): Int {
-        return index / width
+        return index / col
     }
 
 }
