@@ -41,6 +41,9 @@ abstract class AGameObject (name: String) : Entity(), IGameObject {
         }
         return CAtlasRegion[this]
     }
+    protected fun getAtlasRegion() : TextureAtlas.AtlasRegion {
+        return CAtlasRegion[this].atlas!!.findRegion(CAtlasRegion[this].nameRegion)
+    }
 
     protected fun createCTransform(pos: Vector2, size: Size) {
         create<CTransforms> {

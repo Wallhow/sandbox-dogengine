@@ -7,6 +7,7 @@ import dogengine.utils.Size
 import sandbox.go.environment.drop.models.RockDrop
 import sandbox.sandbox.def.def.comp.CHealth
 import sandbox.sandbox.go.environment.AGOMap
+import sandbox.sandbox.go.environment.drop.dropOnMap
 import sandbox.sandbox.go.items.ObjectList
 
 class Rock(position: Vector2) : AGOMap("rock") {
@@ -15,7 +16,7 @@ class Rock(position: Vector2) : AGOMap("rock") {
 
     init {
         createCAtlasRegion()
-        val tex = CAtlasRegion[this@Rock].atlas!!.findRegion(CAtlasRegion[this@Rock].nameRegion)
+        val tex = getAtlasRegion()
         createCTransform(position, Size(tex.regionWidth.toFloat(), tex.regionHeight * 1f))
         createCPhysicsDef(type = Types.TYPE.DYNAMIC)
         createCUpdate {
@@ -24,18 +25,13 @@ class Rock(position: Vector2) : AGOMap("rock") {
                 idx
             } else 5
         }
-        createCHealth(15f) { befDead() }
+        createCHealth(15f)
         CHealth[this].shot = {
             if (currentIdx != CAtlasRegion[this@Rock].index) {
                 currentIdx = CAtlasRegion[this@Rock].index
-                dropOnMap<RockDrop>(0, 1)
+                dropOnMap(0, 1,ObjectList.ROCK)
             }
 
         }
-    }
-
-    private fun befDead() {
-        deleteMe()
-        dropOnMap<RockDrop>()
     }
 }

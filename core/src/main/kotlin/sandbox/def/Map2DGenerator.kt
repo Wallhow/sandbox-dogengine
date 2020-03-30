@@ -16,8 +16,8 @@ import java.util.*
 
 class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: CreatedCellMapListener? = null) {
 
-    val width = 256
-    val height = 256
+    val width = 36
+    val height = 36
     //val generator: NoiseGenerator = NoiseGenerator()
     val seed = 148865L
     val pixmap = Pixmap(width, height, Pixmap.Format.RGBA4444)

@@ -22,12 +22,12 @@ class MainInput (injector: Injector): InputAdapter() {
     private val engine = injector.getInstance(Engine::class.java)
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
-            when (MathUtils.random(4)) {
+            /*when (MathUtils.random(4)) {
                 0-> {engine.addEntity(SandstoneDrop(Vector2(pos.x,pos.y),pos.y))}
                 1-> {engine.addEntity(WoodDrop(Vector2(pos.x,pos.y),pos.y))}
                 2-> {engine.addEntity(GrassDrop(Vector2(pos.x,pos.y),pos.y))}
                 3-> {engine.addEntity(RockDrop(Vector2(pos.x,pos.y),pos.y))}
-            }
+            }*/
             return true
         }
 

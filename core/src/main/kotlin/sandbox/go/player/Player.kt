@@ -15,6 +15,8 @@ import dogengine.ecs.components.utility.visible.CCameraLook
 import dogengine.ecs.def.GameEntity
 import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
+import dogengine.utils.log
+import dogengine.utils.vec2
 import sandbox.R
 import sandbox.dogengine.ecs.components.controllers.CControllable
 import sandbox.dogengine.ecs.components.controllers.EventListener
@@ -27,6 +29,7 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
     var directionSee = DirectionSee.DOWN
     private val tool = ToolAxeWood(this, am)
     private val inventory = Inventory(this)
+    private val direction = vec2(0f,0f)
 
     init {
         name = "player"
@@ -66,68 +69,51 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
             val bodyW = t.size.width / 3
             createBody(t, t.size.width / 2 - bodyW / 2, 4f, bodyW, t.size.height / 4, Types.TYPE.DYNAMIC, name)
         }
-        val hashUp = T.W_UP.hashCode()
-        val hashDown = T.W_DOWN.hashCode()
-        val hashLeft = T.W_LEFT.hashCode()
-        val hashRight = T.W_RIGHT.hashCode()
         create<CUpdate> {
             func = {
                 tool.update(it)
-
                 CTransforms[this@Player].updateZIndex()
-                when {
-                    moveUp -> {
-                        if (moveRight || moveLeft) {
-                            CStateMachine[this@Player].setTrigger(hashUp)
-                        } else {
-                            CStateMachine[this@Player].setTrigger(hashUp)
-                        }
-                        CVelocity[this@Player].vector.y = speed
-                    }
-                    moveDown -> {
-                        if (moveRight || moveLeft) {
-                            CStateMachine[this@Player].setTrigger(hashDown)
-                        } else {
-                            CStateMachine[this@Player].setTrigger(hashDown)
-                        }
-                        CVelocity[this@Player].vector.y = -speed
-                    }
-                    moveLeft -> {
-                        when {
-                            moveUp -> {
-                                CStateMachine[this@Player].setTrigger(hashUp)
-                            }
-                            moveDown -> {
-                                CStateMachine[this@Player].setTrigger(hashDown)
-                            }
-                            else -> {
-                                CStateMachine[this@Player].setTrigger(hashLeft)
-                                CVelocity[this@Player].vector.x = -speed
-                            }
-                        }
-                    }
-                    moveRight -> {
-                        when {
-                            moveUp -> {
-                                CStateMachine[this@Player].setTrigger(hashUp)
-                            }
-                            moveDown -> {
-                                CStateMachine[this@Player].setTrigger(hashDown)
-                            }
-                            else -> {
-                                CStateMachine[this@Player].setTrigger(hashRight)
-                                CVelocity[this@Player].vector.x = speed
-                            }
-                        }
-                    }
-                }
-
+                movePlayer()
             }
         }
 
         create<CStateMachine> { createState(this) }
 
 
+    }
+    private val hashUp = T.W_UP.hashCode()
+    private val hashDown = T.W_DOWN.hashCode()
+    private val hashLeft = T.W_LEFT.hashCode()
+    private val hashRight = T.W_RIGHT.hashCode()
+    private fun movePlayer() {
+        var speedDelta = speed
+        if(direction.x== 1f && direction.y==1f || direction.x== 1f && direction.y==-1f ||
+                direction.x== -1f && direction.y==1f || direction.x== -1f && direction.y==-1f) {
+            speedDelta-=speedDelta*0.2f
+        }
+        CVelocity[this@Player].vector.set(direction.cpy().scl(speedDelta))
+        if(!CVelocity[this@Player].vector.isZero) {
+            val a = 270 - direction.angle()
+            if (a == 180f) {
+                CStateMachine[this@Player].setTrigger(hashUp)
+            } else if (a == 90f) {
+                CStateMachine[this@Player].setTrigger(hashLeft)
+            } else if (a == 270f) {
+                CStateMachine[this@Player].setTrigger(hashRight)
+            } else if (a == 0f) {
+                CStateMachine[this@Player].setTrigger(hashDown)
+            } else if (a > 0 && a < 90) {
+                CStateMachine[this@Player].setTrigger(hashDown)
+            } else if( a > 90 && a < 180) {
+                CStateMachine[this@Player].setTrigger(hashUp)
+            } else if( a > 180 && a < 270) {
+                CStateMachine[this@Player].setTrigger(hashUp)
+            }else if( a == -45f) {
+                CStateMachine[this@Player].setTrigger(hashDown)
+            }
+        } else {
+            CStateMachine[this@Player].setTrigger(T.W_NON.hashCode())
+        }
     }
 
     fun getCurrentTool(): ATool = tool
@@ -202,11 +188,31 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
 
     override fun keyJustPressed(keyCode: Int) {
         when (keyCode) {
-            Input.Keys.W -> moveUp = true
-            Input.Keys.S -> moveDown = true
-            Input.Keys.A -> moveLeft = true
-            Input.Keys.D -> moveRight = true
-            //Input.Keys.SPACE -> hit()
+            Input.Keys.W -> {
+                if(!moveDown) {
+                    moveUp = true
+                    direction.y = 1f
+                }
+            }
+            Input.Keys.S -> {
+                if(!moveUp) {
+                    moveDown = true
+                    direction.y = -1f
+                }
+            }
+            Input.Keys.A -> {
+                if(!moveRight) {
+                    moveLeft = true
+                    direction.x = -1f
+                }
+            }
+            Input.Keys.D -> {
+                if(!moveLeft) {
+                    moveRight = true
+                    direction.x = 1f
+                }
+            }
+
             Input.Keys.Q -> { inventory.dropCurrentItem() }
         }
     }
@@ -222,27 +228,28 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
             Input.Keys.W -> {
                 moveUp = false
                 if (!moveDown)
-                    CVelocity[this@Player].vector.y = 0f
+                    direction.y = 0f
             }
             Input.Keys.S -> {
                 moveDown = false
                 if (!moveUp)
-                    CVelocity[this@Player].vector.y = 0f
+                    direction.y = 0f
             }
             Input.Keys.A -> {
                 moveLeft = false
                 if (!moveRight)
-                    CVelocity[this@Player].vector.x = 0f
+                    direction.x = 0f
             }
             Input.Keys.D -> {
                 moveRight = false
                 if (!moveLeft)
-                    CVelocity[this@Player].vector.x = 0f
+                    direction.x = 0f
             }
         }
         if (!moveRight && !moveLeft && !moveDown && !moveUp) {
             CStateMachine[this@Player].setTrigger(T.W_NON.hashCode())
             CVelocity[this@Player].vector.set(0f, 0f)
+            direction.setZero()
         }
     }
 

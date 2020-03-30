@@ -17,6 +17,7 @@ import dogengine.ecs.systems.utility.SDeleteMe
 import dogengine.particles2d.EffectsManager
 import dogengine.redkin.physicsengine2d.world.World
 import dogengine.utils.TTFFont
+import sandbox.def.SWorldHandler
 import sandbox.sandbox.def.def.sys.SExtraction
 import sandbox.sandbox.def.def.sys.SShack
 
@@ -46,6 +47,7 @@ class MainSandbox : DogeEngineGame() {
             add(SInputHandler::class.java)
             add(SMap2D::class.java)
             add(SDrawDebug20::class.java)
+            add(SWorldHandler::class.java)
             add(SDeleteMe::class.java)
             add(SDeleteComponent::class.java)
             add(SShack::class.java)
