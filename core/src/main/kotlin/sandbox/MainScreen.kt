@@ -29,6 +29,7 @@ import dogengine.utils.vec2
 import sandbox.sandbox.def.CreatedCellMapListener
 import sandbox.sandbox.def.Map2DGenerator
 import sandbox.sandbox.def.SGuiDraw
+import sandbox.sandbox.def.def.particles.EmitterManager
 import sandbox.sandbox.def.def.sys.SDrop
 import sandbox.sandbox.go.environment.models.Rock
 import sandbox.sandbox.go.environment.models.Wood
@@ -43,12 +44,15 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     lateinit var player: Player
     private val tilesSize = 32f
     private lateinit var ef: EffectsManager
+    private val eManager = injector.getInstance(EmitterManager::class.java)
 
     override fun render(delta: Float) {
         engine.update(delta)
+        eManager.update(delta)
         ef.update(delta)
         batch.begin()
         ef.draw(batch)
+        eManager.draw()
         batch.end()
     }
 

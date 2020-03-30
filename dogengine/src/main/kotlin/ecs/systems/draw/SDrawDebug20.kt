@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.google.inject.Inject
+import dogengine.Kernel
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
@@ -36,12 +37,7 @@ class SDrawDebug20 @Inject constructor(val camera: OrthographicCamera, private v
     }
 
     private fun getRegion(): TextureRegion {
-        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888);
-        pixmap.setColor(Color.WHITE)
-        pixmap.drawPixel(0, 0)
-        val texture = Texture(pixmap) //remember to dispose of later
-        pixmap.dispose()
-        return TextureRegion(texture, 0, 0, 1, 1)
+        return Kernel.getInjector().getInstance(TextureRegion::class.java)
     }
 
 

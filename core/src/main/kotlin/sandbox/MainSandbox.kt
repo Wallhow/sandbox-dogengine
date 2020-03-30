@@ -3,6 +3,7 @@ package sandbox
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
+import com.google.inject.Singleton
 import com.kotcrab.vis.ui.VisUI
 import dogengine.DogeEngineGame
 import dogengine.Kernel
@@ -18,6 +19,9 @@ import dogengine.particles2d.EffectsManager
 import dogengine.redkin.physicsengine2d.world.World
 import dogengine.utils.TTFFont
 import sandbox.def.SWorldHandler
+import sandbox.sandbox.DefClass
+import sandbox.sandbox.def.def.particles.Emitter
+import sandbox.sandbox.def.def.particles.EmitterManager
 import sandbox.sandbox.def.def.sys.SExtraction
 import sandbox.sandbox.def.def.sys.SShack
 
@@ -31,6 +35,7 @@ class MainSandbox : DogeEngineGame() {
     override fun resize(width: Int, height: Int) {
         viewport.update(width,height)
     }
+    private val eManager = EmitterManager()
 
 
     override fun create() {
@@ -60,8 +65,10 @@ class MainSandbox : DogeEngineGame() {
             bind(World::class.java).toInstance(defWorld)
             bind(EffectsManager::class.java).toInstance(effectsManager)
             bind(TTFFont::class.java).toInstance(fnt)
+            bind(EmitterManager::class.java).toInstance(eManager)
         }
 
         setScreen(MainScreen(kernel.getInjector()))
+        //setScreen(DefClass(kernel.getInjector()))
     }
 }

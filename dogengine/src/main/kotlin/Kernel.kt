@@ -6,7 +6,11 @@ import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.google.inject.*
 import dogengine.ecs.systems.actions.STweenEngine
@@ -17,7 +21,9 @@ import dogengine.ecs.systems.update.SUpdate
 import dogengine.ecs.systems.update.SVelocity
 import dogengine.ecs.systems.utility.SCameraLook
 import dogengine.ecs.systems.utility.SDeleteMe
+import dogengine.utils.log
 import sandbox.dogengine.ecs.systems.update.SVisibleEntity
+
 
 object Kernel {
     private lateinit var inject: Injector
@@ -26,36 +32,28 @@ object Kernel {
 
     fun initialize(bind: (Binder.() -> Unit) = {}) {
         inject = Guice.createInjector(KernelModule(bind,systems))
-
         //Загружаем системы в эшли
         systems.list.forEach {
             val system = inject.getInstance(it)
-            println("$it...done")
             inject.getInstance(Engine::class.java).addSystem(system)
         }
 
         Gdx.input.inputProcessor = getInjector().getInstance(InputMultiplexer::class.java)
         PooledEntityCreate.engine = inject.getInstance(Engine::class.java)
-
-        //getInjector().getInstance(AssetManager::class.java).setLoader(TiledMap::class.java,TmxMapLoader())
     }
 
     fun getSystems(): Systems = systems
     fun getInjector() = inject
 
-
     class Systems {
         var list: ArrayList<Class<out EntitySystem>> = ArrayList()
-
         fun add(system: Class<out EntitySystem>) {
             list.add(system)
         }
-
         fun use(defSystems: DefSystems) {
             defSystems.ordinal
             defSystems.declaringClass
             DefSystems.values()[defSystems.ordinal].system.forEach {
-
                 list.add(it)
             }
 
@@ -82,9 +80,10 @@ object Kernel {
                 SCollideEventHandler::class.java,
                 SPhysics2DDeleteMe::class.java),
         CameraLook(SCameraLook::class.java),
+        DrawDebug(SDrawDebug20::class.java),
         Render3DIn2DWorld(SRender3DIn2D::class.java),
         Controller(SInputController::class.java),
-        UpdateAfterTime(SUpdate::class.java),
+        Update(SUpdate::class.java),
         DeleteEntity(SDeleteMe::class.java),
         TweenEngine(STweenEngine::class.java)
 
@@ -95,6 +94,7 @@ object Kernel {
         //val bloom = Bloom().apply { this.setTreshold(0.85f) }
         override fun configure(binder: Binder) {
             bind.invoke(binder)
+            binder.bind(TextureRegion::class.java).toProvider(DotTexture::class.java)
             //binder.bind(Bloom::class.java).toInstance(bloom)
         }
 
@@ -124,7 +124,21 @@ object Kernel {
         fun assetManager() : AssetManager {
             return AssetManager()
         }
+
+
     }
+    @Singleton
+    class DotTexture : Provider<TextureRegion> {
+        override fun get(): TextureRegion {
+            val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888);
+            pixmap.setColor(Color.WHITE)
+            pixmap.drawPixel(0, 0)
+            val texture = Texture(pixmap)
+            pixmap.dispose()
+            return TextureRegion(texture, 0, 0, 1, 1)
+        }
+    }
+
 }
 
 object PooledEntityCreate {
