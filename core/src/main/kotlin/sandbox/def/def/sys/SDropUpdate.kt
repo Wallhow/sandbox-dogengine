@@ -15,7 +15,7 @@ import dogengine.utils.log
 import sandbox.sandbox.def.def.comp.CDrop
 import sandbox.sandbox.go.player.Player
 
-class SDrop (private val player: Player) : IteratingSystem(Family.all(CDrop::class.java).exclude(CHide::class.java).get()) {
+class SDropUpdate (private val player: Player) : IteratingSystem(Family.all(CDrop::class.java).exclude(CHide::class.java).get()) {
     private var interpolation: Interpolation = Interpolation.linear
     private val durationNotTake = 1.5f
     override fun processEntity(entity: Entity, deltaTime: Float) {

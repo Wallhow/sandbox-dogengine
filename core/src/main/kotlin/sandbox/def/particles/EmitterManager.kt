@@ -1,9 +1,6 @@
 package sandbox.sandbox.def.def.particles
 
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.Array
-import com.google.inject.Inject
-import dogengine.Kernel
 
 class EmitterManager {
     private val arrayEmitter = Array<Emitter>()

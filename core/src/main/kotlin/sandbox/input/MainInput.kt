@@ -5,18 +5,12 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.google.inject.Injector
-import dogengine.ecs.systems.draw.SDrawDebug
 import dogengine.ecs.systems.draw.SDrawDebug20
 import dogengine.utils.log
 import dogengine.utils.system
-import sandbox.go.environment.drop.models.GrassDrop
-import sandbox.go.environment.drop.models.RockDrop
-import sandbox.go.environment.drop.models.WoodDrop
-import sandbox.go.environment.drop.models.SandstoneDrop
 import sandbox.sandbox.def.def.particles.Emitter
 import sandbox.sandbox.def.def.particles.EmitterManager
 

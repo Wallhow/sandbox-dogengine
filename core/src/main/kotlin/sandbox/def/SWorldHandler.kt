@@ -1,15 +1,12 @@
 package sandbox.def
 
 import com.badlogic.ashley.core.EntitySystem
-import dogengine.ecs.def.GameEntity
+import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.systems.SystemPriority
 import dogengine.utils.log
-import sandbox.go.environment.drop.models.GrassDrop
-import sandbox.go.environment.drop.models.RockDrop
-import sandbox.go.environment.drop.models.SandstoneDrop
-import sandbox.go.environment.drop.models.WoodDrop
-import sandbox.sandbox.def.def.comp.DropConfig
-import sandbox.sandbox.go.items.ObjectList
+import sandbox.go.environment.ObjectList
+import sandbox.sandbox.def.ItemCreatorOnMap
+import sandbox.sandbox.def.ItemData
 import java.util.*
 
 class SWorldHandler: EntitySystem() {
@@ -18,45 +15,26 @@ class SWorldHandler: EntitySystem() {
     }
 
     override fun update(deltaTime: Float) {
-        if(!worldEventDrop.stackDrop.empty()) {
-            createDrop(worldEventDrop.stackDrop.pop())
+        if(!stackItemData.empty()) {
+            val itemData = stackItemData.pop()
+            val itemObj = ItemCreatorOnMap.create(itemData)
+            if(itemObj!=null) {
+                engine.addEntity(itemObj)
+                ItemData.free(itemData)
+            }
+            else log("not can create item on map")
         }
         super.update(deltaTime)
     }
-    //TODO Тут централизованное создание дроп Объектов
-    private fun createDrop(dropConfig: DropConfig) {
-        dropConfig.let {
-            val pos = it.position
-            when (it.type) {
-                ObjectList.GRASS -> {
-                    engine.addEntity(GrassDrop(pos, pos.y))
-                }
-                ObjectList.WOOD -> {
-                    engine.addEntity(WoodDrop(pos, pos.y))
-                }
-                ObjectList.SANDSTONE -> {
-                    engine.addEntity(SandstoneDrop(pos, pos.y))
-                }
-                ObjectList.ROCK -> {
-                    engine.addEntity(RockDrop(pos, pos.y))
-                }
-            }
-        }
-        if(!worldEventDrop.stackDrop.empty()) {
-            createDrop(worldEventDrop.stackDrop.pop())
-        }
-    }
 
     companion object {
-        val worldEventDrop = WorldEventDrop()
-    }
-
-    class WorldEvent : GameEntity() {
-        init {
-            name = "worldEvent"
+        private val stackItemData : Stack<ItemData> = Stack()
+        fun getStackItemData() : Stack<ItemData> = stackItemData
+        fun addItemOnMap(type: ObjectList,position: Vector2) {
+            stackItemData.push(ItemData.obtain().apply {
+                this.position.set(position)
+                this.type = type
+            })
         }
-    }
-    class WorldEventDrop {
-        val stackDrop : Stack<DropConfig> = Stack()
     }
 }

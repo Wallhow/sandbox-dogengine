@@ -20,6 +20,7 @@ import dogengine.ecs.systems.controllers.SInputHandler
 import dogengine.utils.TTFFont
 import ktx.vis.table
 import sandbox.R
+import sandbox.def.craftsys.HCraftTable
 import sandbox.go.player.inventory.InventoryView
 import sandbox.sandbox.go.player.Player
 
@@ -38,16 +39,18 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     private val invImage: Array<VisImage> = Array(8) { VisImage() }
     private val atlas: TextureAtlas = Kernel.getInjector().getInstance(AssetManager::class.java).get<TextureAtlas>(R.matlas0)
     private val fnt = Kernel.getInjector().getInstance(TTFFont::class.java)
-    private val invDockBarViewer = InventoryView(sb, fnt,player.getInventory())
+    private val invDockBarViewer = InventoryView(sb, fnt, player.getInventory())
+
+    private val craftMenu = HCraftTable(player, sb)
 
     init {
         toolHitInit()
         //Подписка на событие !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO
         invDockBarViewer.init()
-        Kernel.getInjector().getInstance(SInputHandler::class.java).
-            sign(InputEvent.SCREEN_TOUCH,invDockBarViewer)
+        Kernel.getInjector().getInstance(SInputHandler::class.java).sign(InputEvent.SCREEN_TOUCH, invDockBarViewer)
 
-        fnt.create(26,Color.LIGHT_GRAY)
+
+        fnt.create(26, Color.LIGHT_GRAY)
     }
 
     private fun toolHitInit() {
@@ -67,7 +70,9 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     override fun update(deltaTime: Float) {
         toolHit()
         invDockBarViewer.update()
-        invDockBarViewer.draw(view.camera.viewportWidth, view.camera.viewportHeight,atlas)
+        invDockBarViewer.draw(view.camera.viewportWidth, view.camera.viewportHeight, atlas)
+
+        craftMenu.update()
     }
 
     private fun toolHit() {

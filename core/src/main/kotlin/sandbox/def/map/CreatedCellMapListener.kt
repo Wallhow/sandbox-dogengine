@@ -1,4 +1,4 @@
-package sandbox.sandbox.def
+package sandbox.sandbox.def.map
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.gdx.math.MathUtils

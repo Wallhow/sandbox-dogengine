@@ -26,11 +26,11 @@ import dogengine.particles2d.EffectsManager
 import dogengine.utils.Size
 import dogengine.utils.system
 import dogengine.utils.vec2
-import sandbox.sandbox.def.CreatedCellMapListener
-import sandbox.sandbox.def.Map2DGenerator
+import sandbox.sandbox.def.map.CreatedCellMapListener
+import sandbox.sandbox.def.map.Map2DGenerator
 import sandbox.sandbox.def.SGuiDraw
 import sandbox.sandbox.def.def.particles.EmitterManager
-import sandbox.sandbox.def.def.sys.SDrop
+import sandbox.sandbox.def.def.sys.SDropUpdate
 import sandbox.sandbox.go.environment.models.Rock
 import sandbox.sandbox.go.environment.models.Wood
 import sandbox.sandbox.go.player.Player
@@ -80,7 +80,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         engine.addEntity(Rock(Vector2(350f, 690f)))
 
         engine.addSystem(SGuiDraw(player))
-        engine.addSystem(SDrop(player))
+        engine.addSystem(SDropUpdate(player))
 
 
         system<SMap2D> {
@@ -107,7 +107,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private fun createMapEntity(toInt: Int): Entity {
         return engine.createEntity {
             components {
-                val gen = Map2DGenerator(toInt, CreatedCellMapListener(toInt*1f))
+                val gen = Map2DGenerator(toInt, CreatedCellMapListener(toInt * 1f))
                 val map2d = gen.generate()
                 val t = Texture(gen.pixmap)
                 val scale = 4

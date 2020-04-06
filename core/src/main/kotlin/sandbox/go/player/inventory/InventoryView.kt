@@ -88,7 +88,7 @@ class InventoryView(private val sb: SpriteBatch, private val fnt: TTFFont, priva
             val isEmpty: Boolean
                 get() = item.isEmpty()
             val nameRes: String
-                get() = item.itemID.dropID.name_res
+                get() = item.itemID.name_res
         }
 
         class InvTable(size: Int) : Array2D(size, 1) {

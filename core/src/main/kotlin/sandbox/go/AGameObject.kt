@@ -20,12 +20,12 @@ import dogengine.ecs.components.utility.logic.updateZIndex
 import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.R
-import sandbox.sandbox.go.items.ItemID
-import sandbox.sandbox.go.items.ObjectList
+import sandbox.go.environment.ObjectList
 
-abstract class AGameObject (name: String) : Entity(), IGameObject {
-    override val entity: Entity get() = this
-    abstract override val dropID: ObjectList
+abstract class AGameObject (name: String) : Entity() {
+    open val entity: Entity
+        get() = this
+    abstract val itemType: ObjectList
     protected val assets = Kernel.getInjector().getInstance(AssetManager::class.java)
     protected val atlas = assets.get<TextureAtlas>(R.matlas0)
     protected val engine = Kernel.getInjector().getInstance(Engine::class.java)
@@ -75,8 +75,4 @@ abstract class AGameObject (name: String) : Entity(), IGameObject {
     protected fun deleteMe() {
         create<CDeleteMe>()
     }
-}
-
-interface IGameObject : ItemID {
-    val entity: Entity
 }

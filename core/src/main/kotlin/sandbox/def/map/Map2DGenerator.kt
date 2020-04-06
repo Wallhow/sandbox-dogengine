@@ -1,4 +1,4 @@
-package sandbox.sandbox.def
+package sandbox.sandbox.def.map
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
@@ -19,7 +19,7 @@ class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: Creat
     val width = 36
     val height = 36
     //val generator: NoiseGenerator = NoiseGenerator()
-    val seed = 148865L
+    val seed = 4082017L
     val pixmap = Pixmap(width, height, Pixmap.Format.RGBA4444)
     val prop = LayerProperties(width, height, tileSize, tileSize, 0)
     val g = GsonBuilder().create()
@@ -156,12 +156,12 @@ class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: Creat
 
     private fun tileConfigure(cell: Cell) {
         when (cell.heightType) {
-            1 -> {createTileWater(cell);createdCellMapListener?.createCell(cell,HeightTypes.WATER)} //Вода
-            2 -> {createTileSand(cell); createdCellMapListener?.createCell(cell,HeightTypes.SAND)} //Песок
-            3 -> {cell.userData = 6 ; createdCellMapListener?.createCell(cell,HeightTypes.GROUND)} //земля
-            4 -> { createTileGrass(cell); createdCellMapListener?.createCell(cell,HeightTypes.GRASS)} //трава
-            5 -> {cell.userData = 5 ; createdCellMapListener?.createCell(cell,HeightTypes.ROCK)} //Горы
-            6 -> {cell.userData = 5 ; createdCellMapListener?.createCell(cell,HeightTypes.SNOW)} //снег
+            1 -> {createTileWater(cell);createdCellMapListener?.createCell(cell, HeightTypes.WATER)} //Вода
+            2 -> {createTileSand(cell); createdCellMapListener?.createCell(cell, HeightTypes.SAND)} //Песок
+            3 -> {cell.userData = 6 ; createdCellMapListener?.createCell(cell, HeightTypes.GROUND)} //земля
+            4 -> { createTileGrass(cell); createdCellMapListener?.createCell(cell, HeightTypes.GRASS)} //трава
+            5 -> {cell.userData = 5 ; createdCellMapListener?.createCell(cell, HeightTypes.ROCK)} //Горы
+            6 -> {cell.userData = 5 ; createdCellMapListener?.createCell(cell, HeightTypes.SNOW)} //снег
         }
 
     }

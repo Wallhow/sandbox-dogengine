@@ -4,6 +4,7 @@ dependencies {
 
   compile "com.kotcrab.vis:vis-ui:$visUiVersion"
   compile "io.github.libktx:ktx-ashley:$ktxAshleyVersion"
+  compile "io.github.libktx:ktx-actors:$ktxAshleyVersion"
   compile "io.github.libktx:ktx-vis-style:$ktxVisStyleVersion"
   compile "io.github.libktx:ktx-vis:$ktxVisVersion"
   compile "io.github.libktx:ktx-graphics:$ktxGraphicsVersion"
