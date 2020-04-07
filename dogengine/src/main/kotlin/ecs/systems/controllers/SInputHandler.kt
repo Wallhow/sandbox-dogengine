@@ -65,17 +65,28 @@ class SInputHandler @Inject constructor(val camera: OrthographicCamera,multiplex
             }
             return super.touchUp(screenX, screenY, pointer, button)
         }
+
+        override fun keyDown(keycode: Int): Boolean {
+            eventListeners[InputEvent.KEY_PRESS]?.forEach {
+                val result = it.keyPressed(keycode)
+                if (!result)
+                    return@forEach
+            }
+            return super.keyDown(keycode)
+        }
     }
 }
 
 enum class InputEvent {
-    SCREEN_TOUCH
+    SCREEN_TOUCH,
+    KEY_PRESS
 }
 
 interface IEventInputListener {
     fun touchDown(x: Float, y: Float): Boolean
     fun touchDragged(x:Float, y:Float, pointer: Int): Boolean
     fun touchUp(x:Float, y:Float, pointer: Int): Boolean
+    fun keyPressed(key: Int) : Boolean
 }
 open class EventInputListener: IEventInputListener {
     override fun touchDown(x: Float, y: Float): Boolean {
@@ -87,6 +98,10 @@ open class EventInputListener: IEventInputListener {
     }
 
     override fun touchUp(x: Float, y: Float, pointer: Int): Boolean {
+        return true
+    }
+
+    override fun keyPressed(key: Int): Boolean {
         return true
     }
 }

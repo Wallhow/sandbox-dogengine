@@ -48,6 +48,7 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
         //Подписка на событие !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO
         invDockBarViewer.init()
         Kernel.getInjector().getInstance(SInputHandler::class.java).sign(InputEvent.SCREEN_TOUCH, invDockBarViewer)
+        Kernel.getInjector().getInstance(SInputHandler::class.java).sign(InputEvent.KEY_PRESS, craftMenu)
 
 
         fnt.create(26, Color.LIGHT_GRAY)
