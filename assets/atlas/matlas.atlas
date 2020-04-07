@@ -52,14 +52,14 @@ knight
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
-  index: 21
+  index: 41
 knight
   rotate: false
   xy: 372, 154
   size: 32, 32
   orig: 32, 32
   offset: 0, 0
-  index: 41
+  index: 21
 knight
   rotate: false
   xy: 406, 154

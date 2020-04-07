@@ -19,7 +19,6 @@ import dogengine.Kernel
 import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.log
 import ktx.actors.onClick
-import ktx.actors.setPosition
 import ktx.vis.table
 import sandbox.go.environment.ObjectList
 import sandbox.sandbox.go.assetAtlas
@@ -43,13 +42,17 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
     private val craftList: CraftRecipes = CraftRecipes(player.getInventory())
     private val dotTexture = Kernel.getInjector().getProvider(Kernel.DotTexture::class.java).get().get()
     var isVisible: Boolean = false
+    private val fromPositionTableX = -300f
+    private val toPositionTableX = 10f
+    private var timeAcc = 0f
+    private val moveTableDuration = 1f
 
-    fun show() {
+    private fun show() {
         isVisible = true
         isShowNow = true
 
     }
-    fun hide() {
+    private fun hide() {
         isInvisibleNow = true
     }
 
@@ -122,28 +125,15 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
 
     private var currentRecipe: CraftRecipe? = null
 
-    var timeAcc = 0f
-    val moveDuration = 1f
-    fun update() {
-        if (isVisible && isShowNow) {
-            timeAcc += Gdx.graphics.deltaTime
-            val posX = Interpolation.bounceOut.apply(-300f, 10f, timeAcc / moveDuration)
-            root.setPosition(posX, root.y)
-            if (moveDuration <= timeAcc) {
-                isShowNow = false
-                timeAcc = 0f
-            }
-        } else if (isVisible && isInvisibleNow) {
-            timeAcc += Gdx.graphics.deltaTime
-            val posX = Interpolation.exp5In.apply(10f, -300f, timeAcc / moveDuration)
-            root.setPosition(posX, root.y)
-            if (moveDuration <= timeAcc) {
-                isInvisibleNow = false
-                isVisible = false
-                timeAcc = 0f
-            }
-        }
 
+
+    fun update() {
+        val delta = Gdx.graphics.deltaTime
+        if (isVisible && isShowNow) {
+            showProcess(delta)
+        } else if (isVisible && isInvisibleNow) {
+            hideProcess(delta)
+        }
         if (isVisible) {
             craftList.getAvailableRecipes() {
                 showCraftRecipe(it)
@@ -152,6 +142,26 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
             stage.draw()
         }
 
+    }
+
+    private fun showProcess(delta: Float) {
+        timeAcc += delta
+        val posX = Interpolation.bounceOut.apply(fromPositionTableX, toPositionTableX, timeAcc / moveTableDuration)
+        root.setPosition(posX, root.y)
+        if (moveTableDuration <= timeAcc) {
+            isShowNow = false
+            timeAcc = 0f
+        }
+    }
+    private fun hideProcess(delta: Float) {
+        timeAcc += delta
+        val posX = Interpolation.exp5In.apply(toPositionTableX, fromPositionTableX, timeAcc / moveTableDuration)
+        root.setPosition(posX, root.y)
+        if (moveTableDuration <= timeAcc) {
+            isInvisibleNow = false
+            isVisible = false
+            timeAcc = 0f
+        }
     }
 
     private fun showCraftRecipe(recipe: CraftRecipe) {
