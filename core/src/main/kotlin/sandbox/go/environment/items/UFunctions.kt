@@ -4,9 +4,9 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
 import dogengine.ecs.components.utility.logic.CTransforms
 import sandbox.def.SWorldHandler
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
 
-fun Entity.dropOnMap(minCount: Int = 1, maxCount: Int = minCount + 1, drop: ObjectList = ObjectList.ZERO) {
+fun Entity.dropOnMap(minCount: Int = 1, maxCount: Int = minCount + 1, drop: ItemList = ItemList.ZERO) {
     val size = CTransforms[this].size
     val count = MathUtils.random(minCount, maxCount)
     if (count == 0) return

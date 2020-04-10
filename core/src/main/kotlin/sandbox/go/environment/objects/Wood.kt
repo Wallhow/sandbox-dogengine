@@ -1,4 +1,4 @@
-package sandbox.sandbox.go.environment.models
+package sandbox.go.environment.objects
 
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.utility.logic.CTransforms
@@ -6,10 +6,12 @@ import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.sandbox.go.environment.AGameObjectOnMap
 import sandbox.go.environment.items.dropOnMap
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.environment.ObjectList
 
-class Wood (position : Vector2) : AGameObjectOnMap("wood") {
-    override var itemType: ObjectList = ObjectList.WOOD
+class Wood (position : Vector2) : AGameObjectOnMap(objectType = ObjectList.WOOD) {
+    private val itemType = ItemList.WOOD
+    private val itemType2 = ItemList.GRASS
     init {
         createCAtlasRegion()
         val tex = getAtlasRegion()
@@ -19,7 +21,7 @@ class Wood (position : Vector2) : AGameObjectOnMap("wood") {
         createCHealth(8f,itemType = null) { befDead() }
     }
     private fun befDead()  {
-        dropOnMap(3,5, ObjectList.GRASS)
-        dropOnMap(3,4, ObjectList.WOOD)
+        dropOnMap(3,5, itemType2)
+        dropOnMap(3,4, itemType)
     }
 }

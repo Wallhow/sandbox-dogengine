@@ -31,8 +31,10 @@ import sandbox.sandbox.def.map.Map2DGenerator
 import sandbox.sandbox.def.SGuiDraw
 import sandbox.sandbox.def.def.particles.EmitterManager
 import sandbox.sandbox.def.def.sys.SDropUpdate
-import sandbox.sandbox.go.environment.models.Rock
-import sandbox.sandbox.go.environment.models.Wood
+import sandbox.go.environment.objects.Rock
+import sandbox.go.environment.objects.Wood
+import sandbox.go.environment.objects.buiding.Workbench
+import sandbox.sandbox.def.def.sys.SWorkbenchDetected
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.PlayerToolsListener
 import sandbox.sandbox.input.MainInput
@@ -73,14 +75,14 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         engine.addEntity(player)
         engine.addEntity(Wood(Vector2(100f, 200f)))
         engine.addEntity(Wood(Vector2(250f, 210f)))
-        engine.addEntity(Wood(Vector2(350f, 220f)))
-        engine.addEntity(Wood(Vector2(450f, 190f)))
+        engine.addEntity(Workbench(Vector2(350f, 220f)))
 
         engine.addEntity(Rock(Vector2(470f, 590f)))
         engine.addEntity(Rock(Vector2(350f, 690f)))
 
         engine.addSystem(SGuiDraw(player))
         engine.addSystem(SDropUpdate(player))
+        engine.addSystem(SWorkbenchDetected(player))
 
 
         system<SMap2D> {

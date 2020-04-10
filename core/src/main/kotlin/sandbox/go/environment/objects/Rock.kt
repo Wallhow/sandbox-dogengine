@@ -1,4 +1,4 @@
-package sandbox.sandbox.go.environment.models
+package sandbox.go.environment.objects
 
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.draw.CAtlasRegion
@@ -7,10 +7,11 @@ import dogengine.utils.Size
 import sandbox.sandbox.def.def.comp.CHealth
 import sandbox.sandbox.go.environment.AGameObjectOnMap
 import sandbox.go.environment.items.dropOnMap
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.environment.ObjectList
 
-class Rock(position: Vector2) : AGameObjectOnMap("rock") {
-    override var itemType: ObjectList = ObjectList.ROCK
+class Rock(position: Vector2) : AGameObjectOnMap(objectType = ObjectList.ROCK) {
+    private val itemType = ItemList.ROCK
     private var currentIdx = 0
 
     init {
@@ -24,11 +25,11 @@ class Rock(position: Vector2) : AGameObjectOnMap("rock") {
                 idx
             } else 5
         }
-        createCHealth(15f)
+        createCHealth(15f,itemType = itemType)
         CHealth[this].shot = {
             if (currentIdx != CAtlasRegion[this@Rock].index) {
                 currentIdx = CAtlasRegion[this@Rock].index
-                dropOnMap(0, 1, ObjectList.ROCK)
+                dropOnMap(0, 1, itemType)
             }
 
         }

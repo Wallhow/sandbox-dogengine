@@ -20,6 +20,9 @@ class PlayerToolsListener (private val player: Player) : ContactListener {
     private val effects = Kernel.getInjector().getInstance(EffectsManager::class.java)
     protected val assets = Kernel.getInjector().getInstance(AssetManager::class.java)
     protected val atlas = assets.get<TextureAtlas>(R.matlas0)
+
+    private val durationShakeObject = 0.3f
+
     override fun sensorSensorIn(sensorA: Sensor?, sensorB: Sensor?) {
 
     }
@@ -40,7 +43,7 @@ class PlayerToolsListener (private val player: Player) : ContactListener {
                             tr.position.y+tr.size.halfHeight)
 
                     e.create<CShack> {
-                        duration = 0.5f
+                        duration =durationShakeObject
                     }
                     e.create<CExtraction> {
                         force = player.getCurrentTool().power

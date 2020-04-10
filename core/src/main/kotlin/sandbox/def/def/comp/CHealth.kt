@@ -2,7 +2,7 @@ package sandbox.sandbox.def.def.comp
 
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
 
 class CHealth : PoolableComponent {
     companion object : ComponentResolver<CHealth>(CHealth::class.java)
@@ -17,5 +17,5 @@ class CHealth : PoolableComponent {
         itemTypeDrop = null
     }
 
-    data class DropAndCount(val minCount: Int = 1, val maxCount: Int = minCount,val dropType: ObjectList?)
+    data class DropAndCount(val minCount: Int = 1, val maxCount: Int = minCount,val dropType: ItemList?)
 }

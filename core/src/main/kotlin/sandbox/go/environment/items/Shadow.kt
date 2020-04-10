@@ -21,7 +21,7 @@ class Shadow(item: AItemOnMap) : Entity() {
         }
         create<CAtlasRegion> {
             atlas = assetAtlas()
-            nameRegion = item.itemType.name_res
+            nameRegion = item.itemType.resourcesName
             color = Color.DARK_GRAY.apply { a=0.8f }
         }
         create<CUpdate> { func = {

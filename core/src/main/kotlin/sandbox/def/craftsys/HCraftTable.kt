@@ -10,17 +10,17 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
+import com.badlogic.gdx.utils.Array
+import com.badlogic.gdx.utils.ArrayMap
 import com.badlogic.gdx.utils.viewport.Viewport
-import com.kotcrab.vis.ui.widget.VisImage
-import com.kotcrab.vis.ui.widget.VisLabel
-import com.kotcrab.vis.ui.widget.VisTable
-import com.kotcrab.vis.ui.widget.VisTextButton
+import com.kotcrab.vis.ui.widget.*
 import dogengine.Kernel
 import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.log
 import ktx.actors.onClick
 import ktx.vis.table
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
+import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.assetAtlas
 import sandbox.sandbox.go.player.Player
 
@@ -28,24 +28,28 @@ import sandbox.sandbox.go.player.Player
  * Класс в котором отрисовывается меню крафта
  */
 class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListener() {
-    private var isShowNow: Boolean = false
-    private var isInvisibleNow: Boolean = false
+    private val backgroundColor: Color = Color.DARK_GRAY
     private val view = Kernel.getInjector().getInstance(Viewport::class.java)
     private val stage = Stage(view, sb)
     private lateinit var root: VisTable
     private lateinit var leftCol: VerticalGroup
     private lateinit var rightCol: VisTable
-    private lateinit var moreInfoCraft: VisLabel
-    private lateinit var nameCraft: VisTextButton
+    private lateinit var moreInfoRecipe: VisLabel
+    private lateinit var nameRecipe: VisTextButton
     private lateinit var iconItemCraft: VisImage
     private lateinit var buttonCraftRecipe: VisTextButton
-    private val craftList: CraftRecipes = CraftRecipes(player.getInventory())
-    private val dotTexture = Kernel.getInjector().getProvider(Kernel.DotTexture::class.java).get().get()
-    var isVisible: Boolean = false
+    private var currentRecipe: CraftRecipe? = null
+    private val recipes: CraftRecipes = CraftRecipes(player.getInventory())
+    private val dotTexture = getTextureDot()
+    private var isVisible: Boolean = false
+    private var isShowNow: Boolean = false
+    private var isInvisibleNow: Boolean = false
     private val fromPositionTableX = -300f
     private val toPositionTableX = 10f
     private var timeAcc = 0f
     private val moveTableDuration = 1f
+    private val availableRecipesButton = Array<VisImageButton>()
+    private val availableRecipes = ArrayMap<VisImageButton,CraftRecipe>()
 
     private fun show() {
         isVisible = true
@@ -61,28 +65,16 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
         stage.addActor(getRootTable())
         Kernel.getInjector().getInstance(InputMultiplexer::class.java).addProcessor(stage)
     }
-
-    override fun keyPressed(key: Int): Boolean {
-        if(key == Input.Keys.I) {
-            if(!isShowNow || !isInvisibleNow) {
-                if(!isVisible) show()
-                else hide()
-            }
-            log(isVisible)
-        }
-        return false
-    }
-
     private fun getRootTable(): VisTable {
-        nameCraft = VisTextButton("").apply {
+        nameRecipe = VisTextButton("").apply {
             isVisible = false
         }
         leftCol = VerticalGroup().apply {
             sizeBy(50f, 400f)
-            addActor(nameCraft)
+            addActor(nameRecipe)
         }
 
-        moreInfoCraft = VisLabel("Список рецептов пуст :)").apply {
+        moreInfoRecipe = VisLabel("Список рецептов пуст :)").apply {
             setAlignment(Align.center)
             setWrap(true)
         }
@@ -96,9 +88,6 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
                         player.getInventory().pop(index, needs.second)
                     }
                     player.getInventory().push(it.itemCraft)
-                    if (!it.isAvailable()) {
-                        invisibleCraftRecipe()
-                    }
                 }
             }
         }
@@ -106,13 +95,13 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
 
         rightCol = VisTable().apply {
             add(iconItemCraft).expandX().center().row()
-            add(moreInfoCraft).expand().fill().align(Align.center)
+            add(moreInfoRecipe).expand().fill().align(Align.center)
             row()
             add(buttonCraftRecipe).bottom().center()
         }
 
         root = table {
-            color = Color.BROWN
+            color = backgroundColor
             background = TextureRegionDrawable(dotTexture)
             setBounds(-300f, view.screenHeight / 2 - 200f, 300f, 400f)
             scrollPane(leftCol) { }.cell(align = Align.left, width = 50f)
@@ -123,10 +112,17 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
         return root
     }
 
-    private var currentRecipe: CraftRecipe? = null
 
-
-
+    override fun keyPressed(key: Int): Boolean {
+        if(key == Input.Keys.I) {
+            if(!isShowNow || !isInvisibleNow) {
+                if(!isVisible) show()
+                else hide()
+            }
+            log(isVisible)
+        }
+        return false
+    }
     fun update() {
         val delta = Gdx.graphics.deltaTime
         if (isVisible && isShowNow) {
@@ -135,10 +131,18 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
             hideProcess(delta)
         }
         if (isVisible) {
-            craftList.getAvailableRecipes() {
+            recipes.getAvailableRecipes() {
                 showCraftRecipe(it)
             }
             stage.act()
+            availableRecipesButton.forEach {
+                val rec = availableRecipes[it]
+                if(!recipes.isAvailableRecipe(rec)) {
+                    invisibleCraftRecipe(rec)
+                    availableRecipes.removeValue(rec,true)
+                    availableRecipesButton.removeValue(it,true)
+                }
+            }
             stage.draw()
         }
 
@@ -165,27 +169,47 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
     }
 
     private fun showCraftRecipe(recipe: CraftRecipe) {
-        nameCraft.setText(recipe.name)
-        nameCraft.setScale(0.8f)
-        nameCraft.isVisible = true
-        moreInfoCraft.isVisible = true
-        nameCraft.onClick {
-            if (recipe.itemCraft != ObjectList.ZERO) {
-                iconItemCraft.isVisible = true
-                iconItemCraft.drawable = TextureRegionDrawable(assetAtlas().findRegion(recipe.itemCraft.name_res))
+        if(leftCol.findActor<VisImageButton>(recipe.name) == null) {
+            val nameRec = VisImageButton(TextureRegionDrawable(assetAtlas().findRegion(recipe.itemCraft.resourcesName)))
+            availableRecipesButton.add(nameRec)
+            availableRecipes.put(nameRec,recipe)
+
+
+            nameRec.name = recipe.name
+            nameRec.setScale(0.7f)
+            nameRec.onClick {
+                moreInfoRecipe.isVisible = true
+                if (recipe.itemCraft != ItemList.ZERO) {
+                    iconItemCraft.isVisible = true
+                    iconItemCraft.drawable = TextureRegionDrawable(assetAtlas().findRegion(recipe.itemCraft.resourcesName))
+                }
+                moreInfoRecipe.setText(recipe.moreInfo)
+                buttonCraftRecipe.isVisible = true
+                currentRecipe = recipe
             }
-            moreInfoCraft.setText(recipe.moreInfo)
+            leftCol.addActor(nameRec)
+        }
+        /*nameRecipe.setText(recipe.name)
+        nameRecipe.setScale(0.8f)
+        nameRecipe.isVisible = true
+        moreInfoRecipe.isVisible = true
+        nameRecipe.onClick {
+            if (recipe.itemCraft != ItemList.ZERO) {
+                iconItemCraft.isVisible = true
+                iconItemCraft.drawable = TextureRegionDrawable(assetAtlas().findRegion(recipe.itemCraft.resourcesName))
+            }
+            moreInfoRecipe.setText(recipe.moreInfo)
             buttonCraftRecipe.isVisible = true
             currentRecipe = recipe
-        }
+        }*/
     }
-
-    private fun invisibleCraftRecipe() {
+    private fun invisibleCraftRecipe(recipe: CraftRecipe) {
+        leftCol.findActor<VisImageButton>(recipe.name).remove()
         buttonCraftRecipe.isVisible = false
-        nameCraft.isVisible = false
-        nameCraft.setText("")
-        moreInfoCraft.isVisible = false
-        moreInfoCraft.setText("")
+        nameRecipe.isVisible = false
+        nameRecipe.setText("")
+        moreInfoRecipe.isVisible = false
+        moreInfoRecipe.setText("")
         iconItemCraft.isVisible = false
     }
 

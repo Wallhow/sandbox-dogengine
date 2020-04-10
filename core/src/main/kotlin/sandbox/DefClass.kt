@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.*
@@ -13,6 +14,7 @@ import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.utils.Array
 import com.google.inject.Injector
 import dogengine.Kernel
+import dogengine.utils.log
 import sandbox.sandbox.def.def.particles.Emitter
 import sandbox.sandbox.go.player.Player
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -32,8 +34,9 @@ class DefClass(private val injector: Injector) : ScreenAdapter() {
         arrayEmitter.forEach {
             it.update(delta)
         }
+        log("render!")
         Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         camera.update();
         batch.projectionMatrix = camera.combined;
         batch.transformMatrix = matrix;

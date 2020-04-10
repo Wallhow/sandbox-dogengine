@@ -20,7 +20,7 @@ class MainInput (injector: Injector): InputAdapter() {
     private val eManager = injector.getInstance(EmitterManager::class.java)
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
-            val conf = Emitter.Configuration()
+            /*val conf = Emitter.Configuration()
             conf.apply {
                 pCountMin = 10
                 pSpeedMin = 10f
@@ -38,7 +38,7 @@ class MainInput (injector: Injector): InputAdapter() {
             }
             val em = Emitter(conf)
             em.setTo(Vector2(pos.x,pos.y)).start()
-            eManager.addEmitter(em)
+            eManager.addEmitter(em)*/
             return true
         }
 

@@ -34,9 +34,6 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     private var dirty = true
     private val sb = SpriteBatch()
 
-    private val inventoryView = Stage(view, sb)
-    lateinit var group: VisTable
-    private val invImage: Array<VisImage> = Array(8) { VisImage() }
     private val atlas: TextureAtlas = Kernel.getInjector().getInstance(AssetManager::class.java).get<TextureAtlas>(R.matlas0)
     private val fnt = Kernel.getInjector().getInstance(TTFFont::class.java)
     private val invDockBarViewer = InventoryView(sb, fnt, player.getInventory())
@@ -44,6 +41,7 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     private val craftMenu = HCraftTable(player, sb)
 
     init {
+
         toolHitInit()
         //Подписка на событие !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO
         invDockBarViewer.init()

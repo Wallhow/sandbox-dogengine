@@ -3,7 +3,7 @@ package sandbox.sandbox.def.def.comp
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
 
 class CDrop : PoolableComponent {
     companion object : ComponentResolver<CDrop>(CDrop::class.java)
@@ -13,7 +13,7 @@ class CDrop : PoolableComponent {
     var currentTime = 0f
     var dirty = true
     var y = 0f
-    var itemID: ObjectList? = null
+    var itemID: ItemList? = null
 
     override fun reset() {
         velocity.setZero()

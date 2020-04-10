@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.MathUtils
 import dogengine.Kernel
 import dogengine.map2D.Cell
 import dogengine.utils.vec2
-import sandbox.sandbox.go.environment.models.Rock
-import sandbox.sandbox.go.environment.models.Sandstone
+import sandbox.go.environment.objects.Rock
+import sandbox.go.environment.objects.Sandstone
 
 class CreatedCellMapListener (private val tileSize: Float) {
     fun createCell(cell: Cell, type: Map2DGenerator.HeightTypes) {

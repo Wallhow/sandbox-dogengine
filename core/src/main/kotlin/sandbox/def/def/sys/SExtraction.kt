@@ -10,7 +10,7 @@ import dogengine.ecs.systems.SystemPriority
 import sandbox.sandbox.def.def.comp.CExtraction
 import sandbox.sandbox.def.def.comp.CHealth
 import sandbox.go.environment.items.dropOnMap
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
 
 class SExtraction : IteratingSystem(Family.all(CHealth::class.java,CExtraction::class.java).get()) {
     init {
@@ -28,7 +28,7 @@ class SExtraction : IteratingSystem(Family.all(CHealth::class.java,CExtraction::
                 entity.create<CDeleteMe>()
             } else {
                 health.itemTypeDrop?.let {
-                    entity.dropOnMap(it.minCount,it.maxCount,drop = it.dropType as ObjectList)
+                    entity.dropOnMap(it.minCount,it.maxCount,drop = it.dropType as ItemList)
                     entity.create<CDeleteMe>()
                 }
             }

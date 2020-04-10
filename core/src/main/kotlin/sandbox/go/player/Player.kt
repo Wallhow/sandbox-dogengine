@@ -5,6 +5,8 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Array
+import com.badlogic.gdx.utils.ArrayMap
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createBody
 import dogengine.ecs.components.draw.*
@@ -23,6 +25,8 @@ import sandbox.dogengine.ecs.components.controllers.EventListener
 import sandbox.go.player.tools.ATool
 import sandbox.go.player.tools.ToolAxeWood
 import sandbox.go.player.inventory.Inventory
+import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.environment.objects.buiding.CWorkbench
 
 
 class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
@@ -261,5 +265,6 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
         return inventory
     }
 
+    val workbenchNear: ArrayMap<ObjectList,Boolean> = ArrayMap()
 }
 

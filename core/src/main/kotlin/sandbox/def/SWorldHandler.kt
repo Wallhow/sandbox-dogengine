@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.systems.SystemPriority
 import dogengine.utils.log
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
 import sandbox.sandbox.def.ItemCreatorOnMap
 import sandbox.sandbox.def.ItemData
 import java.util.*
@@ -30,7 +30,7 @@ class SWorldHandler: EntitySystem() {
     companion object {
         private val stackItemData : Stack<ItemData> = Stack()
         fun getStackItemData() : Stack<ItemData> = stackItemData
-        fun addItemOnMap(type: ObjectList,position: Vector2) {
+        fun addItemOnMap(type: ItemList, position: Vector2) {
             stackItemData.push(ItemData.obtain().apply {
                 this.position.set(position)
                 this.type = type

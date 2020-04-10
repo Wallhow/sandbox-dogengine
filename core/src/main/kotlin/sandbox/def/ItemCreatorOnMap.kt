@@ -3,7 +3,7 @@ package sandbox.sandbox.def
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
 import sandbox.go.environment.items.models.*
 
 object ItemCreatorOnMap {
@@ -11,19 +11,19 @@ object ItemCreatorOnMap {
     fun create(itemData: ItemData): Entity? {
         val pos = itemData.position
         return when (itemData.type) {
-            ObjectList.GRASS -> {
+            ItemList.GRASS -> {
                 GrassItem(pos, pos.y)
             }
-            ObjectList.WOOD -> {
+            ItemList.WOOD -> {
                 WoodItem(pos, pos.y)
             }
-            ObjectList.SANDSTONE -> {
+            ItemList.SANDSTONE -> {
                 SandstoneItem(pos, pos.y)
             }
-            ObjectList.ROCK -> {
+            ItemList.ROCK -> {
                 RockItem(pos, pos.y)
             }
-            ObjectList.CANDY -> {
+            ItemList.CANDY -> {
                 CandyItem(pos)
             }
             else -> null
@@ -31,15 +31,15 @@ object ItemCreatorOnMap {
     }
 }
 
-data class ItemData(var type: ObjectList, var position: Vector2) : Pool.Poolable {
+data class ItemData(var type: ItemList, var position: Vector2) : Pool.Poolable {
     override fun reset() {
-        type = ObjectList.ZERO
+        type = ItemList.ZERO
         position.setZero()
     }
 
     companion object : Pool<ItemData>() {
         override fun newObject(): ItemData {
-            return ItemData(ObjectList.ZERO,Vector2.Zero.cpy())
+            return ItemData(ItemList.ZERO,Vector2.Zero.cpy())
         }
     }
 }

@@ -5,23 +5,22 @@ package sandbox.go.player.inventory
 import com.badlogic.gdx.math.MathUtils
 import dogengine.ecs.components.utility.logic.CTransforms
 import sandbox.def.SWorldHandler
-import sandbox.sandbox.def.ItemData
-import sandbox.go.environment.ObjectList
+import sandbox.go.environment.ItemList
 import sandbox.sandbox.go.player.Player
 
-class Inventory(private val player: Player, val size: Int = 12) {
+class Inventory(val player: Player, val size: Int = 12) {
     private val arr: Array<out InvItem> = Array(size) { InvItem() }
 
-    fun push(objectID: ObjectList, count: Int = 1): Boolean {
-        arr.findLast {it.itemID==objectID}.let { it ->
+    fun push(itemID: ItemList, count: Int = 1): Boolean {
+        arr.findLast {it.itemID==itemID}.let { it ->
             it.ifNull {
-                arr.find {it.itemID== ObjectList.ZERO}.let { it1 ->
+                arr.find {it.itemID== ItemList.ZERO}.let { it1 ->
                     it1.ifNull {
                         return false
                     }
                     it1.apply {
                         this!!.count = count
-                        this.itemID = objectID
+                        this.itemID = itemID
                         return true
                     }
                 }
@@ -31,9 +30,9 @@ class Inventory(private val player: Player, val size: Int = 12) {
         }
     }
 
-    fun pop(objectID: ObjectList, count: Int = 1) {
-        if(contain(objectID)!=-1)
-            pop(contain(objectID),count)
+    fun pop(itemID: ItemList, count: Int = 1) {
+        if(contain(itemID)!=-1)
+            pop(contain(itemID),count)
     }
     fun pop(count: Int=1) {
         pop(currentItem,count)
@@ -51,7 +50,7 @@ class Inventory(private val player: Player, val size: Int = 12) {
                 CTransforms[player].size.halfWidth + 10f),
                 MathUtils.random(6f, CTransforms[player].size.halfHeight))
 
-        if (currentItem < arr.size && arr[currentItem].itemID != ObjectList.ZERO) {
+        if (currentItem < arr.size && arr[currentItem].itemID != ItemList.ZERO) {
             val d = arr[currentItem]
             //кидаем в стек объект для дропа в мир из инвентаря
             SWorldHandler.addItemOnMap(d.itemID,pos)
@@ -64,10 +63,10 @@ class Inventory(private val player: Player, val size: Int = 12) {
     }
 
     //Возвращает индекс в инвентаре, либо -1 если не найдено
-    fun contain(objectID: ObjectList) : Int {
+    fun contain(itemID: ItemList) : Int {
         var idx = -1
         arr.forEachIndexed {index, invItem ->
-            if(invItem.itemID === objectID) {
+            if(invItem.itemID === itemID) {
                 idx = index
                 return@forEachIndexed
             }
@@ -76,12 +75,12 @@ class Inventory(private val player: Player, val size: Int = 12) {
     }
     var currentItem: Int = 0
 
-    data class InvItem(var itemID: ObjectList = ObjectList.ZERO, var count: Int = -1) {
+    data class InvItem(var itemID: ItemList = ItemList.ZERO, var count: Int = -1) {
         fun isEmpty(): Boolean {
             return count<=0
         }
         fun setZero() {
-            itemID = ObjectList.ZERO
+            itemID = ItemList.ZERO
             count = -1
         }
     }
