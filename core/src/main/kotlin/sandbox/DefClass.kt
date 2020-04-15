@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.GL30
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g3d.utils.CameraInputController
 import com.badlogic.gdx.math.*
 import com.badlogic.gdx.math.collision.Ray
 import com.badlogic.gdx.utils.Array
@@ -34,13 +35,12 @@ class DefClass(private val injector: Injector) : ScreenAdapter() {
         arrayEmitter.forEach {
             it.update(delta)
         }
-        log("render!")
         Gdx.gl.glClearColor(0.5f, 0.5f, 0.5f, 1f);
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
         camera.update();
         batch.projectionMatrix = camera.combined;
         batch.transformMatrix = matrix;
-
+        cc.update()
         batch.color = Color.RED
         batch.begin()
         //drawer.filledRectangle(0f,0f,500f,500f)
@@ -48,25 +48,28 @@ class DefClass(private val injector: Injector) : ScreenAdapter() {
             it.draw()
         }
 
-        for(x in 0..50) {
-            for(y in 0..50) {
+        for(x in -50..50) {
+            for(y in -50..50) {
+                //drawer.setColor(Color.toFloatBits(MathUtils.random(0f,1f),MathUtils.random(0f,1f),MathUtils.random(0f,1f),1f))
                 drawer.rectangle(x*10f,y*10f,10f,10f)
             }
         }
         batch.end()
     }
-
+    lateinit var cc:CameraInputController
     override fun show() {
-        camera.position.set(100f, 100f, 5f)
-        camera.direction.set(-1f, -1f, -1f)
+        camera.position.set(0f, -10f, 1f)
+        camera.direction.set(0f, 0f, -1f)
         camera.near = 1f
-        camera.far = 400f
-        matrix.setToRotation(Vector3(1f, 0f, 0f), 90f)
+        camera.far = 1000f
+        matrix.setToRotation(Vector3(1f, 0f, 0f), -45f)
         camera.zoom = 1f
-        //camera.translate(500f,500f)
+        camera.translate(250f,250f)
         camera.update()
+        cc = CameraInputController(camera)
         //Добавляем главный инпут
         injector.getInstance(InputMultiplexer::class.java).addProcessor(Input(injector,arrayEmitter))
+        injector.getInstance(InputMultiplexer::class.java).addProcessor(cc)
     }
 
     class Input(private val injector: Injector,val arrEmitter: Array<Emitter>) : InputAdapter() {
@@ -84,12 +87,12 @@ class DefClass(private val injector: Injector) : ScreenAdapter() {
                 camera.position.add(delta.x, delta.y, delta.z)
             }
             last.set(x.toFloat(), y.toFloat(), 0f)
-            return false
+            return true
         }
 
         override fun touchUp(x: Int, y: Int, pointer: Int, button: Int): Boolean {
             last.set(-1f, -1f, -1f)
-            return false
+            return true
         }
 
         private val camera: OrthographicCamera = injector.getInstance(OrthographicCamera::class.java)

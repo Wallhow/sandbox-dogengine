@@ -10,6 +10,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Pixmap
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShaderProgram
+import com.badlogic.gdx.math.Matrix3
+import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Inject
@@ -31,7 +33,9 @@ class SDrawable @Inject constructor(private val batch: SpriteBatch, val camera: 
         priority = SystemPriority.DRAW
         layers.add(Array())
         layers.add(Array())
-        //TODO нет ни чего более постоянного чем временное =)
+        /*camera.near = 1f
+        camera.far = 1000f*/
+        //TODO =) ТУТ ТАКОЕ ТВОРИТСЯ!!
         //vfxManager.addEffect(MotionBlurEffect(Pixmap.Format.RGBA8888, MotionBlurFilter.BlurFunction.MAX, 0.5f))
     }
 
@@ -59,13 +63,16 @@ class SDrawable @Inject constructor(private val batch: SpriteBatch, val camera: 
             entity.create<CDeleteMe> {  }
         }
     }
-
+    private val matrix = Matrix4().apply {
+        setToRotation(com.badlogic.gdx.math.Vector3(1f, 0f, 0f), -45f)
+    }
     override fun update(deltaTime: Float) {
         forceSort()
 
         Gdx.gl.glClearColor(clearColor.r, clearColor.g, clearColor.b, clearColor.a)
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
         batch.projectionMatrix = camera.combined
+        /*batch.transformMatrix = matrix;*/
 
             batch.begin()
             super.update(deltaTime)

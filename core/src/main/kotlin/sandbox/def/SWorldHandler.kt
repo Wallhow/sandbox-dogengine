@@ -5,8 +5,8 @@ import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.systems.SystemPriority
 import dogengine.utils.log
 import sandbox.go.environment.ItemList
-import sandbox.sandbox.def.ItemCreatorOnMap
-import sandbox.sandbox.def.ItemData
+import sandbox.go.environment.ItemCreatorOnMap
+import sandbox.go.environment.ItemData
 import java.util.*
 
 class SWorldHandler: EntitySystem() {

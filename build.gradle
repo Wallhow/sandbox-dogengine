@@ -38,8 +38,8 @@ subprojects {
   }
 }
 
-/*// Run `gradle pack` task to generate skin.atlas file at assets/ui.
-import TexturePacker
+// Run `gradle pack` task to generate skin.atlas file at assets/ui.
+import com.badlogic.gdx.tools.texturepacker.TexturePacker
 tasks.create("pack").configure {
   // Note that if you need multiple atlases, you can duplicate the
   // TexturePacker.process invocation and change paths to generate
@@ -54,4 +54,4 @@ tasks.create("pack").configure {
           'assets/atlas',
           'matlas'
   )
-}*/
+}

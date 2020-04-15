@@ -20,7 +20,7 @@ class SInputHandler @Inject constructor(val camera: OrthographicCamera,multiplex
         multiplexer.addProcessor(defInput)
     }
 
-    fun sign(event: InputEvent, eventInputListener: EventInputListener) {
+    fun subscrabe(event: InputEvent, eventInputListener: EventInputListener) {
         if(eventListeners[event] == null) {
             eventListeners.put(event,Array<EventInputListener>())
             log("create handler on event $event")

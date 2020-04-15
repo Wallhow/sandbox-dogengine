@@ -18,6 +18,8 @@ class Particle : Pool.Poolable {
     var direction: Vector2 = Vector2()
     var size: Float = 5f
     var alpha: Float = 1f
+    var timer : Float = 0f
+    var lazyBirth = 0f
 
     fun setColor(color: Color) {
         r = color.r
@@ -38,5 +40,6 @@ class Particle : Pool.Poolable {
         r = 1f
         g = 1f
         b = 1f
+        timer = 0f
     }
 }

@@ -1,10 +1,12 @@
-package sandbox.sandbox.def
+package sandbox.go.environment
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
-import sandbox.go.environment.ItemList
+import sandbox.go.environment.items.AItemOnMap
 import sandbox.go.environment.items.models.*
+import sandbox.sandbox.go.environment.AGameObjectOnMap
+import sandbox.sandbox.go.environment.items.models.WoodPlankItem
 
 object ItemCreatorOnMap {
     //TODO Тут централизованное создание дроп Объектов
@@ -26,7 +28,18 @@ object ItemCreatorOnMap {
             ItemList.CANDY -> {
                 CandyItem(pos)
             }
-            else -> null
+            ItemList.WOOD_PLANK -> {
+                WoodPlankItem(pos)
+            }
+            else -> createDefEntity(itemData.type,pos)
+        }
+    }
+
+    private fun createDefEntity(itemType: ItemList, position: Vector2) : Entity {
+        return object : AItemOnMap(itemType,position.y) {
+            init {
+                defInit(position)
+            }
         }
     }
 }
@@ -39,7 +52,7 @@ data class ItemData(var type: ItemList, var position: Vector2) : Pool.Poolable {
 
     companion object : Pool<ItemData>() {
         override fun newObject(): ItemData {
-            return ItemData(ItemList.ZERO,Vector2.Zero.cpy())
+            return ItemData(ItemList.ZERO, Vector2.Zero.cpy())
         }
     }
 }

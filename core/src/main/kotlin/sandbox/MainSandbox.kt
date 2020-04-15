@@ -23,6 +23,7 @@ import sandbox.sandbox.DefClass
 import sandbox.sandbox.def.def.particles.Emitter
 import sandbox.sandbox.def.def.particles.EmitterManager
 import sandbox.sandbox.def.def.sys.SExtraction
+import sandbox.sandbox.def.def.sys.SParticleEmitter
 import sandbox.sandbox.def.def.sys.SShack
 
 typealias WorldDef = World
@@ -57,6 +58,7 @@ class MainSandbox : DogeEngineGame() {
             add(SDeleteComponent::class.java)
             add(SShack::class.java)
             add(SExtraction::class.java)
+            add(SParticleEmitter::class.java)
         }
         Kernel.Systems.CameraLook.fixedBounds = false
         kernel.initialize {

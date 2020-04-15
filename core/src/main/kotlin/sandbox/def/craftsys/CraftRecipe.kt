@@ -9,7 +9,7 @@ import sandbox.go.environment.ItemList
  * @param rules - условия при которых возможен крафт рецепта
  */
 class CraftRecipe constructor(val name: String, var moreInfo: String,
-                              val needItems: Array<Pair<ItemList,Int>>,
+                              val needItems: com.badlogic.gdx.utils.Array<Pair<ItemList,Int>>,
                               val rules: com.badlogic.gdx.utils.Array<() -> Boolean>) {
     var itemCraft: ItemList = ItemList.ZERO
     //проверка на возможность крафта рецепта

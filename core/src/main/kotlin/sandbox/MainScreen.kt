@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Injector
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
@@ -34,7 +35,9 @@ import sandbox.sandbox.def.def.sys.SDropUpdate
 import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Wood
 import sandbox.go.environment.objects.buiding.Workbench
+import sandbox.sandbox.DebugGUI
 import sandbox.sandbox.def.def.sys.SWorkbenchDetected
+import sandbox.sandbox.go.environment.objects.buiding.Bonfire
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.PlayerToolsListener
 import sandbox.sandbox.input.MainInput
@@ -48,6 +51,9 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private lateinit var ef: EffectsManager
     private val eManager = injector.getInstance(EmitterManager::class.java)
 
+    //ДЕБАГ ТАБЛО
+    private val debugGui = DebugGUI(injector.getInstance(Viewport::class.java),batch)
+
     override fun render(delta: Float) {
         engine.update(delta)
         eManager.update(delta)
@@ -56,6 +62,8 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         ef.draw(batch)
         eManager.draw()
         batch.end()
+
+        debugGui.updateAndDraw(delta)
     }
 
     override fun show() {
@@ -64,6 +72,8 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         am.finishLoadingAsset<TextureAtlas>(Gdx.files.internal(R.matlas0).path())
         player = Player(am, Vector2(100f, 100f))
         camera.zoom = 0.8f
+
+        debugGui.setPlayer(player)
 
         ef = injector.getInstance(EffectsManager::class.java)
         am.load(Gdx.files.internal(R.dot_particles0).path(),ParticleEffect::class.java)
@@ -76,6 +86,9 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         engine.addEntity(Wood(Vector2(100f, 200f)))
         engine.addEntity(Wood(Vector2(250f, 210f)))
         engine.addEntity(Workbench(Vector2(350f, 220f)))
+
+        engine.addEntity(Bonfire(Vector2(300f,100f)))
+
 
         engine.addEntity(Rock(Vector2(470f, 590f)))
         engine.addEntity(Rock(Vector2(350f, 690f)))

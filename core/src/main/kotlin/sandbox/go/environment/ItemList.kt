@@ -10,8 +10,10 @@ enum class ItemList(val resourcesName: String, val id: Int) {
     GRASS("grass_item", nextId()),
     ROCK("rock_item", nextId()),
     SANDSTONE("sandstone_item", nextId()),
-    WOOD_PLANK("plank_item",nextId())
-
+    WOOD_PLANK("plank_item",nextId()),
+    WORKBENCH("workbench_object",nextId()),
+    APPLE("apple_item",nextId()),
+    APPLE_EAT("apple_eat_item",nextId()),
 }
 
 

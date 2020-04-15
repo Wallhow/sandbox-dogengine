@@ -28,9 +28,17 @@ import sandbox.dogengine.ecs.systems.update.SVisibleEntity
 object Kernel {
     private lateinit var inject: Injector
     private val systems = Systems()
+    lateinit var dotTexture: TextureRegion
     var viewBoundsRect : Rectangle = Rectangle()
 
     fun initialize(bind: (Binder.() -> Unit) = {}) {
+        val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888).apply {
+            setColor(Color.WHITE)
+            drawPixel(0, 0)
+        }
+        dotTexture =  TextureRegion(Texture(pixmap), 0, 0, 1, 1)
+        pixmap.dispose()
+
         inject = Guice.createInjector(KernelModule(bind,systems))
         //Загружаем системы в эшли
         systems.list.forEach {

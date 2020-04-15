@@ -45,8 +45,8 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
         toolHitInit()
         //Подписка на событие !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO
         invDockBarViewer.init()
-        Kernel.getInjector().getInstance(SInputHandler::class.java).sign(InputEvent.SCREEN_TOUCH, invDockBarViewer)
-        Kernel.getInjector().getInstance(SInputHandler::class.java).sign(InputEvent.KEY_PRESS, craftMenu)
+        Kernel.getInjector().getInstance(SInputHandler::class.java).subscrabe(InputEvent.SCREEN_TOUCH, invDockBarViewer)
+        Kernel.getInjector().getInstance(SInputHandler::class.java).subscrabe(InputEvent.KEY_PRESS, craftMenu)
 
 
         fnt.create(26, Color.LIGHT_GRAY)
@@ -68,10 +68,12 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
 
     override fun update(deltaTime: Float) {
         toolHit()
+        craftMenu.update()
         invDockBarViewer.update()
+
+        craftMenu.draw()
         invDockBarViewer.draw(view.camera.viewportWidth, view.camera.viewportHeight, atlas)
 
-        craftMenu.update()
     }
 
     private fun toolHit() {
