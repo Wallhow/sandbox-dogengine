@@ -7,6 +7,7 @@ import sandbox.sandbox.go.environment.ObjectList
 class CWorkbench : PoolableComponent {
     companion object : ComponentResolver<CWorkbench>(CWorkbench::class.java)
     var type: ObjectList = ObjectList.ZERO
+    var isNear = false
 
     override fun reset() {
         type = ObjectList.ZERO

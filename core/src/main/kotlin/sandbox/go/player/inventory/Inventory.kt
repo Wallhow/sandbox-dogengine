@@ -6,10 +6,14 @@ import dogengine.ecs.components.utility.logic.CTransforms
 import sandbox.def.SWorldHandler
 import sandbox.go.environment.ItemList
 import sandbox.sandbox.go.player.Player
+import kotlin.properties.Delegates
 
-class Inventory(val player: Player, val size: Int = 12) {
+class Inventory(val player: Player, val size: Int = 12)  {
     private val arr: Array<out InvItem> = Array(size) { InvItem() }
     var isDirty = false
+    val observers: com.badlogic.gdx.utils.Array<InventoryObserver> = com.badlogic.gdx.utils.Array()
+    private val observableItem = ObservableItem(observers)
+
     fun push(itemID: ItemList, count: Int = 1): Boolean {
         //ищим в массиве предмет с поступившим id
         getCellWithItem(itemID).let { invItem ->
@@ -21,12 +25,16 @@ class Inventory(val player: Player, val size: Int = 12) {
                     //если есть пустая ячека то добавляем в нее предмет и возвращаем true
                     invItem2.putItemInCell(itemID, count)
                     isDirty = true
+                    observableItem.itemID = invItem2.itemID
+                    observableItem.count = count
                     return true
                 }
             } else {
                 //Если предмет найден увеличиваем счетчик и возвращаем true
                 invItem.count += count
                 isDirty = true
+                observableItem.itemID = invItem.itemID
+                observableItem.count = invItem.count
                 return true
             }
         }
@@ -56,7 +64,9 @@ class Inventory(val player: Player, val size: Int = 12) {
 
     fun pop(index: Int, count: Int = 1) {
         arr[index].count -= count
-        if(arr[index].count<=0) arr[index].setZero()
+        observableItem.itemID = arr[index].itemID
+        observableItem.count = arr[index].count
+        if (arr[index].count <= 0) arr[index].setZero()
         isDirty = true
     }
 
@@ -73,11 +83,7 @@ class Inventory(val player: Player, val size: Int = 12) {
             val d = arr[currentItem]
             //кидаем в стек объект для дропа в мир из инвентаря
             SWorldHandler.addItemOnMap(d.itemID, pos)
-            d.count -= 1
-            if (d.isEmpty()) {
-                arr[currentItem].setZero()
-            }
-
+            pop()
         }
     }
 
@@ -95,7 +101,7 @@ class Inventory(val player: Player, val size: Int = 12) {
 
     var currentItem: Int = 0
 
-    data class InvItem(var itemID: ItemList = ItemList.ZERO, var count: Int = -1) {
+    open class InvItem(open var itemID: ItemList = ItemList.ZERO, open var count: Int = -1) {
         fun isEmpty(): Boolean {
             return count <= 0
         }
@@ -105,4 +111,17 @@ class Inventory(val player: Player, val size: Int = 12) {
             count = -1
         }
     }
+
+    class ObservableItem (private val observers: com.badlogic.gdx.utils.Array<InventoryObserver>) : InvItem() {
+        override var itemID: ItemList = ItemList.ZERO
+        override var count: Int by Delegates.observable(-1) { _, o, n ->
+            observers.forEach{it.countChanged(n,o,this)}
+        }
+
+
+    }
+}
+
+interface InventoryObserver {
+    fun countChanged(newCount: Int, oldCount: Int, item: Inventory.InvItem)
 }

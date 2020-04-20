@@ -17,21 +17,32 @@ import dogengine.ecs.components.utility.visible.CCameraLook
 import dogengine.ecs.def.GameEntity
 import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
-import dogengine.utils.log
 import dogengine.utils.vec2
 import sandbox.R
 import sandbox.dogengine.ecs.components.controllers.CControllable
 import sandbox.dogengine.ecs.components.controllers.EventListener
 import sandbox.go.player.tools.ATool
-import sandbox.go.player.tools.ToolAxeWood
+import sandbox.go.player.tools.TAxeWood
 import sandbox.go.player.inventory.Inventory
 import sandbox.sandbox.go.environment.ObjectList
-import sandbox.sandbox.go.environment.objects.buiding.CWorkbench
+import sandbox.sandbox.go.player.tools.SelectToolObserver
+import sandbox.sandbox.go.player.tools.TPickaxeWood
+import kotlin.properties.Delegates
 
 
 class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
     var directionSee = DirectionSee.DOWN
-    private val tool = ToolAxeWood(this, am)
+    private val tools = Array<ATool>().apply {
+        add(TPickaxeWood())
+        add(TAxeWood())
+    }
+    var toolObservers: Array<SelectToolObserver>  = Array()
+    private var currentToolIndex = 0
+    private var tool : ATool by Delegates.observable(tools[currentToolIndex]) {_,_,n->
+        toolObservers.forEach {
+            it.selectTool(n.type)
+        }
+    }
     private val inventory = Inventory(this)
     private val direction = vec2(0f,0f)
 
@@ -218,6 +229,13 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
             }
 
             Input.Keys.Q -> { inventory.dropCurrentItem() }
+            Input.Keys.PLUS -> {
+                currentToolIndex+=1
+                if(currentToolIndex>=tools.size) {
+                    currentToolIndex=0
+                }
+                tool = tools[currentToolIndex]
+            }
         }
     }
 

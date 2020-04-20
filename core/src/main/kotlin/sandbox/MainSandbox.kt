@@ -60,7 +60,7 @@ class MainSandbox : DogeEngineGame() {
             add(SExtraction::class.java)
             add(SParticleEmitter::class.java)
         }
-        Kernel.Systems.CameraLook.fixedBounds = false
+        //Kernel.Systems.CameraLook.fixedBounds = false
         kernel.initialize {
             bind(Viewport::class.java).toInstance(viewport)
             bind(OrthographicCamera::class.java).toInstance(viewport.camera as OrthographicCamera)

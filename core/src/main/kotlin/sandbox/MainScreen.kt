@@ -2,8 +2,10 @@ package sandbox
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.Family
 import com.badlogic.gdx.*
 import com.badlogic.gdx.assets.AssetManager
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.ParticleEffect
@@ -13,11 +15,14 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Injector
+import dogengine.Kernel
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
+import dogengine.ecs.components.draw.CDebugInfo
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.logic.CTransforms
+import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.draw.SDrawDebug20
 import dogengine.ecs.systems.physics.SDefaultPhysics2d
 import dogengine.ecs.systems.tilemap.CMap2D
@@ -36,9 +41,13 @@ import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Wood
 import sandbox.go.environment.objects.buiding.Workbench
 import sandbox.sandbox.DebugGUI
+import sandbox.sandbox.def.def.comp.CNearbyObject
+import sandbox.sandbox.def.def.sys.STools
 import sandbox.sandbox.def.def.sys.SWorkbenchDetected
 import sandbox.sandbox.go.environment.objects.buiding.Bonfire
+import sandbox.sandbox.go.environment.objects.buiding.CWorkbench
 import sandbox.sandbox.go.player.Player
+import sandbox.sandbox.go.player.Player.DirectionSee.*
 import sandbox.sandbox.go.player.PlayerToolsListener
 import sandbox.sandbox.input.MainInput
 
@@ -94,6 +103,8 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         engine.addEntity(Rock(Vector2(350f, 690f)))
 
         engine.addSystem(SGuiDraw(player))
+
+        engine.addSystem(STools(player))
         engine.addSystem(SDropUpdate(player))
         engine.addSystem(SWorkbenchDetected(player))
 
@@ -109,6 +120,41 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         system<SDrawDebug20> {
             customDebug = {
                 injector.getInstance(World::class.java).drawDebug(camera,it)
+                val c = it.packedColor
+                it.setColor(Color.LIME)
+                engine.getEntitiesFor(Family.all(CWorkbench::class.java).exclude(CHide::class.java).get()).forEach {w ->
+                    if(CWorkbench[w].isNear) {
+                        it.circle(CTransforms[w].getCenterX(),CTransforms[w].getCenterY(),CTransforms[w].size.getRadius(),3f)
+                    }
+
+                }
+                it.setColor(Color.CYAN)
+                engine.getEntitiesFor(Family.all(CNearbyObject::class.java).get()).forEach { w ->
+                    it.circle(CTransforms[w].getCenterX(),CTransforms[w].getCenterY(),CTransforms[w].size.getRadius(),3f)
+                }
+                when(player.directionSee) {
+                    UP -> {
+                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                                CTransforms[player].getCenterX(),
+                                CTransforms[player].getCenterY()+player.getCurrentTool().distance)
+                    }
+                    DOWN -> {
+                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                                CTransforms[player].getCenterX(),
+                                CTransforms[player].getCenterY()-player.getCurrentTool().distance)
+                    }
+                    LEFT -> {
+                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                                CTransforms[player].getCenterX()-player.getCurrentTool().distance,
+                                CTransforms[player].getCenterY())
+                    }
+                    RIGHT -> {
+                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                                CTransforms[player].getCenterX()+player.getCurrentTool().distance,
+                                CTransforms[player].getCenterY())
+                    }
+                }
+                it.setColor(c)
             }
         }
         system<SDefaultPhysics2d> {

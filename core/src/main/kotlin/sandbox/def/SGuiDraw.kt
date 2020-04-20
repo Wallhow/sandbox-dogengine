@@ -1,6 +1,7 @@
 package sandbox.sandbox.def
 
 import com.badlogic.ashley.core.EntitySystem
+import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
@@ -21,12 +22,13 @@ import dogengine.utils.TTFFont
 import ktx.vis.table
 import sandbox.R
 import sandbox.def.craftsys.HCraftTable
-import sandbox.go.player.inventory.InventoryView
 import sandbox.sandbox.go.player.Player
+import sandbox.sandbox.go.player.inventory.InventoryAndToolView
 
 class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 10) {
     private val view = Kernel.getInjector().getInstance(Viewport::class.java)
     private val gui = Stage(view)
+    private val guiHUD = Stage(view)
     private val image = VisImage()
     private var beforeDirectionSee: Player.DirectionSee = Player.DirectionSee.DOWN
     private var currentTool = ""
@@ -36,7 +38,7 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
 
     private val atlas: TextureAtlas = Kernel.getInjector().getInstance(AssetManager::class.java).get<TextureAtlas>(R.matlas0)
     private val fnt = Kernel.getInjector().getInstance(TTFFont::class.java)
-    private val invDockBarViewer = InventoryView(sb, fnt, player.getInventory())
+    private val invDockBarViewer1 = InventoryAndToolView(player)
 
     private val craftMenu = HCraftTable(player, sb)
 
@@ -44,10 +46,12 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
 
         toolHitInit()
         //Подписка на событие !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!TODO
-        invDockBarViewer.init()
-        Kernel.getInjector().getInstance(SInputHandler::class.java).subscrabe(InputEvent.SCREEN_TOUCH, invDockBarViewer)
+
         Kernel.getInjector().getInstance(SInputHandler::class.java).subscrabe(InputEvent.KEY_PRESS, craftMenu)
 
+        guiHUD.addActor(invDockBarViewer1.getRoot())
+
+        Kernel.getInjector().getInstance(InputMultiplexer::class.java).addProcessor(guiHUD)
 
         fnt.create(26, Color.LIGHT_GRAY)
     }
@@ -69,16 +73,18 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     override fun update(deltaTime: Float) {
         toolHit()
         craftMenu.update()
-        invDockBarViewer.update()
+        invDockBarViewer1.update()
 
         craftMenu.draw()
-        invDockBarViewer.draw(view.camera.viewportWidth, view.camera.viewportHeight, atlas)
+        guiHUD.act()
+        guiHUD.draw()
+        //invDockBarViewer.draw(view.camera.viewportWidth, view.camera.viewportHeight, atlas)
 
     }
 
     private fun toolHit() {
         fun actionInit(image: Actor) {
-            val time = player.getCurrentTool().attackSpeed / 2f
+            val time = player.getCurrentTool().force.duration / 2f
             image.color.a = 0f
             image.clearActions()
             val a = Actions.sequence(Actions.fadeIn(time, Interpolation.pow4Out), Actions.fadeOut(time))
@@ -109,8 +115,8 @@ class SGuiDraw(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
                 }
                 dirty = false
             }
-            if (player.getCurrentTool().name != currentTool) {
-                currentTool = player.getCurrentTool().name
+            if (player.getCurrentTool().type.name_res != currentTool) {
+                currentTool = player.getCurrentTool().type.name_res
                 image.drawable = TextureRegionDrawable(player.getCurrentTool().image)
             }
             gui.act()

@@ -43,11 +43,9 @@ class PlayerToolsListener (private val player: Player) : ContactListener {
                             tr.position.y+tr.size.halfHeight)
 
                     e.create<CShack> {
-                        duration =durationShakeObject
+                        duration = durationShakeObject
                     }
-                    e.create<CExtraction> {
-                        force = player.getCurrentTool().power
-                    }
+
                 }
             }
         }
