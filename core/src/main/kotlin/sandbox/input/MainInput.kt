@@ -18,7 +18,11 @@ class MainInput (injector: Injector): InputAdapter() {
     private val camera = injector.getInstance(OrthographicCamera::class.java)
     private val engine = injector.getInstance(Engine::class.java)
     private val eManager = injector.getInstance(EmitterManager::class.java)
-        override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+    override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+        return super.touchUp(screenX, screenY, pointer, button)
+    }
+
+    override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
             /*val conf = Emitter.Configuration()
             conf.apply {

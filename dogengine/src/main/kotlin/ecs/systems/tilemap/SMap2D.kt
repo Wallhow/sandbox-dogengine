@@ -24,17 +24,19 @@ import dogengine.ecs.systems.SystemPriority
 import dogengine.map2D.CCell
 import dogengine.map2D.Cell
 import dogengine.map2D.Map2D
+import dogengine.utils.GameCamera
 import dogengine.utils.Size
 import dogengine.utils.isElse
 import dogengine.utils.isTrue
 
 //TODO ТУТ ВСЁ ЗАХАРДКОДЕНО, ЭТО НЕ ДОЛЖНО БЫТЬ ТАК, ПЕРЕСМОТРЕТЬ ДАННЫЙ КЛАСС В БУДУЩЕМ
-class SMap2D @Inject constructor(private val viewport: Viewport, private val camera: OrthographicCamera) : IteratingSystem(Family.all(CMap2D::class.java).get()) {
+class SMap2D @Inject constructor(private val gameCamera: GameCamera) : IteratingSystem(Family.all(CMap2D::class.java).get()) {
     private var firstRun = true
     val tileSize = Size()
     private val tileset: ArrayMap<Int, TextureAtlas.AtlasRegion> = ArrayMap()
     var setTileset : ((ArrayMap<Int,TextureAtlas.AtlasRegion>) -> Unit)? = null
     private var isSetTileset = true
+    private val camera = gameCamera.getCamera()
     init {
         priority = SystemPriority.UPDATE+100
     }
@@ -111,8 +113,8 @@ class SMap2D @Inject constructor(private val viewport: Viewport, private val cam
     }
 
     private fun updateViewport(map: Map2D) {
-        viewport.setWorldSize(map.getWidthMapInPixels(), map.getHeightMapInPixels())
-        viewport.camera.update()
+        gameCamera.setWorldSize(map.getWidthMapInPixels(), map.getHeightMapInPixels())
+        camera.update()
     }
 }
 

@@ -15,11 +15,9 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Injector
-import dogengine.Kernel
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
-import dogengine.ecs.components.draw.CDebugInfo
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
@@ -34,13 +32,13 @@ import dogengine.utils.system
 import dogengine.utils.vec2
 import sandbox.sandbox.def.map.CreatedCellMapListener
 import sandbox.sandbox.def.map.Map2DGenerator
-import sandbox.sandbox.def.SGuiDraw
+import sandbox.sandbox.def.gui.SMainGUI
 import sandbox.sandbox.def.def.particles.EmitterManager
 import sandbox.sandbox.def.def.sys.SDropUpdate
 import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Wood
 import sandbox.go.environment.objects.buiding.Workbench
-import sandbox.sandbox.DebugGUI
+import sandbox.sandbox.def.gui.DebugGUI
 import sandbox.sandbox.def.def.comp.CNearbyObject
 import sandbox.sandbox.def.def.sys.STools
 import sandbox.sandbox.def.def.sys.SWorkbenchDetected
@@ -61,7 +59,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private val eManager = injector.getInstance(EmitterManager::class.java)
 
     //ДЕБАГ ТАБЛО
-    private val debugGui = DebugGUI(injector.getInstance(Viewport::class.java),batch)
+    private val debugGui = DebugGUI()
 
     override fun render(delta: Float) {
         engine.update(delta)
@@ -102,7 +100,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         engine.addEntity(Rock(Vector2(470f, 590f)))
         engine.addEntity(Rock(Vector2(350f, 690f)))
 
-        engine.addSystem(SGuiDraw(player))
+        engine.addSystem(SMainGUI(player))
 
         engine.addSystem(STools(player))
         engine.addSystem(SDropUpdate(player))

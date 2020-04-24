@@ -16,10 +16,10 @@ import java.util.*
 
 class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: CreatedCellMapListener? = null) {
 
-    val width = 36
-    val height = 36
+    val width = 128
+    val height = 128
     //val generator: NoiseGenerator = NoiseGenerator()
-    val seed = 4082017L
+    val seed = 12358132134L
     val pixmap = Pixmap(width, height, Pixmap.Format.RGBA4444)
     val prop = LayerProperties(width, height, tileSize, tileSize, 0)
     val g = GsonBuilder().create()
@@ -39,7 +39,7 @@ class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: Creat
         }
     }
 
-    fun generateGrid(): IntGrid {
+    private fun generateGrid(): IntGrid {
         log("create map")
         val terrainOctaves = 2 // простота мира
         val terrainRidgeOctaves = 3 // детализация
@@ -372,7 +372,6 @@ class Map2DGenerator(val tileSize: Int,private val createdCellMapListener: Creat
             waterCellGroups.forEach {
                 for(i in 0 until it.cells.size) {
                     val cell = it.cells[i]
-                    println("${cell.x}-${cell.y}")
                     if(cell === Cell.defCell2D) continue
                     setCell(cell, cell.x, cell.y)
                 }

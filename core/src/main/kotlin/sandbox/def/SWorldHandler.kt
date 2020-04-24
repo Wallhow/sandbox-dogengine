@@ -36,5 +36,10 @@ class SWorldHandler: EntitySystem() {
                 this.type = type
             })
         }
+        var itemIDBuild : ItemList? = null
+        fun build(itemID: ItemList) {
+            itemIDBuild = itemID
+            log(itemID)
+        }
     }
 }

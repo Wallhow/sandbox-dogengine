@@ -1,4 +1,4 @@
-package sandbox.def.craftsys
+package sandbox.sandbox.def.gui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -6,8 +6,10 @@ import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
+import com.badlogic.gdx.scenes.scene2d.ui.Widget
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.ArrayMap
@@ -15,9 +17,12 @@ import com.badlogic.gdx.utils.viewport.Viewport
 import com.kotcrab.vis.ui.widget.*
 import dogengine.Kernel
 import dogengine.ecs.systems.controllers.EventInputListener
+import dogengine.utils.GameCamera
 import dogengine.utils.log
 import ktx.actors.onClick
 import ktx.vis.table
+import sandbox.def.craftsys.CraftRecipe
+import sandbox.def.craftsys.CraftRecipes
 import sandbox.go.environment.ItemList
 import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.assetAtlas
@@ -26,10 +31,10 @@ import sandbox.sandbox.go.player.Player
 /**
  * Класс в котором отрисовывается меню крафта
  */
-class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListener() {
+class HCraftTable(private val player: Player) : EventInputListener() {
     private val backgroundColor: Color = Color.DARK_GRAY
-    private val view = Kernel.getInjector().getInstance(Viewport::class.java)
-    private val stage = Stage(view, sb)
+    private val gameCamera = Kernel.getInjector().getInstance(GameCamera::class.java)
+
     private lateinit var root: VisTable
     private lateinit var recipeLine: VerticalGroup
     private lateinit var submenu: VisTable
@@ -50,9 +55,7 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
     private val drawable = TextureRegionDrawable(dotTexture)
 
     init {
-        stage.addActor(createTable())
-        Kernel.getInjector().getInstance(InputMultiplexer::class.java).addProcessor(stage)
-
+        createTable()
 
     }
 
@@ -100,7 +103,7 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
         }
 
         root = table {
-            setBounds(-300f, view.screenHeight / 2 - 200f, 300f, 400f)
+            setBounds(-300f, gameCamera.getViewport().worldHeight/2f - 200f, 300f, 400f)
             scrollPane(recipeLine) { }.cell(align = Align.left, width = 50f)
             add(submenu).width(250f).height(400f).expand()
         }
@@ -196,17 +199,12 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
             recipes.getAvailableRecipes {
                 showCraftRecipe(it)
             }
-            stage.act()
             //Если какой-то из ранее открытых рецептов закрылся вызываем метод
             //в который передаем закрывшийся рецепт
             recipeManager.closingRecipes {
                 invisibleCraftRecipe(it)
             }
         }
-    }
-
-    fun draw() {
-        stage.draw()
     }
 
     override fun keyPressed(key: Int): Boolean {
@@ -223,6 +221,10 @@ class HCraftTable(private val player: Player, sb: SpriteBatch) : EventInputListe
     //Вспомагательные методы
     private fun isRecipeOpened(recipe: CraftRecipe): Boolean {
         return recipeLine.findActor<VisImageButton>(recipe.name) != null
+    }
+
+    fun getRoot(): VisTable {
+        return root
     }
 
 

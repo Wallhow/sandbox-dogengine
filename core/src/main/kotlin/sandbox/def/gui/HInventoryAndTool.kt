@@ -1,23 +1,27 @@
-package sandbox.sandbox.go.player.inventory
+package sandbox.def.gui
 
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.math.Interpolation
+import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Touchable
+import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.viewport.Viewport
-import com.kotcrab.vis.ui.layout.HorizontalFlowGroup
 import com.kotcrab.vis.ui.layout.VerticalFlowGroup
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import dogengine.Kernel
 import dogengine.ecs.systems.controllers.EventInputListener
-import dogengine.utils.TTFFont
+import dogengine.utils.GameCamera
 import dogengine.utils.log
+import dogengine.utils.onLongPress
 import ktx.actors.onClick
+import sandbox.def.SWorldHandler
 import sandbox.go.environment.ItemList
 import sandbox.go.player.inventory.Inventory
 import sandbox.go.player.inventory.InventoryObserver
@@ -28,42 +32,43 @@ import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.tools.SelectToolObserver
 import sandbox.sandbox.go.player.tools.ToolsList
 
-class InventoryAndToolView(private val player: Player) : InventoryObserver, SelectToolObserver {
+class HInventoryAndTool(private val player: Player) : EventInputListener(), InventoryObserver, SelectToolObserver, HUD {
     private val dot = getTextureDot()
     private val rootTable: VisTable = VisTable()
     private val horTable = VisTable()
     private val leftHGroup = VerticalFlowGroup(40f)
     private val rightHGroup = VerticalFlowGroup(40f)
     private val cells = Array<InventoryCell>()
-    private val backgroundColor = Color.DARK_GRAY.cpy().apply { a=.7f }
+    private val backgroundColor = Color.DARK_GRAY.cpy().apply { a = .7f }
     private var currentSelectCell = 0
-    private val toolCell : ToolCell
+    private val toolCell: ToolCell
     private val select: (current: Int) -> Unit = {
-        if(currentSelectCell!=it) {
+        if (currentSelectCell != it) {
             cells[currentSelectCell].unselect()
             currentSelectCell = it
             cells[currentSelectCell].select()
             player.getInventory().currentItem = currentSelectCell
         }
     }
+
     init {
         val inventory = player.getInventory()
-        val view = Kernel.getInjector().getInstance(Viewport::class.java)
+        val view = Kernel.getInjector().getInstance(GameCamera::class.java).getViewport()
         for (i in 0..5) {
-            cells.add(InventoryCell(i,backgroundColor,select))
+            cells.add(InventoryCell(i, backgroundColor, select))
             leftHGroup.addActor(cells[i])
         }
         for (i in 6..11) {
-            cells.add(InventoryCell(i,backgroundColor,select))
+            cells.add(InventoryCell(i, backgroundColor, select))
             rightHGroup.addActor(cells[i])
         }
         horTable.add(leftHGroup)
-        toolCell = ToolCell(player.getCurrentTool(),backgroundColor)
+        toolCell = ToolCell(player.getCurrentTool(), backgroundColor)
         horTable.add(toolCell).spaceRight(58f)
         horTable.add(rightHGroup)
 
         rootTable.background = TextureRegionDrawable(dot)
-        rootTable.setPosition(view.screenWidth/2f,12f)
+        rootTable.setPosition(view.worldWidth / 2f, 12f)
         rootTable.add(horTable)
 
         inventory.observers.add(this)
@@ -71,7 +76,7 @@ class InventoryAndToolView(private val player: Player) : InventoryObserver, Sele
     }
 
     override fun countChanged(newCount: Int, oldCount: Int, item: Inventory.InvItem) {
-        if(oldCount>=0 && newCount <=0) {
+        if (oldCount >= 0 && newCount <= 0) {
             cells.first { it.invItem.itemID == item.itemID }.setZero()
             return
         } else {
@@ -89,38 +94,64 @@ class InventoryAndToolView(private val player: Player) : InventoryObserver, Sele
         toolCell.image.drawable = TextureRegionDrawable(player.getCurrentTool().image)
     }
 
-    fun getRoot(): VisTable = rootTable
+    override fun getRoot(): Actor = rootTable
 
 
-    fun update() {
+    override fun update() {
         cells.forEach { cell ->
             if (cell.isEmpty()) {
                 cell.setZero()
             }
+            if (cell.invItem.itemID == ItemList.WORKBENCH && cell.isLongPressed) {
+                cell.isLongPressed = false
+
+                SWorldHandler.build(cell.invItem.itemID)
+            }
         }
     }
 
-    private class InventoryCell(val index: Int,backgroundColor: Color,val select: (current: Int) -> Unit) : WidgetGroup() {
+    override fun longPress(x: Float, y: Float): Boolean {
+
+        return super.longPress(x, y)
+    }
+
+    private class InventoryCell(val index: Int, backgroundColor: Color, val select: (current: Int) -> Unit) : WidgetGroup() {
         val bg = TextureRegionDrawable(getTextureDot())
+        var isLongPressed: Boolean = false
         private val selected = VisImage(bg).apply {
-            setSize(44f,44f)
-            setPosition(-4f,-4f)
+            setSize(44f, 44f)
+            setPosition(-4f, -4f)
             color = Color.LIME.cpy().apply {
-                a=.5f
-                b=0.9f
+                a = .5f
+                b = 0.9f
             }
             isVisible = false
             touchable = Touchable.disabled
+
+
+            val time = 1 / 2f
+            this.color.a = 0f
+            this.clearActions()
+            val a = Actions.sequence(Actions.fadeIn(time, Interpolation.pow4Out), Actions.fadeOut(time))
+            val seq = Actions.forever(a)
+            this.addAction(seq)
+
         }
         var imageBG = VisImage(bg).apply {
-            setSize(36f,36f)
-            color  = backgroundColor
+            setSize(36f, 36f)
+            color = backgroundColor
             onClick {
                 select.invoke(index)
+                isLongPressed = false
+            }
+
+            onLongPress {
+                isLongPressed = true
+                false
             }
         }
         var image: VisImage = VisImage().apply {
-            setSize(36f,36f)
+            setSize(36f, 36f)
             touchable = Touchable.disabled
         }
         val labelCounter = VisLabel("0").apply {
@@ -131,7 +162,7 @@ class InventoryAndToolView(private val player: Player) : InventoryObserver, Sele
         var invItem = Inventory.InvItem()
 
         init {
-            setSize(36f,36f)
+            setSize(36f, 36f)
             addActor(imageBG)
             addActor(selected)
             addActor(image)
@@ -141,40 +172,45 @@ class InventoryAndToolView(private val player: Player) : InventoryObserver, Sele
         fun select() {
             selected.isVisible = true
         }
+
         fun unselect() {
             selected.isVisible = false
         }
+
+        fun isSelected(): Boolean = selected.isVisible
         fun isEmpty(): Boolean {
             return invItem.isEmpty()
         }
+
         fun setZero() {
             invItem.setZero()
             image.isVisible = false
             labelCounter.isVisible = false
         }
+
         fun setItem(item: Inventory.InvItem) {
-            if (item.itemID!=ItemList.ZERO) {
+            if (item.itemID != ItemList.ZERO) {
                 invItem.count = 1
                 invItem.itemID = item.itemID
                 image.isVisible = true
                 image.drawable = TextureRegionDrawable(assetAtlas().findRegion(item.itemID.resourcesName))
                 labelCounter.isVisible = true
                 labelCounter.setText("${item.count}")
-            }
-            else {
+            } else {
                 setZero()
             }
         }
 
     }
-    private class ToolCell(currentTool: ATool,backgroundColor: Color) : WidgetGroup() {
+
+    private class ToolCell(currentTool: ATool, backgroundColor: Color) : WidgetGroup() {
         val bg = VisImage().apply {
-            setSize(54f,54f)
+            setSize(54f, 54f)
             color = backgroundColor
             drawable = TextureRegionDrawable(getTextureDot())
         }
         val image = VisImage().apply {
-            setSize(50f,50f)
+            setSize(50f, 50f)
             drawable = TextureRegionDrawable(currentTool.image)
         }
 

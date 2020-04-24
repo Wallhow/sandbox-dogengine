@@ -5,11 +5,13 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.input.GestureDetector
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
 import com.google.inject.Inject
 import dogengine.ecs.systems.SystemPriority
+import dogengine.utils.gdxSchedule
 import dogengine.utils.log
 
 class SInputHandler @Inject constructor(val camera: OrthographicCamera,multiplexer: InputMultiplexer) : EntitySystem() {
@@ -18,9 +20,10 @@ class SInputHandler @Inject constructor(val camera: OrthographicCamera,multiplex
         priority = SystemPriority.BEFORE_UPDATE
         val defInput = DefInputAdapter(camera,eventListeners)
         multiplexer.addProcessor(defInput)
+        multiplexer.addProcessor(GestureDetector(DefGestureDetected(eventListeners)))
     }
 
-    fun subscrabe(event: InputEvent, eventInputListener: EventInputListener) {
+    fun subscribe(event: InputEvent, eventInputListener: EventInputListener) {
         if(eventListeners[event] == null) {
             eventListeners.put(event,Array<EventInputListener>())
             log("create handler on event $event")
@@ -36,10 +39,15 @@ class SInputHandler @Inject constructor(val camera: OrthographicCamera,multiplex
     }
 
     private class DefInputAdapter(val camera: OrthographicCamera,val eventListeners: ArrayMap<InputEvent, Array<EventInputListener>>) : InputAdapter() {
+        private val isLongPress = false
+        init {
+
+        }
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
+
             eventListeners[InputEvent.SCREEN_TOUCH]?.forEach {
-                val result = it.touchDown(screenX.toFloat(), Gdx.graphics.height-screenY.toFloat())
+                val result = it.touchDown(pos.x, pos.y)
                 if (!result)
                     return@forEach
             }
@@ -75,11 +83,23 @@ class SInputHandler @Inject constructor(val camera: OrthographicCamera,multiplex
             return super.keyDown(keycode)
         }
     }
+
+    private class DefGestureDetected(val eventListeners: ArrayMap<InputEvent, Array<EventInputListener>>) : GestureDetector.GestureAdapter() {
+        override fun longPress(x: Float, y: Float): Boolean {
+            eventListeners[InputEvent.LONG_PRESS]?.forEach {
+                val result = it.longPress(x,y)
+                if (!result)
+                    return@forEach
+            }
+            return super.longPress(x, y)
+        }
+    }
 }
 
 enum class InputEvent {
     SCREEN_TOUCH,
-    KEY_PRESS
+    KEY_PRESS,
+    LONG_PRESS
 }
 
 interface IEventInputListener {
@@ -87,6 +107,7 @@ interface IEventInputListener {
     fun touchDragged(x:Float, y:Float, pointer: Int): Boolean
     fun touchUp(x:Float, y:Float, pointer: Int): Boolean
     fun keyPressed(key: Int) : Boolean
+    fun longPress(x: Float, y: Float) : Boolean
 }
 open class EventInputListener: IEventInputListener {
     override fun touchDown(x: Float, y: Float): Boolean {
@@ -102,6 +123,10 @@ open class EventInputListener: IEventInputListener {
     }
 
     override fun keyPressed(key: Int): Boolean {
+        return true
+    }
+
+    override fun longPress(x: Float, y: Float) : Boolean {
         return true
     }
 }

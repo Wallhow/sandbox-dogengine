@@ -5,15 +5,25 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.InputEvent
+import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Logger
 import com.badlogic.gdx.utils.Timer
 import dogengine.Kernel
 import dogengine.PooledEntityCreate.engine
 
 fun Any.log(obj: Any,level: Int = Logger.INFO) {
-    val name = this.javaClass.canonicalName.substring(this.javaClass.canonicalName.lastIndexOf('.')+1)
-    Gdx.app.logLevel = level
-    Gdx.app.log(name,obj.toString())
+    if(this.javaClass.canonicalName!=null) {
+        val name = this.javaClass.canonicalName.substring(this.javaClass.canonicalName.lastIndexOf('.') + 1)
+        Gdx.app.logLevel = level
+        Gdx.app.log(name, obj.toString())
+    } else {
+        val name = "anonymous class"
+        Gdx.app.logLevel = level
+        Gdx.app.log(name, obj.toString())
+    }
 }
 
 inline fun <reified T : EntitySystem> system(apply: T.() -> Unit) : Boolean {
@@ -69,17 +79,17 @@ inline fun gdxPostTask(crossinline run: () -> Unit) {
         }
     })
 }
-val sizeViewport: Size = Size()
-inline val OrthographicCamera.viewBoundsRect: Rectangle
-    get() {
-        if(sizeViewport.width==0f)
-            sizeViewport.set(this.viewportWidth * 0.5f,this.viewportHeight * 0.5f)
-        return Kernel.viewBoundsRect.set(this.position.x - sizeViewport.width,
-                this.position.y - sizeViewport.height,
-                this.viewportWidth, this.viewportHeight)
-    }
+
 fun OrthographicCamera.scaleViewBoundsRect(scale: Float): Rectangle {
     return Rectangle().set(this.position.x - (this.viewportWidth * 0.5f)*scale,
             this.position.y - (this.viewportHeight * 0.5f)*scale,
             this.viewportWidth*scale, this.viewportHeight*scale)
+}
+
+inline fun Actor.onLongPress(crossinline listener: () -> Boolean): ActorGestureListener {
+    val clickListener = object : ActorGestureListener() {
+        override fun longPress(actor: Actor?, x: Float, y: Float): Boolean = listener()
+    }
+    this.addListener(clickListener)
+    return clickListener
 }

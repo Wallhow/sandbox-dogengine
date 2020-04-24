@@ -3,19 +3,18 @@ package dogengine.ecs.systems.utility
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.core.Family
-import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Inject
 import dogengine.Kernel
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CCameraLook
 import dogengine.ecs.systems.SystemPriority
+import dogengine.utils.GameCamera
 
 /**
  * Created by wallhow on 20.12.16.
  */
-class SCameraLook @Inject constructor(val camera: OrthographicCamera, private val viewport: Viewport):
+class SCameraLook @Inject constructor(private val gameCamera: GameCamera):
         EntitySystem( ) {
     init {
         priority = SystemPriority.UPDATE+150
@@ -27,6 +26,8 @@ class SCameraLook @Inject constructor(val camera: OrthographicCamera, private va
     private val coeff = 0.98f
     private val speedMove = 200f
     private var entityLook : Entity? = null
+    private val camera = gameCamera.getCamera()
+    private val worldSize = gameCamera.getWorldSize()
     override fun update(deltaTime: Float) {
         if (entityLook==null) {
             val ea = engine.getEntitiesFor(Family.all(CCameraLook::class.java).get())
@@ -40,18 +41,18 @@ class SCameraLook @Inject constructor(val camera: OrthographicCamera, private va
                 if (pos.x < camera.viewportWidth * camera.zoom * 0.5f) {
                     pos.x = camera.viewportWidth * camera.zoom * 0.5f
                 }
-                if (pos.x > viewport.worldWidth - camera.viewportWidth * camera.zoom * 0.5f) {
-                    pos.x = viewport.worldWidth - camera.viewportWidth * camera.zoom * 0.5f
+                if (pos.x > worldSize.width - camera.viewportWidth * camera.zoom * 0.5f) {
+                    pos.x = worldSize.width - camera.viewportWidth * camera.zoom * 0.5f
                 }
                 if (pos.y < camera.viewportHeight * camera.zoom * 0.5f) {
                     pos.y = camera.viewportHeight * camera.zoom * 0.5f
                 }
-                if (pos.y > viewport.worldHeight - camera.viewportHeight * camera.zoom * 0.5f) {
-                    pos.y = viewport.worldHeight - camera.viewportHeight * camera.zoom * 0.5f
+                if (pos.y > worldSize.height - camera.viewportHeight * camera.zoom * 0.5f) {
+                    pos.y = worldSize.height - camera.viewportHeight * camera.zoom * 0.5f
                 }
             }
             if(firstRun) {
-                camera.position.set(pos.x, pos.y, camera.position.z)
+                gameCamera.setPosition(pos.x,pos.y)
                 firstRun = false
             }
 
@@ -73,13 +74,13 @@ class SCameraLook @Inject constructor(val camera: OrthographicCamera, private va
                 else vel.x=0f
                 if(vel.y>1 || vel.y<-1) vel.y*=coeff
                 else vel.y = 0f
-                camera.position.add(vel.x,vel.y,0f)
+                gameCamera.translate(vel.x,vel.y)
             }
             else {
-                camera.position.set(pos.x, pos.y, camera.position.z)
+                gameCamera.setPosition(pos.x,pos.y)
             }
             //camera.frustum.update(camera.invProjectionView)
-            camera.update()
+            gameCamera.update()
         }
     }
 }

@@ -17,6 +17,7 @@ import dogengine.ecs.systems.utility.SDeleteComponent
 import dogengine.ecs.systems.utility.SDeleteMe
 import dogengine.particles2d.EffectsManager
 import dogengine.redkin.physicsengine2d.world.World
+import dogengine.utils.GameCamera
 import dogengine.utils.TTFFont
 import sandbox.def.SWorldHandler
 import sandbox.sandbox.DefClass
@@ -27,21 +28,27 @@ import sandbox.sandbox.def.def.sys.SParticleEmitter
 import sandbox.sandbox.def.def.sys.SShack
 
 typealias WorldDef = World
+
 class MainSandbox : DogeEngineGame() {
     private val defWorld: WorldDef = WorldDef(0f)
-    override val viewport: Viewport
-        get() = FitViewport(800f,640f,OrthographicCamera(800f, 640f)) as Viewport
+    override lateinit var viewport: Viewport
+    lateinit var gameCam: GameCamera
     private val effectsManager = EffectsManager()
-    private lateinit var fnt : TTFFont
+    private lateinit var fnt: TTFFont
     override fun resize(width: Int, height: Int) {
-        viewport.update(width,height)
+        viewport.update(width, height)
     }
+
     private val eManager = EmitterManager()
 
 
     override fun create() {
         fnt = TTFFont(R.pixel0)
         VisUI.load(VisUI.SkinScale.X2)
+        viewport = FitViewport(800f, 640f)
+        viewport.apply()
+        gameCam = GameCamera(viewport)
+
 
         systems.apply {
             use(Kernel.DefSystems.GameObjects)
@@ -68,6 +75,7 @@ class MainSandbox : DogeEngineGame() {
             bind(EffectsManager::class.java).toInstance(effectsManager)
             bind(TTFFont::class.java).toInstance(fnt)
             bind(EmitterManager::class.java).toInstance(eManager)
+            bind(GameCamera::class.java).toInstance(gameCam)
         }
 
         setScreen(MainScreen(kernel.getInjector()))
