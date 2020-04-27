@@ -3,7 +3,7 @@ package sandbox.go.player.inventory
 
 import com.badlogic.gdx.math.MathUtils
 import dogengine.ecs.components.utility.logic.CTransforms
-import sandbox.def.SWorldHandler
+import sandbox.sandbox.def.def.sys.SWorldHandler
 import sandbox.go.environment.ItemList
 import sandbox.sandbox.go.player.Player
 import kotlin.properties.Delegates
@@ -82,7 +82,7 @@ class Inventory(val player: Player, val size: Int = 12)  {
         if (currentItem < arr.size && arr[currentItem].itemID != ItemList.ZERO) {
             val d = arr[currentItem]
             //кидаем в стек объект для дропа в мир из инвентаря
-            SWorldHandler.addItemOnMap(d.itemID, pos)
+            SWorldHandler.createItem(d.itemID,pos)
             pop()
         }
     }
@@ -97,6 +97,10 @@ class Inventory(val player: Player, val size: Int = 12)  {
             }
         }
         return idx
+    }
+
+    fun whatSelected(): ItemList {
+        return if(currentItem!=-1) arr[currentItem].itemID else ItemList.ZERO
     }
 
     var currentItem: Int = 0

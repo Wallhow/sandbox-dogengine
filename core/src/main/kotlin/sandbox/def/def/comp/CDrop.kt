@@ -19,5 +19,8 @@ class CDrop : PoolableComponent {
         velocity.setZero()
         time = 0f
         currentTime = 0f
+        dirty = true
+        y = 0f
+        itemID = null
     }
 }

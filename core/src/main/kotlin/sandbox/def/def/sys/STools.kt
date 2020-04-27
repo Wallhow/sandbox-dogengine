@@ -14,9 +14,7 @@ import dogengine.ecs.components.utility.CDeleteComponent
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
-import ktx.ashley.add
 import sandbox.sandbox.def.def.comp.*
-import sandbox.sandbox.go.environment.AGameObjectOnMap
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.Player.DirectionSee.*
 import kotlin.math.abs

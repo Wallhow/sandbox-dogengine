@@ -13,7 +13,6 @@ import dogengine.redkin.physicsengine2d.sensors.Sensor
 import dogengine.particles2d.EffectsManager
 import dogengine.utils.log
 import sandbox.R
-import sandbox.sandbox.def.def.comp.CExtraction
 import sandbox.sandbox.def.def.comp.CShack
 
 class PlayerToolsListener (private val player: Player) : ContactListener {

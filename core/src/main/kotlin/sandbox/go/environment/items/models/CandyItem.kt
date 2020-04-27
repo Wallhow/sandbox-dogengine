@@ -6,6 +6,5 @@ import sandbox.go.environment.ItemList
 
 class CandyItem(position: Vector2) : AItemOnMap(ItemList.CANDY) {
     init {
-        defInit(position)
     }
 }

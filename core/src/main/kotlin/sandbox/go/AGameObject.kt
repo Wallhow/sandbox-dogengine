@@ -20,7 +20,6 @@ import dogengine.ecs.components.utility.logic.updateZIndex
 import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.R
-import sandbox.go.environment.ItemList
 
 abstract class AGameObject (name: String) : Entity() {
     open val entity: Entity

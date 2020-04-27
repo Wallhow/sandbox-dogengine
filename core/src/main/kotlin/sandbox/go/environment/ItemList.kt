@@ -2,8 +2,9 @@ package sandbox.go.environment
 
 import com.badlogic.gdx.utils.ArrayMap
 import sandbox.go.environment.Counter.nextId
+import sandbox.sandbox.go.environment.ObjectList
 
-enum class ItemList(val resourcesName: String, val id: Int) {
+enum class ItemList(val resourcesName: String, val id: Int,val buildType: ObjectList? = null) {
     CANDY("candy_item", nextId()),
     ZERO("null", nextId()),
     WOOD("wood_item", nextId()),
@@ -11,7 +12,7 @@ enum class ItemList(val resourcesName: String, val id: Int) {
     ROCK("rock_item", nextId()),
     SANDSTONE("sandstone_item", nextId()),
     WOOD_PLANK("plank_item",nextId()),
-    WORKBENCH("workbench_object",nextId()),
+    WORKBENCH("workbench_object",nextId(),ObjectList.WORKBENCH),
     APPLE("apple_item",nextId()),
     APPLE_EAT("apple_eat_item",nextId()),
 }

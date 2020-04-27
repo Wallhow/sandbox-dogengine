@@ -3,6 +3,7 @@ package sandbox.sandbox.def.gui
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.graphics.g2d.GlyphLayout
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
@@ -11,7 +12,9 @@ import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.utils.SpriteDrawable
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
+import com.kotcrab.vis.ui.VisUI
 import com.kotcrab.vis.ui.widget.VisImage
+import com.kotcrab.vis.ui.widget.VisLabel
 import com.kotcrab.vis.ui.widget.VisTable
 import dogengine.Kernel
 import dogengine.ecs.components.utility.logic.CTransforms
@@ -23,6 +26,7 @@ import dogengine.utils.log
 import dogengine.utils.system
 import ktx.vis.table
 import sandbox.def.gui.HInventoryAndTool
+import sandbox.sandbox.def.def.sys.SWorldHandler
 import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.player.Player
 import space.earlygrey.shapedrawer.ShapeDrawer
@@ -40,7 +44,7 @@ class SMainGUI(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     private val hInventoryAndTool = HInventoryAndTool(player)
     private val craftMenu = HCraftTable(player)
     private val buildConstruction = BuildConstruction(player,Kernel.getInjector().getInstance(Engine::class.java))
-
+    private val labelCurrentMode = VisLabel("building")
     init {
 
         toolHitInit()
@@ -48,12 +52,16 @@ class SMainGUI(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
 
         system<SInputHandler> {
             subscribe(InputEvent.KEY_PRESS, craftMenu)
-            subscribe(InputEvent.LONG_PRESS,hInventoryAndTool)
             subscribe(InputEvent.SCREEN_TOUCH,buildConstruction)
         }
+        val gll = GlyphLayout()
+        gll.setText(VisUI.getSkin().getFont("default-font"),"building")
+        labelCurrentMode.isVisible = false
+        labelCurrentMode.setPosition(gameCamera.getViewport().worldWidth/2-gll.width/2,60f)
 
         guiHUD.addActor(craftMenu.getRoot())
         guiHUD.addActor(hInventoryAndTool.getRoot())
+        guiHUD.addActor(labelCurrentMode)
 
         Kernel.getInjector().getInstance(InputMultiplexer::class.java).addProcessor(guiHUD)
 
@@ -65,16 +73,12 @@ class SMainGUI(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
     }
 
     private fun toolHitInit() {
-        val viewWidth = gameCamera.getScaledViewport().width
-        val viewHeight = gameCamera.getScaledViewport().height
-        val halfWidth = viewWidth / 2
-        val halfHeight = viewHeight / 2
         val padding = 64f
         table = table {
             setPosition(CTransforms[player].getCenterX() - padding, CTransforms[player].getCenterY() - padding)
             setSize(padding * 2, padding * 2)
             add(image).expand().bottom()
-            setDebug(true)
+            debug = true
         }
         gui.addActor(table)
     }
@@ -86,9 +90,8 @@ class SMainGUI(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
 
         buildConstruction.update()
 
-        shapeDrawer.batch.begin()
-        buildConstruction.draw(shapeDrawer)
-        shapeDrawer.batch.end()
+        labelCurrentMode.isVisible = SWorldHandler.itemIDBuild!=null
+
 
         guiHUD.act()
         guiHUD.draw()
@@ -110,7 +113,6 @@ class SMainGUI(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
             if (dirty) {
                 actionInit(image)
                 val dx = view.worldWidth / view.camera.viewportWidth
-                log(view.worldWidth)
                 val x = CTransforms[player].getCenterX() * dx
                 val y = CTransforms[player].getCenterY()
                 val pos = Vector2(x, y)

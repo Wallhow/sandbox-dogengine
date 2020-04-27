@@ -18,15 +18,4 @@ abstract class AItemOnMap(val itemType: ItemList,
             itemID = itemType
         }
     }
-
-
-    //TODO Удалить
-    protected fun defInit(position: Vector2) {
-        createCTransform(position.cpy(), Size(24f,24f))
-        createCAtlasRegion(itemType.resourcesName)
-        createCDrop(0.75f)
-        createCUpdate {  }
-        horizontalLine = position.y
-        engine.addEntity(Shadow(this))
-    }
 }

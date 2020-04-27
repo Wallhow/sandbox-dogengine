@@ -3,12 +3,10 @@ package dogengine.ecs.systems.tilemap
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.ArrayMap
-import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Inject
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create

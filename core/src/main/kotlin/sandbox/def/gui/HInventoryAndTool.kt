@@ -2,15 +2,12 @@ package sandbox.def.gui
 
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Touchable
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Array
-import com.badlogic.gdx.utils.viewport.Viewport
 import com.kotcrab.vis.ui.layout.VerticalFlowGroup
 import com.kotcrab.vis.ui.widget.VisImage
 import com.kotcrab.vis.ui.widget.VisLabel
@@ -18,10 +15,9 @@ import com.kotcrab.vis.ui.widget.VisTable
 import dogengine.Kernel
 import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.GameCamera
-import dogengine.utils.log
 import dogengine.utils.onLongPress
 import ktx.actors.onClick
-import sandbox.def.SWorldHandler
+import sandbox.sandbox.def.def.sys.SWorldHandler
 import sandbox.go.environment.ItemList
 import sandbox.go.player.inventory.Inventory
 import sandbox.go.player.inventory.InventoryObserver
@@ -40,11 +36,12 @@ class HInventoryAndTool(private val player: Player) : EventInputListener(), Inve
     private val rightHGroup = VerticalFlowGroup(40f)
     private val cells = Array<InventoryCell>()
     private val backgroundColor = Color.DARK_GRAY.cpy().apply { a = .7f }
-    private var currentSelectCell = 0
+    private var currentSelectCell = -1
     private val toolCell: ToolCell
     private val select: (current: Int) -> Unit = {
         if (currentSelectCell != it) {
-            cells[currentSelectCell].unselect()
+            if(currentSelectCell!=-1)
+                cells[currentSelectCell].unselect()
             currentSelectCell = it
             cells[currentSelectCell].select()
             player.getInventory().currentItem = currentSelectCell
@@ -105,7 +102,7 @@ class HInventoryAndTool(private val player: Player) : EventInputListener(), Inve
             if (cell.invItem.itemID == ItemList.WORKBENCH && cell.isLongPressed) {
                 cell.isLongPressed = false
 
-                SWorldHandler.build(cell.invItem.itemID)
+                SWorldHandler.itemIDBuild = cell.invItem.itemID
             }
         }
     }

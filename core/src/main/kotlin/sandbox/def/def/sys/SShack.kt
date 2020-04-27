@@ -9,7 +9,9 @@ import dogengine.ecs.components.utility.CDeleteComponent
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
+import sandbox.sandbox.def.def.comp.CParticleEmitter
 import sandbox.sandbox.def.def.comp.CShack
+import sandbox.sandbox.def.particles.Presets
 
 class SShack : IteratingSystem(Family.all(CTransforms::class.java,CShack::class.java).exclude(CHide::class.java).get()) {
     init {
@@ -25,17 +27,26 @@ class SShack : IteratingSystem(Family.all(CTransforms::class.java,CShack::class.
             tr.position.set(beforePosition)
 
             if(time<=duration) {
+                if(CParticleEmitter[entity]==null) {
+                    entity.create<CParticleEmitter> {
+                        emittersConf.add(Presets.dust)
+                    }
+                }
                 tr.position.add(MathUtils.random(-powerShake,powerShake),
                         MathUtils.random(-powerShake,powerShake))
             } else {
                 if (repeat) {
                     time = 0f
                 } else {
-                    entity.create<CDeleteComponent>() {
+                    entity.create<CDeleteComponent> {
                         componentRemove = shack
+                    }
+                    entity.create<CDeleteComponent> {
+                        componentRemove = CParticleEmitter[entity]
                     }
                 }
             }
         }
+
     }
 }

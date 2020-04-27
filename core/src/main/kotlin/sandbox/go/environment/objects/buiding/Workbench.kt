@@ -15,7 +15,7 @@ class Workbench (position:Vector2) : AGameObjectOnMap(ObjectList.WORKBENCH) {
         createCTransform(position, Size(getAtlasRegion().regionWidth*0.5f ,
                 getAtlasRegion().regionHeight * 0.5f))
         createCPhysicsDef(type = Types.TYPE.DYNAMIC)
-        createCHealth(40f,itemType = null)
+        createCHealth(10f,itemType = ItemList.WORKBENCH)
         create<CWorkbench> {
             type = objectType
         }

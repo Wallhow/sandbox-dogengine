@@ -18,7 +18,7 @@ class Emitter(val config: Configuration) : Pool<Particle>(200) {
     private val position = vec2(0f, 0f)
     private val particles: Array<Particle> = Array()
     private var isRun = false
-    private var isInfiniteEmission = true
+    private var isInfiniteEmission = config.isInfinite
     //TODO переделать обязательно!
     val drawer = ShapeDrawer(Kernel.getInjector().getInstance(SpriteBatch::class.java)
             , Kernel.getInjector().getProvider(Kernel.DotTexture::class.java).get().get())
@@ -34,6 +34,9 @@ class Emitter(val config: Configuration) : Pool<Particle>(200) {
     fun update(delta: Float) {
         if (isRun) {
             particles.forEach {
+                if(config.pDirectionInterpolation) {
+                   it.direction.y = Interpolation.pow3Out.apply(config.pDirectionMin.y,config.pDirectionMax.y,it.timer/it.maxAge)
+                }
                 it.x += it.direction.x * it.speed * delta
                 it.y += it.direction.y * it.speed * delta
                 it.angle += it.speedRotation * delta
@@ -55,7 +58,7 @@ class Emitter(val config: Configuration) : Pool<Particle>(200) {
         }
     }
     
-    val interpolationColor = Interpolation.bounceIn
+    val interpolationColor = Interpolation.fade
     private fun interpolationColor(particle: Particle) {
         val timeInterval = (particle.maxAge/config.colors.size) //временной интервал на смену одого цвета
         val age = when {
@@ -132,6 +135,8 @@ class Emitter(val config: Configuration) : Pool<Particle>(200) {
     }
 
     class Configuration {
+        var pDirectionInterpolation: Boolean = false
+        var isInfinite: Boolean = false
         var pCountMin: Int = 0
             set(value) {
                 field = value

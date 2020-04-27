@@ -6,6 +6,6 @@ import sandbox.go.environment.items.AItemOnMap
 
 class WoodPlankItem (position: Vector2) : AItemOnMap(ItemList.WOOD_PLANK) {
     init {
-        defInit(position)
+
     }
 }

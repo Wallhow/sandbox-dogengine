@@ -8,12 +8,10 @@ import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
-import com.badlogic.gdx.graphics.g2d.ParticleEffect
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Injector
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
@@ -26,7 +24,6 @@ import dogengine.ecs.systems.physics.SDefaultPhysics2d
 import dogengine.ecs.systems.tilemap.CMap2D
 import dogengine.ecs.systems.tilemap.SMap2D
 import dogengine.redkin.physicsengine2d.world.World
-import dogengine.particles2d.EffectsManager
 import dogengine.utils.Size
 import dogengine.utils.system
 import dogengine.utils.vec2
@@ -55,7 +52,6 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     val engine: Engine = injector.getInstance(Engine::class.java)
     lateinit var player: Player
     private val tilesSize = 32f
-    private lateinit var ef: EffectsManager
     private val eManager = injector.getInstance(EmitterManager::class.java)
 
     //ДЕБАГ ТАБЛО
@@ -64,9 +60,9 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     override fun render(delta: Float) {
         engine.update(delta)
         eManager.update(delta)
-        ef.update(delta)
+
         batch.begin()
-        ef.draw(batch)
+
         eManager.draw()
         batch.end()
 
@@ -81,11 +77,6 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         camera.zoom = 0.8f
 
         debugGui.setPlayer(player)
-
-        ef = injector.getInstance(EffectsManager::class.java)
-        am.load(Gdx.files.internal(R.dot_particles0).path(),ParticleEffect::class.java)
-        am.finishLoadingAsset<ParticleEffect>(Gdx.files.internal(R.dot_particles0).path())
-        ef.createEffect(1,am[Gdx.files.internal(R.dot_particles0).path()])
 
 
         engine.addEntity(createMapEntity(tilesSize.toInt()))
