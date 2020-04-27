@@ -55,7 +55,6 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     val engine: Engine = injector.getInstance(Engine::class.java)
     lateinit var player: Player
     private val tilesSize = 32f
-    private lateinit var ef: EffectsManager
     private val eManager = injector.getInstance(EmitterManager::class.java)
 
     //ДЕБАГ ТАБЛО
@@ -64,9 +63,9 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
     override fun render(delta: Float) {
         engine.update(delta)
         eManager.update(delta)
-        ef.update(delta)
+
         batch.begin()
-        ef.draw(batch)
+
         eManager.draw()
         batch.end()
 
@@ -81,11 +80,6 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         camera.zoom = 0.8f
 
         debugGui.setPlayer(player)
-
-        ef = injector.getInstance(EffectsManager::class.java)
-        am.load(Gdx.files.internal(R.dot_particles0).path(),ParticleEffect::class.java)
-        am.finishLoadingAsset<ParticleEffect>(Gdx.files.internal(R.dot_particles0).path())
-        ef.createEffect(1,am[Gdx.files.internal(R.dot_particles0).path()])
 
 
         engine.addEntity(createMapEntity(tilesSize.toInt()))

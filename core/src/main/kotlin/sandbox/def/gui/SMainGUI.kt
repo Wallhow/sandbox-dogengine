@@ -86,9 +86,6 @@ class SMainGUI(private val player: Player) : EntitySystem(SystemPriority.DRAW + 
 
         buildConstruction.update()
 
-        shapeDrawer.batch.begin()
-        buildConstruction.draw(shapeDrawer)
-        shapeDrawer.batch.end()
 
         guiHUD.act()
         guiHUD.draw()
