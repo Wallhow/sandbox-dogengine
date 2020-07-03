@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.GdxRuntimeException
 import dogengine.ecs.components.create
 import dogengine.ecs.components.draw.CAtlasRegion
 import dogengine.ecs.components.draw.CAtlasRegionAnimation
-import dogengine.ecs.components.draw.CDrawable
+import dogengine.ecs.components.draw.CDraw
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
@@ -24,7 +24,7 @@ class SDrawAtlasRegionAnimation : IteratingSystem(Family.all(CTransforms::class.
         val index = CAtlasRegionAnimation[entity].frameSequenceArray.getCurrentFrame()
 
         val region = it.atlas?.findRegion(it.nameRegion,index) ?: throw GdxRuntimeException("frame $index in ${entity} not found")
-        entity.create<CDrawable> {
+        entity.create<CDraw> {
             texture = region
             tint = it.color
             drawLayer = it.drawLayer

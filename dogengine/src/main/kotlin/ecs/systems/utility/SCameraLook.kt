@@ -31,7 +31,8 @@ class SCameraLook @Inject constructor(private val gameCamera: GameCamera):
     override fun update(deltaTime: Float) {
         if (entityLook==null) {
             val ea = engine.getEntitiesFor(Family.all(CCameraLook::class.java).get())
-            entityLook = ea.first() ?: null
+            if(ea.size()!=0)
+                entityLook = ea.first() ?: null
         }
         entityLook?.apply {
             val pos = CTransforms[this].position.cpy().add(
@@ -77,7 +78,9 @@ class SCameraLook @Inject constructor(private val gameCamera: GameCamera):
                 gameCamera.translate(vel.x,vel.y)
             }
             else {
+
                 gameCamera.setPosition(pos.x,pos.y)
+
             }
             //camera.frustum.update(camera.invProjectionView)
             gameCamera.update()

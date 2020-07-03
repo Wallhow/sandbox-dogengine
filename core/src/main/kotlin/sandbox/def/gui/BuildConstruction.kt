@@ -13,6 +13,7 @@ import dogengine.ecs.components.utility.logic.CUpdate
 import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.log
 import dogengine.utils.vec2
+import map2D.TypeData
 import sandbox.sandbox.def.def.sys.SWorldHandler
 import sandbox.sandbox.go.assetAtlas
 import sandbox.sandbox.go.player.Player
@@ -24,12 +25,12 @@ class BuildConstruction(val player: Player, val engine: Engine) : EventInputList
     private val grid: Entity
 
     init {
-        grid = create()
+        grid = gridCreate()
 
         engine.addEntity(grid)
     }
 
-    private fun create(): Entity {
+    private fun gridCreate(): Entity {
         return engine.createEntity {
             components {
                 create<CTransforms> {
@@ -95,22 +96,29 @@ class BuildConstruction(val player: Player, val engine: Engine) : EventInputList
     private val dstToBuild = 1.47f
     private fun build(x: Float, y: Float) {
         val itemBuild = SWorldHandler.itemIDBuild
-        itemBuild?.let {
-            val xx = (x / 32).toInt()
-            val yy = (y / 32).toInt()
-            val pos = Vector2(xx.toFloat(), yy.toFloat())
-            val playerOrigin = vec2((CTransforms[player].getCenterX() / 32).toInt() * 1f, (CTransforms[player].getCenterY() / 32).toInt() * 1f)
-            if (it.buildType != null) {
-                if (abs(playerOrigin.dst(pos)) <= dstToBuild) {
-                    SWorldHandler.createConstruct(it.buildType, pos.scl(32f))
-                    player.getInventory().pop()
-                    build = false
-                    drawGrid = false
-                    CTransforms[grid].position.set(Int.MIN_VALUE * 1f, Int.MIN_VALUE * 1f)
-                    SWorldHandler.itemIDBuild = null
+        val xx = (x / 32).toInt()
+        val yy = (y / 32).toInt()
+        if (!SWorldHandler.isEmptyCell(xx,yy)) {
+            log("not empty this cell")
+        } else {
+            itemBuild?.let {
+                val pos = Vector2(xx.toFloat(), yy.toFloat())
+                val playerOrigin = vec2((CTransforms[player].getCenterX() / 32).toInt() * 1f, (CTransforms[player].getCenterY() / 32).toInt() * 1f)
+                if (it.buildType != null) {
+                    if (abs(playerOrigin.dst(pos)) <= dstToBuild) {
+                        SWorldHandler.getCellInObjectLayer(xx,yy).data.put(
+                                TypeData.ObjectOn,
+                                it.buildType)
+                        SWorldHandler.createConstruct(it.buildType, pos.scl(32f))
+                        player.getInventory().pop()
+                        build = false
+                        drawGrid = false
+                        CTransforms[grid].position.set(Int.MIN_VALUE * 1f, Int.MIN_VALUE * 1f)
+                        SWorldHandler.itemIDBuild = null
+                    }
                 }
-            }
 
+            }
         }
     }
 }

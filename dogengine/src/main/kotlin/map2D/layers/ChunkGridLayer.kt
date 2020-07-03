@@ -1,15 +1,19 @@
-package dogengine.map2D
+package dogengine.map2D.layers
 
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.GdxRuntimeException
+import dogengine.map2D.Cell
+import dogengine.map2D.Chunk
+import dogengine.map2D.getCell
 import dogengine.utils.Array2D
 import dogengine.utils.vec2
+import map2D.Vector2Int
 
 
-private val Cell.CellXY.isTmp: Boolean
+private val Vector2Int.isTmp: Boolean
     get() {
         return (x == -1 || y == -1)
     }
@@ -18,10 +22,9 @@ class ChunkGridLayer(properties: LayerProperties) : Layer {
     override var isVisible: Boolean = true
     override var width: Int = properties.width
     override var height: Int = properties.height
-    override val tileWidth: Int = properties.tileWidth
-    override val tileHeight: Int = properties.tileHeight
+    override val cellWidth: Int = properties.tileWidth
+    override val cellHeight: Int = properties.tileHeight
     override val name: String = properties.name
-    override var index: Int = properties.index
     private val chunkManager = ChunkManager(width, height, 8)
 
 
@@ -83,8 +86,8 @@ class ChunkGridLayer(properties: LayerProperties) : Layer {
     }
 
     override fun getCellsInViewBounds(rectBounds: Rectangle): ImmutableArray<Cell> {
-        val mX = 0.coerceAtLeast(MathUtils.roundPositive(rectBounds.x / tileWidth))
-        val mY = 0.coerceAtLeast(MathUtils.roundPositive(rectBounds.y / tileHeight))
+        val mX = 0.coerceAtLeast(MathUtils.roundPositive(rectBounds.x / cellWidth))
+        val mY = 0.coerceAtLeast(MathUtils.roundPositive(rectBounds.y / cellHeight))
 
         val array = com.badlogic.gdx.utils.Array<Cell>()
 
@@ -117,4 +120,4 @@ private fun <E> List<E>.toGdxArray(): com.badlogic.gdx.utils.Array<E> {
 
 data class LayerProperties(val width: Int, val height: Int,
                            val tileWidth: Int, val tileHeight: Int,
-                           val index: Int, val name: String = "unnamed")
+                           val index: Int, var name: String = "unnamed")

@@ -14,11 +14,16 @@ import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.systems.SystemPriority
 import dogengine.utils.Size
-import dogengine.utils.log
 import sandbox.go.environment.ItemList
 import sandbox.go.environment.items.AItemOnMap
 import sandbox.go.environment.items.Shadow
 import sandbox.go.environment.objects.buiding.Workbench
+import dogengine.ecs.components.draw.CFixedY
+import dogengine.ecs.systems.tilemap.SMap2D
+import dogengine.map2D.Cell
+import dogengine.utils.extension.get
+import dogengine.utils.log
+import map2D.TypeData
 import sandbox.sandbox.def.def.comp.CToBuild
 import sandbox.sandbox.def.def.comp.CToDrop
 import sandbox.sandbox.def.def.interfaces.IBuilder
@@ -36,6 +41,7 @@ class SWorldHandler: EntitySystem() {
         //Предметы
         ItemList.values().forEach {
             builders.addBuilder(it,builder { position ->
+
                 createDefEntity(it,position)
             })
         }
@@ -53,6 +59,9 @@ class SWorldHandler: EntitySystem() {
                 createCDrop(0.75f)
                 createCUpdate {  }
                 horizontalLine = position.y
+                create<CFixedY> {
+                    y = position.y
+                }
                 engine.addEntity(Shadow(this))
             }
         }
@@ -91,7 +100,7 @@ class SWorldHandler: EntitySystem() {
             Kernel.getInjector().getInstance(Engine::class.java).addEntity(e)
         }
         fun createConstruct(type: ObjectList, pos: Vector2) {
-            val e = Kernel.getInjector().getInstance(Engine::class.java).createEntity {
+            val e = Kernel.getInjector()[Engine::class.java].createEntity {
                 components {
                     create<CToBuild> { this.type = type }
                     create<CTransforms> {
@@ -100,6 +109,22 @@ class SWorldHandler: EntitySystem() {
                 }
             }
             Kernel.getInjector().getInstance(Engine::class.java).addEntity(e)
+        }
+
+        fun isEmptyCell(xx: Int, yy: Int): Boolean {
+            var result = true
+            SMap2D.map2D?.let { map ->
+                log("object in cell "+map.getLayer("objects").getCell(xx,yy).data[TypeData.ObjectOn])
+                if(map.getLayer("objects").getCell(xx,yy).data[TypeData.ObjectOn]!=null) {
+                    result = false
+                    return@let
+                }
+            }
+            return result
+        }
+
+        fun getCellInObjectLayer(xx: Int, yy: Int) : Cell {
+            return SMap2D.map2D!!.getLayer("objects").getCell(xx,yy)
         }
     }
 }

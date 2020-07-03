@@ -21,8 +21,7 @@ import dogengine.ecs.systems.update.SUpdate
 import dogengine.ecs.systems.update.SVelocity
 import dogengine.ecs.systems.utility.SCameraLook
 import dogengine.ecs.systems.utility.SDeleteMe
-import dogengine.utils.log
-import sandbox.dogengine.ecs.systems.update.SVisibleEntity
+import dogengine.ecs.systems.update.SVisibleEntity
 
 
 object Kernel {
@@ -68,7 +67,7 @@ object Kernel {
         }
 
         object CameraLook {
-            var fixedBounds = true
+            var fixedBounds = false
         }
         object SVisibleEntity {
             var scale = 1.0f
@@ -79,7 +78,6 @@ object Kernel {
         GameObjects(SVisibleEntity::class.java,
                 SDrawTextureRegion::class.java,SDrawTextureRegionAnimation::class.java,
                 SDrawAtlasRegion::class.java,SDrawAtlasRegionAnimation::class.java,
-                SDrawable::class.java,
                 SVelocity::class.java),
         Box2DPhysics(
                 SPhysicsBox2DUpdate::class.java,

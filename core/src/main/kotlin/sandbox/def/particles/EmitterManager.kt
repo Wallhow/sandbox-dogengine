@@ -1,21 +1,21 @@
-package sandbox.sandbox.def.def.particles
+package sandbox.def.particles
 
 import com.badlogic.gdx.utils.Array
-import dogengine.utils.log
+import sandbox.sandbox.def.def.particles.Emitter
 
 class EmitterManager {
-    private val arrayEmitter = Array<Emitter>()
+    val emitters = Array<Emitter>()
     fun addEmitter(emitter: Emitter) {
-        arrayEmitter.add(emitter)
+        emitters.add(emitter)
     }
 
     fun draw() {
-        arrayEmitter.forEach {
+        emitters.forEach {
             it.draw()
         }
     }
     fun update(delta:Float) {
-        arrayEmitter.forEach {
+        emitters.forEach {
             it.update(delta)
         }
     }

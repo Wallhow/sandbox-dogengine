@@ -3,7 +3,9 @@ package sandbox
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
-import com.badlogic.gdx.*
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.ScreenAdapter
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -13,38 +15,44 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.google.inject.Injector
+import dogengine.drawcore.DrawTypes
+import dogengine.drawcore.SDraw2D
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
+import dogengine.ecs.components.utility.visible.CLightBox2D
+import dogengine.ecs.components.utility.visible.LightType
 import dogengine.ecs.systems.draw.SDrawDebug20
 import dogengine.ecs.systems.physics.SDefaultPhysics2d
 import dogengine.ecs.systems.tilemap.CMap2D
 import dogengine.ecs.systems.tilemap.SMap2D
 import dogengine.redkin.physicsengine2d.world.World
+import dogengine.shadow2d.components.CShadow
 import dogengine.utils.Size
 import dogengine.utils.system
 import dogengine.utils.vec2
-import sandbox.sandbox.def.map.CreatedCellMapListener
-import sandbox.sandbox.def.map.Map2DGenerator
-import sandbox.sandbox.def.gui.SMainGUI
-import sandbox.sandbox.def.def.particles.EmitterManager
-import sandbox.sandbox.def.def.sys.SDropUpdate
+import sandbox.def.particles.EmitterManager
 import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Wood
 import sandbox.go.environment.objects.buiding.Workbench
-import sandbox.sandbox.def.gui.DebugGUI
 import sandbox.sandbox.def.def.comp.CNearbyObject
+import sandbox.sandbox.def.def.sys.SDropUpdate
 import sandbox.sandbox.def.def.sys.STools
 import sandbox.sandbox.def.def.sys.SWorkbenchDetected
+import sandbox.sandbox.def.gui.DebugGUI
+import sandbox.sandbox.def.gui.SMainGUI
+import sandbox.sandbox.def.map.CreatedCellMapListener
+import sandbox.sandbox.def.map.Map2DGenerator
 import sandbox.sandbox.go.environment.objects.buiding.Bonfire
 import sandbox.sandbox.go.environment.objects.buiding.CWorkbench
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.Player.DirectionSee.*
 import sandbox.sandbox.go.player.PlayerToolsListener
 import sandbox.sandbox.input.MainInput
+
 
 class MainScreen(private val injector: Injector) : ScreenAdapter() {
     private val batch: SpriteBatch = injector.getInstance(SpriteBatch::class.java)
@@ -74,22 +82,22 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         am.load(Gdx.files.internal(R.matlas0).path(), TextureAtlas::class.java)
         am.finishLoadingAsset<TextureAtlas>(Gdx.files.internal(R.matlas0).path())
         player = Player(am, Vector2(100f, 100f))
+        player.add(CShadow())
         camera.zoom = 0.8f
 
         debugGui.setPlayer(player)
 
-
         engine.addEntity(createMapEntity(tilesSize.toInt()))
         engine.addEntity(player)
-        engine.addEntity(Wood(Vector2(100f, 200f)))
-        engine.addEntity(Wood(Vector2(250f, 210f)))
-        engine.addEntity(Workbench(Vector2(350f, 220f)))
 
-        engine.addEntity(Bonfire(Vector2(300f,100f)))
+        engine.addEntity(engine.createEntity {
+            components {
+                create<CLightBox2D> {
+                    type = LightType.DIRECTIONAL
+                }
+            }
+        })
 
-
-        engine.addEntity(Rock(Vector2(470f, 590f)))
-        engine.addEntity(Rock(Vector2(350f, 690f)))
 
         engine.addSystem(SMainGUI(player))
 
@@ -148,6 +156,11 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
         }
         system<SDefaultPhysics2d> {
             this.world.addContactListener(PlayerToolsListener(player))
+        }
+        system<SDraw2D> {
+            this.drawFunctions.put(DrawTypes.BATCH,DrawTypes.batchDrawFunction)
+            this.drawFunctions.put(DrawTypes.MAP,DrawTypes.batchDrawFunction)
+            this.drawFunctions.put(DrawTypes.SOLID,DrawTypes.solidDrawFunction)
         }
 
         //Добавляем главный инпут

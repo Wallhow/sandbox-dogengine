@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
 import dogengine.ecs.components.create
-import dogengine.ecs.components.draw.CDrawable
+import dogengine.ecs.components.draw.CDraw
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.draw.CTextureRegionAnimation
 import dogengine.ecs.components.utility.logic.CTransforms
@@ -22,7 +22,7 @@ class SDrawTextureRegion : IteratingSystem(Family.all(CTransforms::class.java, C
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         val it = CTextureRegion[entity]
-        entity.create<CDrawable> {
+        entity.create<CDraw> {
             texture = getFrame(entity)
             tint = it.color
             drawLayer = it.drawLayer

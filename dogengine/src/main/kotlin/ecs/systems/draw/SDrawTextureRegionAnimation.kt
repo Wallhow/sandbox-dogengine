@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
 import com.google.inject.Inject
 import dogengine.ecs.components.create
-import dogengine.ecs.components.draw.CDrawable
+import dogengine.ecs.components.draw.CDraw
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.draw.CTextureRegionAnimation
 import dogengine.ecs.components.utility.visible.CHide
@@ -65,7 +65,7 @@ class SDrawTextureRegionAnimation @Inject constructor() :
                 d.time = 0f
             }
         }
-        entity.create<CDrawable> {
+        entity.create<CDraw> {
             texture = getFrame(entity as GameEntity)
             tint = CTextureRegion[entity].color
         }

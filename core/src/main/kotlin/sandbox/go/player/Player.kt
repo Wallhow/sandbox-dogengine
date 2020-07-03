@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
+import com.badlogic.gdx.utils.GdxRuntimeException
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createBody
 import dogengine.ecs.components.draw.*
@@ -15,6 +16,7 @@ import dogengine.ecs.components.utility.CStateMachine
 import dogengine.ecs.components.utility.logic.*
 import dogengine.ecs.components.utility.visible.CCameraLook
 import dogengine.ecs.def.GameEntity
+import dogengine.ecs.systems.flexbatch.CBump
 import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import dogengine.utils.vec2
@@ -55,7 +57,7 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
         create<CAtlasRegion> {
             atlas = am.get(R.matlas0, TextureAtlas::class.java)
             nameRegion = "knight"
-            drawLayer = CDrawable.DrawLayer.YES_EFFECT
+            drawLayer = CDraw.DrawLayer.YES_EFFECT
         }
         create<CAtlasRegionAnimation> {
             //createSequence(T.W_NON.ordinal, 0.4f) { isRepeat = true; putFrames(intArrayOf(1, 5)) }
@@ -84,11 +86,20 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
             val bodyW = t.size.width / 3
             createBody(t, t.size.width / 2 - bodyW / 2, 4f, bodyW, t.size.height / 4, Types.TYPE.DYNAMIC, name)
         }
+        create<CBump> {
+            normalMap = CAtlasRegion[this@Player].atlas?.findRegion(CAtlasRegion[this@Player].nameRegion)!!
+        }
         create<CUpdate> {
             func = {
                 tool.update(it)
                 CTransforms[this@Player].updateZIndex()
                 movePlayer()
+
+                CBump[this@Player].apply {
+                    val a = CAtlasRegion[this@Player]
+                    val index = CAtlasRegionAnimation[this@Player].frameSequenceArray.getCurrentFrame()
+                    normalMap = a.atlas?.findRegion(a.nameRegion,index) ?: throw GdxRuntimeException("frame $index in $this not found")
+                }
             }
         }
 

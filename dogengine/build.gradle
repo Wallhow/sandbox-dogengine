@@ -1,5 +1,7 @@
 ext {
     shapedrawerVersion = '2.2.0'
+    flexbatchVersion = '1.2.1'
+    spineVersion = '3.5.51.1'
 }
 
 dependencies {
@@ -20,5 +22,11 @@ dependencies {
 
     //БатчДравер для дебага
     compile "space.earlygrey:shapedrawer:$shapedrawerVersion"
+
+    //ФлексБатч
+    compile "com.cyphercove.flexbatch:flexbatch:$flexbatchVersion"
+
+    //Spine animation
+    compile "com.esotericsoftware.spine:spine-libgdx:$spineVersion"
 
 }

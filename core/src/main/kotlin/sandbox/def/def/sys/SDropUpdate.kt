@@ -13,7 +13,6 @@ import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
-import dogengine.utils.log
 import sandbox.go.environment.ItemList
 import sandbox.sandbox.def.def.comp.CDrop
 import sandbox.sandbox.go.player.Player

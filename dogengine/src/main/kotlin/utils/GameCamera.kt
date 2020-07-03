@@ -1,6 +1,8 @@
 package dogengine.utils
 
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.math.Rectangle
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 
 class GameCamera (private val viewport: Viewport) {
@@ -23,5 +25,11 @@ class GameCamera (private val viewport: Viewport) {
     fun getScaledViewport() : Size {
         return Size(getCamera().viewportWidth*getCamera().zoom,
                 getCamera().viewportHeight*getCamera().zoom)
+    }
+
+    fun inViewBounds(point: Vector2): Boolean {
+        return Rectangle.tmp.set(getCamera().position.x-getViewport().worldWidth/2f,
+                getCamera().position.y-getViewport().worldHeight/2f,
+                getViewport().worldWidth,getViewport().worldHeight).contains(point)
     }
 }

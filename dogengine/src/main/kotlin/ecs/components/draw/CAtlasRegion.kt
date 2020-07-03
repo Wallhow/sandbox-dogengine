@@ -10,14 +10,14 @@ import dogengine.ecs.def.ComponentResolver
 class CAtlasRegion : Component, Pool.Poolable{
     var atlas: TextureAtlas? = null
     var nameRegion: String? = null
-    var drawLayer: CDrawable.DrawLayer = CDrawable.DrawLayer.NO_EFFECT
+    var drawLayer: CDraw.DrawLayer = CDraw.DrawLayer.NO_EFFECT
     var index = -1
     var color: Color = Color.WHITE.cpy()
     val padding = Vector2()
     override fun reset() {
         atlas = null
         nameRegion = null
-        drawLayer = CDrawable.DrawLayer.NO_EFFECT
+        drawLayer = CDraw.DrawLayer.NO_EFFECT
         index = -1
         color = Color.WHITE.cpy()
         padding.setZero()

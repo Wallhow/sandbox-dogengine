@@ -5,6 +5,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Stage
@@ -17,6 +18,8 @@ import dogengine.Kernel
 import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.ecs.systems.controllers.InputEvent
 import dogengine.ecs.systems.controllers.SInputHandler
+import dogengine.ecs.systems.utility.STime
+import dogengine.shadow2d.systems.SShadow2D
 import dogengine.utils.GameCamera
 import dogengine.utils.Size
 import dogengine.utils.log
@@ -26,6 +29,7 @@ import sandbox.go.environment.ItemList
 import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.assetTextureRegion
 import sandbox.sandbox.go.player.Player
+import sandbox.sandbox.input.MainInput
 
 class DebugGUI : EventInputListener() {
 
@@ -34,6 +38,7 @@ class DebugGUI : EventInputListener() {
     private val itemTable: VisTable = VisTable()
     private val root: Stage = Stage()
     private val label: VisLabel = VisLabel()
+    private val batch = Kernel.getInjector().getInstance(SpriteBatch::class.java)
     val size: Size = Size(36f*6f, 36*4f)
     val position: Vector2
     val gameCamera: GameCamera
@@ -83,7 +88,7 @@ class DebugGUI : EventInputListener() {
                 }
             }
         }
-        itemTable.setBackground(TextureRegionDrawable(getTextureDot()))
+        itemTable.background = TextureRegionDrawable(getTextureDot())
         itemTable.color = Color.LIGHT_GRAY
 
         val scrollPane = VisScrollPane(itemTable)
@@ -95,11 +100,25 @@ class DebugGUI : EventInputListener() {
     }
 
     fun updateAndDraw(delta: Float) {
-        //itemTable.setPosition(position.x, position.y)
         root.act(delta)
-        label.setText("FPS : ${Gdx.graphics.framesPerSecond}\n" +
+        var time = 0f
+        var hour = 0f
+        var day = 0f
+        system<STime> {
+            time = getCurrentMinute()
+            hour = getCurrentHour()
+            day = getCurrentDay()
+        }
+        var text = "FPS : ${Gdx.graphics.framesPerSecond}\n" +
                 "Count entities : ${Kernel.getInjector().getInstance(Engine::class.java).entities.size()}\n" +
-                "press Z to show grid")
+                "Time [ ${hour.toInt()} : ${time.toInt()}]\n" +
+                "Day [ ${day.toInt()} ]\n" +
+                "press Z to show grid\n"+
+                "detail level shadow = ${SShadow2D.getDetailLevelShadow()}\n"
+        if(MainInput.save) {
+            text+="world saved ;)"
+        }
+        label.setText(text)
 
         root.draw()
     }

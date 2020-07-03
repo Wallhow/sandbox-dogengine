@@ -6,8 +6,8 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.utils.Pool
 import dogengine.ecs.def.ComponentResolver
 
-class CDrawable : Component, Pool.Poolable {
-    companion object : ComponentResolver<CDrawable>(CDrawable::class.java)
+class CDraw : Component, Pool.Poolable {
+    companion object : ComponentResolver<CDraw>(CDraw::class.java)
     var isDeleteAfterDraw = false
     var texture : TextureRegion? = null
     var tint : Color = Color.WHITE.cpy()
@@ -29,7 +29,7 @@ class CDrawable : Component, Pool.Poolable {
         offsetY = 0
     }
 }
-fun CDrawable.c(textureRegion: TextureRegion,color: Color = Color.WHITE.cpy(),drawLayer: CDrawable.DrawLayer = CDrawable.DrawLayer.NO_EFFECT) : CDrawable {
+fun CDraw.c(textureRegion: TextureRegion, color: Color = Color.WHITE.cpy(), drawLayer: CDraw.DrawLayer = CDraw.DrawLayer.NO_EFFECT) : CDraw {
     this.texture = textureRegion
     this.tint = color
     this.drawLayer = drawLayer

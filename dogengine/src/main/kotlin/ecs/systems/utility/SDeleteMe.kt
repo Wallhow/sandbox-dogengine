@@ -12,7 +12,7 @@ import dogengine.ecs.systems.SystemPriority
  */
 class SDeleteMe @Inject constructor() : IteratingSystem(Family.all(CDeleteMe::class.java).get()){
     init {
-        priority = SystemPriority.BEFORE_UPDATE
+        priority = SystemPriority.DRAW+1000
     }
     override fun processEntity(entity: Entity, deltaTime: Float) {
         CDeleteMe[entity].task?.invoke()

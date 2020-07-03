@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ActorGestureListener
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener
 import com.badlogic.gdx.utils.Logger
 import com.badlogic.gdx.utils.Timer
+import com.google.inject.Injector
 import dogengine.Kernel
 import dogengine.PooledEntityCreate.engine
 
@@ -33,17 +34,6 @@ inline fun <reified T : EntitySystem> system(apply: T.() -> Unit) : Boolean {
         true
     }
     else false
-}
-
-
-inline fun Boolean.isTrue(func: ()-> Unit) : Boolean {
-    if(this)
-        func.invoke()
-    return this
-}
-inline fun Boolean.isElse(func:() -> Unit) {
-    if(!this)
-        func.invoke()
 }
 
 fun vec2(x: Float, y: Float) = Vector2(x,y)
