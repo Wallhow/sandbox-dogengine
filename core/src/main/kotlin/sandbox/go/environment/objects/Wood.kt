@@ -9,8 +9,8 @@ import dogengine.shadow2d.components.CShadow
 import dogengine.utils.Size
 import sandbox.sandbox.go.environment.AGameObjectOnMap
 import sandbox.go.environment.items.dropOnMap
-import sandbox.go.environment.ItemList
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ItemList
+import sandbox.sandbox.go.objects.ObjectList
 
 class Wood (position : Vector2) : AGameObjectOnMap(objectType = ObjectList.WOOD) {
     private val itemType = ItemList.WOOD
@@ -32,5 +32,6 @@ class Wood (position : Vector2) : AGameObjectOnMap(objectType = ObjectList.WOOD)
     private fun befDead()  {
         dropOnMap(3,5, itemType2)
         dropOnMap(3,4, itemType)
+        dropOnMap(3,3, ItemList.BRANCH)
     }
 }

@@ -12,7 +12,7 @@ import dogengine.utils.Size
 import sandbox.sandbox.def.def.comp.CParticleEmitter
 import sandbox.sandbox.def.particles.Presets
 import sandbox.sandbox.go.environment.AGameObjectOnMap
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ObjectList
 
 class Bonfire (position: Vector2) : AGameObjectOnMap(ObjectList.BONFIRE1) {
     init {

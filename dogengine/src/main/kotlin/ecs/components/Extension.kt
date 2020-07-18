@@ -1,12 +1,11 @@
 package dogengine.ecs.components
 
-import com.badlogic.ashley.core.Component
-import com.badlogic.ashley.core.Engine
-import com.badlogic.ashley.core.Entity
+import com.badlogic.ashley.core.*
 import com.badlogic.gdx.math.Vector2
 import dogengine.PooledEntityCreate
 import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
+import dogengine.ecs.systems.tilemap.CMap2D
 import dogengine.redkin.physicsengine2d.bodies.RectangleBody
 import dogengine.redkin.physicsengine2d.sensors.Sensor
 import dogengine.redkin.physicsengine2d.variables.Types
@@ -39,6 +38,23 @@ inline fun <reified T : Component> Entity.create() {
 inline fun Engine.createEntity(init: (PooledEntityCreate.() -> Entity)): Entity {
     PooledEntityCreate.engine = this
     return init.invoke(PooledEntityCreate)
+}
+
+inline fun Engine.isEntityAdded(crossinline func : (entity: Entity) -> Unit) : EntityListener {
+    return object : EntityListener {
+        override fun entityRemoved(entity: Entity?) {
+        }
+
+        override fun entityAdded(entity: Entity) {
+            func(entity)
+        }
+    }
+}
+
+inline fun Engine.addEntityAddedListener(family: Family, crossinline func : (entity: Entity) -> Unit) {
+    this.addEntityListener(Family.all(CMap2D::class.java).get(), this.isEntityAdded {
+       func(it)
+    })
 }
 
 inline fun PooledEntityCreate.components(function: Entity.() -> Unit): Entity {

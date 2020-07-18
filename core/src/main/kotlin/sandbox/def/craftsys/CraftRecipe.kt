@@ -1,6 +1,6 @@
 package sandbox.def.craftsys
 
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
 
 /**
  * Рецепт крафта

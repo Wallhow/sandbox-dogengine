@@ -5,15 +5,13 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.ArrayMap
 import com.google.inject.Inject
 import dogengine.drawcore.CDrawable
+import dogengine.ecs.components.addEntityAddedListener
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
-import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
@@ -22,24 +20,20 @@ import dogengine.ecs.components.utility.visible.CVisibleEntityListener
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
 import dogengine.ecs.systems.SystemPriority
-import dogengine.map2D.comp.CCell
 import dogengine.map2D.Cell
 import dogengine.map2D.Map2D
+import dogengine.map2D.comp.CCell
 import dogengine.utils.GameCamera
-import dogengine.utils.Size
+import dogengine.utils.extension.addEntity
 import map2D.TypeData
 
-//TODO ТУТ ВСЁ ЗАХАРДКОДЕНО, ЭТО НЕ ДОЛЖНО БЫТЬ ТАК, ПЕРЕСМОТРЕТЬ ДАННЫЙ КЛАСС В БУДУЩЕМ
 class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
-        IteratingSystem(Family.all(CMap2D::class.java).get()), EntityListener {
-    val tileSize = Size()
-    private val tileset: ArrayMap<Int, TextureAtlas.AtlasRegion> = ArrayMap()
-    var setTileset: ((ArrayMap<Int, TextureAtlas.AtlasRegion>) -> Unit)? = null
-    private var isSetTileset = true
+        IteratingSystem(Family.all(CMap2D::class.java).get()) {
+    val tilesets = Tilesets()
     private val camera = gameCamera.getCamera()
 
     companion object {
-        var map2D: Map2D? = null
+        lateinit var map2D: Map2D
     }
 
     init {
@@ -47,23 +41,15 @@ class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
     }
 
     override fun addedToEngine(engine: Engine) {
-        engine.addEntityListener(family, this)
-        super.addedToEngine(engine)
-    }
-
-    override fun update(deltaTime: Float) {
-        if (setTileset != null && isSetTileset) {
-            setTileset?.invoke(tileset)
-            isSetTileset = false
+        engine.addEntityAddedListener(Family.all(CMap2D::class.java).get()) {
+            map2D = (CMap2D[it].map2D!!)
+            updateViewport(map2D)
         }
-        super.update(deltaTime)
+        super.addedToEngine(engine)
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
         CMap2D[entity].map2D?.let { map ->
-            if (map2D == null) {
-                map2D = map
-            }
             val scaleViewBounds = Rectangle(camera.position.x, camera.position.y,
                     gameCamera.getViewport().worldWidth / 2, gameCamera.getViewport().worldHeight / 2)
 
@@ -77,8 +63,7 @@ class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
 
     private fun initCreate(it: Cell) {
         if (!it.isInEngine) {
-            val e = createDrawableEntity(it) ?: return
-            engine.addEntity(e)
+            createDrawableEntity(it) ?: return
             it.isInEngine = true
         }
     }
@@ -86,9 +71,9 @@ class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
 
     private fun createDrawableEntity(it: Cell): Entity? {
         if ((it.data[TypeData.TypeCell] is String)) return null
-        val s = Size(tileSize.width, tileSize.height)
+        val s = tilesets.tileSize.cpy()
         val pos = Vector2(it.x * s.width, it.y * s.height)
-        return engine.createEntity {
+        return engine.addEntity {
             components {
                 create<CTransforms> {
                     position = pos
@@ -98,7 +83,7 @@ class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
 
                 }
                 create<CTextureRegion> {
-                    texture = tileset.get(it.data[TypeData.TypeCell] as Int)
+                    texture = tilesets.getTile(it.data[TypeData.TypeCell] as Int)
                 }
                 create<CDrawable> {
                     this.drawType = 1
@@ -126,16 +111,6 @@ class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
     private fun updateViewport(map: Map2D) {
         gameCamera.setWorldSize(map.getWidthMapInPixels(), map.getHeightMapInPixels())
         camera.update()
-    }
-
-    override fun entityRemoved(entity: Entity) {
-
-    }
-
-    override fun entityAdded(entity: Entity) {
-        CMap2D[entity].map2D?.let {
-            updateViewport(it)
-        }
     }
 }
 

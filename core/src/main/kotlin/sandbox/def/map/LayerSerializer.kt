@@ -21,7 +21,7 @@ import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Sandstone
 import sandbox.go.environment.objects.Wood
 import sandbox.sandbox.go.environment.AGameObjectOnMap
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ObjectList
 import sandbox.sandbox.go.environment.objects.buiding.Bonfire
 import java.lang.reflect.Type
 

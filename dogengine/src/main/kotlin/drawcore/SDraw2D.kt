@@ -3,6 +3,8 @@ package dogengine.drawcore
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.SortedIteratingSystem
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
@@ -15,9 +17,10 @@ import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
 import dogengine.ecs.systems.draw.DrawComparator
 import dogengine.map2D.comp.CCell
+import dogengine.shadow2d.systems.SShadow2D
 import dogengine.utils.GameCamera
 
-class SDraw2D @Inject constructor(private val batch: SpriteBatch, val gameCamera: GameCamera, val view: Viewport) : SortedIteratingSystem(Family.all(CDrawable::class.java, CTransforms::class.java)
+class SDraw2D @Inject constructor(private val batch: SpriteBatch, private val gameCamera: GameCamera, val view: Viewport) : SortedIteratingSystem(Family.all(CDrawable::class.java, CTransforms::class.java)
         .exclude(CHide::class.java).get(), DrawComparator.comparator) {
     val drawFunctions = ArrayMap<Int, IDrawFunc>()
     private val sortedEntities: Array<Entity> = Array()
@@ -68,6 +71,16 @@ class SDraw2D @Inject constructor(private val batch: SpriteBatch, val gameCamera
             batch.end()
         }
 
+        val smap = SShadow2D.shadowMap
+
+        batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
+        batch.begin()
+        batch.enableBlending()
+        batch.color.set(1f, 1f, 1f, 0.6f)
+        batch.draw(smap.texture,smap.position.x,smap.position.y
+                ,smap.size.width, smap.size.height)
+        batch.end()
+        batch.color= Color.WHITE
 
     }
 

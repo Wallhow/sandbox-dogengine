@@ -2,7 +2,7 @@ package sandbox.sandbox.def.def.comp
 
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
 
 class CHealth : PoolableComponent {
     companion object : ComponentResolver<CHealth>(CHealth::class.java)

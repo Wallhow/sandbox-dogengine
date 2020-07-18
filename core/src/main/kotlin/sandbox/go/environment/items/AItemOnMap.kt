@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity
 import dogengine.ecs.components.create
 import sandbox.sandbox.def.def.comp.CDrop
 import sandbox.sandbox.go.AGameObject
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
 
 abstract class AItemOnMap(val itemType: ItemList,
                           var horizontalLine: Float = 0f) : AGameObject(itemType.resourcesName) {

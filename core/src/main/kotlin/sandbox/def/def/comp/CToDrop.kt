@@ -1,8 +1,8 @@
-package sandbox.sandbox.def.def.comp
+package sandbox.def.def.comp
 
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
 
 class CToDrop : PoolableComponent {
     companion object : ComponentResolver<CToDrop>(CToDrop::class.java)

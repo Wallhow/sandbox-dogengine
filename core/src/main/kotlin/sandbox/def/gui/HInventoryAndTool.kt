@@ -17,8 +17,8 @@ import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.GameCamera
 import dogengine.utils.onLongPress
 import ktx.actors.onClick
-import sandbox.sandbox.def.def.sys.SWorldHandler
-import sandbox.go.environment.ItemList
+import sandbox.def.def.sys.SWorldHandler
+import sandbox.sandbox.go.objects.ItemList
 import sandbox.go.player.inventory.Inventory
 import sandbox.go.player.inventory.InventoryObserver
 import sandbox.go.player.tools.ATool
@@ -99,9 +99,8 @@ class HInventoryAndTool(private val player: Player) : EventInputListener(), Inve
             if (cell.isEmpty()) {
                 cell.setZero()
             }
-            if (cell.invItem.itemID == ItemList.WORKBENCH && cell.isLongPressed) {
+            if (cell.invItem.itemID.buildType!=null && cell.isLongPressed) {
                 cell.isLongPressed = false
-
                 SWorldHandler.itemIDBuild = cell.invItem.itemID
             }
         }

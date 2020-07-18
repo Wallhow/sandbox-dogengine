@@ -2,7 +2,7 @@ package sandbox.sandbox.go.environment.objects.buiding
 
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ObjectList
 
 class CWorkbench : PoolableComponent {
     companion object : ComponentResolver<CWorkbench>(CWorkbench::class.java)

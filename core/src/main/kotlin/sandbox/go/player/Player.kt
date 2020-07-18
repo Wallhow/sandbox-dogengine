@@ -26,7 +26,7 @@ import sandbox.dogengine.ecs.components.controllers.EventListener
 import sandbox.go.player.tools.ATool
 import sandbox.go.player.tools.TAxeWood
 import sandbox.go.player.inventory.Inventory
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ObjectList
 import sandbox.sandbox.go.player.tools.SelectToolObserver
 import sandbox.sandbox.go.player.tools.TPickaxeWood
 import kotlin.properties.Delegates

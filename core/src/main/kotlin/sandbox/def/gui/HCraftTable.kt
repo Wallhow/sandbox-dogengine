@@ -2,18 +2,12 @@ package sandbox.sandbox.def.gui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.InputMultiplexer
 import com.badlogic.gdx.graphics.Color
-import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.math.Interpolation
-import com.badlogic.gdx.scenes.scene2d.Actor
-import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup
-import com.badlogic.gdx.scenes.scene2d.ui.Widget
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 import com.badlogic.gdx.utils.Align
 import com.badlogic.gdx.utils.ArrayMap
-import com.badlogic.gdx.utils.viewport.Viewport
 import com.kotcrab.vis.ui.widget.*
 import dogengine.Kernel
 import dogengine.ecs.systems.controllers.EventInputListener
@@ -23,7 +17,7 @@ import ktx.actors.onClick
 import ktx.vis.table
 import sandbox.def.craftsys.CraftRecipe
 import sandbox.def.craftsys.CraftRecipes
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
 import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.assetAtlas
 import sandbox.sandbox.go.player.Player

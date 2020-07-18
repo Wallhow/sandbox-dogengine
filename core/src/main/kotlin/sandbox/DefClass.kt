@@ -205,8 +205,7 @@ var d1 = 0f
         camera.update()
 
         system<SMap2D> {
-            tileSize.set(tilesSize, tilesSize)
-            setTileset = {
+            tilesets.createTileSet(Size(tilesSize)) {
                 for (i in 1..12) {
                     it.put(i, TextureAtlas(R.matlas0).findRegion("tile", i))
                 }

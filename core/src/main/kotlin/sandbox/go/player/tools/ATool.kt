@@ -8,7 +8,7 @@ import com.badlogic.gdx.utils.Array
 import dogengine.Kernel
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.redkin.physicsengine2d.bodies.RectangleBody
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ObjectList
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.tools.ToolsList
 

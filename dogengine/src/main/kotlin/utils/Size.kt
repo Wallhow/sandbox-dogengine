@@ -50,4 +50,12 @@ class Size(private var width_: Float = 0f,private var height_: Float = 0f) {
     fun set(newSize: Size) {
         set(newSize.width,newSize.height)
     }
+
+    fun cpy(): Size {
+        return Size(width_,height_)
+    }
+
+    companion object {
+        val ZERO = Size()
+    }
 }

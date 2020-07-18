@@ -10,8 +10,8 @@ import dogengine.utils.Size
 import sandbox.sandbox.def.def.comp.CHealth
 import sandbox.sandbox.go.environment.AGameObjectOnMap
 import sandbox.go.environment.items.dropOnMap
-import sandbox.go.environment.ItemList
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ItemList
+import sandbox.sandbox.go.objects.ObjectList
 
 class Rock(position: Vector2) : AGameObjectOnMap(objectType = ObjectList.ROCK) {
     private val itemType = ItemList.ROCK

@@ -1,81 +1,52 @@
-package sandbox.sandbox.def.def.sys
+package sandbox.def.def.sys
 
-import com.badlogic.ashley.core.Engine
-import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.core.Family
+import com.badlogic.ashley.core.*
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.ArrayMap
-import dogengine.Kernel
-import dogengine.ecs.components.components
 import dogengine.ecs.components.create
-import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.systems.SystemPriority
 import dogengine.utils.Size
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
 import sandbox.go.environment.items.AItemOnMap
 import sandbox.go.environment.items.Shadow
 import sandbox.go.environment.objects.buiding.Workbench
 import dogengine.ecs.components.draw.CFixedY
-import dogengine.ecs.systems.tilemap.SMap2D
-import dogengine.map2D.Cell
-import dogengine.utils.extension.get
-import dogengine.utils.log
-import map2D.TypeData
-import sandbox.sandbox.def.def.comp.CToBuild
-import sandbox.sandbox.def.def.comp.CToDrop
-import sandbox.sandbox.def.def.interfaces.IBuilder
-import sandbox.sandbox.go.environment.ObjectList
+import dogengine.ecs.components.addEntityAddedListener
+import dogengine.ecs.systems.tilemap.CMap2D
+import sandbox.def.def.comp.CToBuild
+import sandbox.def.def.comp.CToDrop
+import sandbox.def.def.interfaces.IBuilder
+import sandbox.def.def.world.Builders
+import sandbox.def.def.world.IWorldManager
+import sandbox.def.def.world.WorldManager
+import sandbox.sandbox.go.objects.ObjectList
+import sandbox.sandbox.go.environment.objects.buiding.Bonfire
+import sandbox.sandbox.go.objects.BuildersCreator
 
 class SWorldHandler: EntitySystem() {
     init {
         priority = SystemPriority.BEFORE_UPDATE-1
-
-        //Конструкции
-        builders.addBuilder(ObjectList.WORKBENCH,builder {
-            Workbench(it)
-        })
-
-        //Предметы
-        ItemList.values().forEach {
-            builders.addBuilder(it,builder { position ->
-
-                createDefEntity(it,position)
-            })
-        }
+        BuildersCreator.create(builders)
     }
-    private inline fun builder(crossinline block : (position: Vector2) -> Entity) : IBuilder {
-        return object : IBuilder {
-            override fun build(position: Vector2): Entity = block(position)
+
+    override fun addedToEngine(engine: Engine) {
+        engine.addEntityAddedListener(Family.all(CMap2D::class.java).get()) {
+            worldManager = WorldManager(CMap2D[it].map2D!!)
         }
+        super.addedToEngine(engine)
     }
-    private fun createDefEntity(itemType: ItemList, position: Vector2) : Entity {
-        return object : AItemOnMap(itemType,position.y) {
-            init {
-                createCTransform(position.cpy(), Size(24f,24f))
-                createCAtlasRegion(itemType.resourcesName)
-                createCDrop(0.75f)
-                createCUpdate {  }
-                horizontalLine = position.y
-                create<CFixedY> {
-                    y = position.y
-                }
-                engine.addEntity(Shadow(this))
-            }
-        }
-    }
+
 
     override fun update(deltaTime: Float) {
         engine.getEntitiesFor(Family.all(CToDrop::class.java).get()).forEach {
-            builders[CToDrop[it].type]?.let {builder->
+            builders[CToDrop[it].type]?.let { builder->
                 engine.addEntity(builder.build(CTransforms[it].position))
                 it.create<CDeleteMe>()
             }
         }
         engine.getEntitiesFor(Family.all(CToBuild::class.java).get()).forEach {
-            builders[CToBuild[it].type]?.let {builder->
+            builders[CToBuild[it].type]?.let { builder->
                 engine.addEntity(builder.build(CTransforms[it].position))
                 it.create<CDeleteMe>()
             }
@@ -84,63 +55,8 @@ class SWorldHandler: EntitySystem() {
     }
 
     companion object {
+        lateinit var worldManager: IWorldManager
         val builders : Builders = Builders()
-
         var itemIDBuild : ItemList? = null
-
-        fun createItem(type: ItemList, pos: Vector2) {
-            val e = Kernel.getInjector().getInstance(Engine::class.java).createEntity {
-                components {
-                    create<CToDrop> { this.type = type }
-                    create<CTransforms> {
-                        this.position.set(pos.x,pos.y)
-                    }
-                }
-            }
-            Kernel.getInjector().getInstance(Engine::class.java).addEntity(e)
-        }
-        fun createConstruct(type: ObjectList, pos: Vector2) {
-            val e = Kernel.getInjector()[Engine::class.java].createEntity {
-                components {
-                    create<CToBuild> { this.type = type }
-                    create<CTransforms> {
-                        this.position.set(pos.x,pos.y)
-                    }
-                }
-            }
-            Kernel.getInjector().getInstance(Engine::class.java).addEntity(e)
-        }
-
-        fun isEmptyCell(xx: Int, yy: Int): Boolean {
-            var result = true
-            SMap2D.map2D?.let { map ->
-                log("object in cell "+map.getLayer("objects").getCell(xx,yy).data[TypeData.ObjectOn])
-                if(map.getLayer("objects").getCell(xx,yy).data[TypeData.ObjectOn]!=null) {
-                    result = false
-                    return@let
-                }
-            }
-            return result
-        }
-
-        fun getCellInObjectLayer(xx: Int, yy: Int) : Cell {
-            return SMap2D.map2D!!.getLayer("objects").getCell(xx,yy)
-        }
     }
-}
-
-class Builders {
-    private val dropArray : ArrayMap<ItemList, IBuilder> = ArrayMap()
-    private val constructArray : ArrayMap<ObjectList, IBuilder> = ArrayMap()
-
-    operator fun get(itemType: ItemList) = dropArray[itemType]
-    operator fun get(objectType: ObjectList) = constructArray[objectType]
-
-    fun addBuilder(type: ItemList, builder: IBuilder) {
-        dropArray.put(type,builder)
-    }
-    fun addBuilder(type: ObjectList, builder: IBuilder) {
-        constructArray.put(type,builder)
-    }
-
 }

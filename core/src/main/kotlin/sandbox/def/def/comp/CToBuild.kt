@@ -1,8 +1,8 @@
-package sandbox.sandbox.def.def.comp
+package sandbox.def.def.comp
 
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ObjectList
 
 class CToBuild : PoolableComponent {
     companion object : ComponentResolver<CToBuild>(CToBuild::class.java)

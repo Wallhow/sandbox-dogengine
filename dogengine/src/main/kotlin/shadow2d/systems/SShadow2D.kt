@@ -30,6 +30,7 @@ import dogengine.utils.Size
 class SShadow2D @Inject constructor(private val batch: SpriteBatch, private val gameCamera: GameCamera) : IteratingSystem(Family.all(CShadow::class.java).get()) {
     private val shadowObj = Array<Entity>()
     private var lvl = 1
+
     companion object {
         private val finaleFBO = FrameBuffer(Pixmap.Format.RGBA8888, Gdx.graphics.width, Gdx.graphics.height, false)
         private var lightSize = 256
@@ -41,15 +42,15 @@ class SShadow2D @Inject constructor(private val batch: SpriteBatch, private val 
         var additive: Boolean = true
         fun setDetailLevelShadow(level: Int) {
             var lvl = level
-            if(level <= 0) lvl = 1
-            if(level > 5) lvl = 5
+            if (level <= 0) lvl = 1
+            if (level > 5) lvl = 5
             levelDetailShadow = lvl
             //   1        2       3          4           5          6
             // 8 - 32 , 4 - 64 ,2 - 128, 1 - 256, 0.5 - 512, 0.25 - 1024
             // 1 - 8
             // 3 - x
             // :\ ну как то так
-            when(lvl) {
+            when (lvl) {
                 1 -> {
                     upScale = 8f
                     lightSize = 32
@@ -80,12 +81,13 @@ class SShadow2D @Inject constructor(private val batch: SpriteBatch, private val 
                 }
             }
         }
-        fun getDetailLevelShadow() : Int = levelDetailShadow
+
+        fun getDetailLevelShadow(): Int = levelDetailShadow
     }
 
     init {
         priority = SystemPriority.DRAW - 10
-        lights.add(PointLight().apply { x = Int.MIN_VALUE.toFloat();y = Int.MIN_VALUE.toFloat(); })
+        lights.add(PointLight().apply { x = -100500f;y = -100500f; })
     }
 
     override fun processEntity(entity: Entity, deltaTime: Float) {
@@ -96,7 +98,7 @@ class SShadow2D @Inject constructor(private val batch: SpriteBatch, private val 
     override fun update(deltaTime: Float) {
         shadowObj.clear()
         super.update(deltaTime)
-        if(lvl!= levelDetailShadow) {
+        if (lvl != levelDetailShadow) {
             lvl = levelDetailShadow
             initFBO()
         }
@@ -113,8 +115,15 @@ class SShadow2D @Inject constructor(private val batch: SpriteBatch, private val 
         if (additive) batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
 
         lights.forEach {
-            renderLightStep1(it)
-            renderLightStep2(it)
+            if (it.x != -100500f || it.y != -100500f) {
+                if (gameCamera.inViewBounds(Vector2(it.x, it.y))) {
+                    renderLightStep1(it)
+                    renderLightStep2(it)
+                }
+            } else {
+                renderLightStep1(it)
+                renderLightStep2(it)
+            }
         }
 
 

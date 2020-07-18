@@ -2,10 +2,9 @@ package sandbox.def.craftsys
 
 import com.badlogic.gdx.utils.Array
 import com.badlogic.gdx.utils.ArrayMap
-import dogengine.utils.log
 import sandbox.go.player.inventory.Inventory
-import sandbox.go.environment.ItemList
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ItemList
+import sandbox.sandbox.go.objects.ObjectList
 
 /**
  * Список возможных рецептов с их условиями
@@ -43,6 +42,16 @@ class CraftRecipes(val inv: Inventory) {
                 create { isNearWorkbench(ObjectList.BONFIRE1) }
             }
             craftItem(ItemList.APPLE_EAT)
+        }
+
+        recipe("костер",
+        "Благодаря костру я смогу погреться и приготовить себе еду!") {
+            itemsNeed {
+                item(ItemList.BRANCH,2)
+                item(ItemList.WOOD,6)
+            }
+            rules { }
+            craftItem(ItemList.BONFIRE)
         }
     }
 

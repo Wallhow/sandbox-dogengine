@@ -1,6 +1,6 @@
-package sandbox.sandbox.go.environment
+package sandbox.sandbox.go.objects
 
-import sandbox.go.environment.Counter.nextId
+import sandbox.sandbox.go.objects.Counter.nextId
 
 enum class ObjectList(val resourcesName: String, val id: Int) {
     ZERO("null", nextId()),

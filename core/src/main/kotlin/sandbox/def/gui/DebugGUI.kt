@@ -25,7 +25,7 @@ import dogengine.utils.Size
 import dogengine.utils.log
 import dogengine.utils.system
 import ktx.actors.onClick
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
 import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.assetTextureRegion
 import sandbox.sandbox.go.player.Player

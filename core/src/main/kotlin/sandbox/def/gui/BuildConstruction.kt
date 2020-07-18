@@ -14,7 +14,8 @@ import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.log
 import dogengine.utils.vec2
 import map2D.TypeData
-import sandbox.sandbox.def.def.sys.SWorldHandler
+import sandbox.def.def.sys.SWorldHandler
+import sandbox.sandbox.def.def.world.LayerNames
 import sandbox.sandbox.go.assetAtlas
 import sandbox.sandbox.go.player.Player
 import kotlin.math.abs
@@ -98,7 +99,8 @@ class BuildConstruction(val player: Player, val engine: Engine) : EventInputList
         val itemBuild = SWorldHandler.itemIDBuild
         val xx = (x / 32).toInt()
         val yy = (y / 32).toInt()
-        if (!SWorldHandler.isEmptyCell(xx,yy)) {
+        val cell = SWorldHandler.worldManager.getCell(xx,yy,"objects")
+        if (!SWorldHandler.worldManager.isEmpty(cell)) {
             log("not empty this cell")
         } else {
             itemBuild?.let {
@@ -106,10 +108,11 @@ class BuildConstruction(val player: Player, val engine: Engine) : EventInputList
                 val playerOrigin = vec2((CTransforms[player].getCenterX() / 32).toInt() * 1f, (CTransforms[player].getCenterY() / 32).toInt() * 1f)
                 if (it.buildType != null) {
                     if (abs(playerOrigin.dst(pos)) <= dstToBuild) {
-                        SWorldHandler.getCellInObjectLayer(xx,yy).data.put(
+                        SWorldHandler.worldManager.getCell(xx,yy,LayerNames.OBJECTS).data.put(
                                 TypeData.ObjectOn,
                                 it.buildType)
-                        SWorldHandler.createConstruct(it.buildType, pos.scl(32f))
+
+                        SWorldHandler.worldManager.createConstruction(it.buildType, pos.scl(32f))
                         player.getInventory().pop()
                         build = false
                         drawGrid = false

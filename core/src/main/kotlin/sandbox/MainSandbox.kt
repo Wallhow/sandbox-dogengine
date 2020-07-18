@@ -10,7 +10,6 @@ import com.google.inject.Binder
 import com.kotcrab.vis.ui.VisUI
 import dogengine.DogeEngineGame
 import dogengine.Kernel
-import dogengine.drawcore.DrawTypes
 import dogengine.drawcore.SDraw2D
 import dogengine.ecs.systems.controllers.SInputHandler
 import dogengine.ecs.systems.draw.SDrawDebug20
@@ -27,15 +26,12 @@ import dogengine.redkin.physicsengine2d.world.World
 import dogengine.shadow2d.systems.SShadow2D
 import dogengine.utils.GameCamera
 import dogengine.utils.TTFFont
-import dogengine.utils.system
 import dogengine.utils.vec2
-import sandbox.sandbox.def.def.sys.SWorldHandler
+import sandbox.def.def.sys.SWorldHandler
 import sandbox.def.particles.EmitterManager
-import sandbox.sandbox.DefClass
 import sandbox.sandbox.def.def.sys.SExtraction
 import sandbox.sandbox.def.def.sys.SParticleEmitter
 import sandbox.sandbox.def.def.sys.SShack
-import sandbox.sandbox.drawfunctions.MyDrawBatchFunction
 
 typealias WorldDef = World
 

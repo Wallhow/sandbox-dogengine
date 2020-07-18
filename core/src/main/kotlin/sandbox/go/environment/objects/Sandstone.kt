@@ -6,8 +6,8 @@ import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.shadow2d.components.CShadow
 import dogengine.utils.Size
 import sandbox.sandbox.go.environment.AGameObjectOnMap
-import sandbox.go.environment.ItemList
-import sandbox.sandbox.go.environment.ObjectList
+import sandbox.sandbox.go.objects.ItemList
+import sandbox.sandbox.go.objects.ObjectList
 
 class Sandstone(position : Vector2) : AGameObjectOnMap(objectType = ObjectList.SANDSTONE) {
     private val itemType = ItemList.SANDSTONE

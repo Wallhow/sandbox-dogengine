@@ -86,7 +86,7 @@ class MainInput(injector: Injector) : InputAdapter() {
             SShadow2D.setDetailLevelShadow(d)
         }
         if(keycode==Input.Keys.BACKSPACE) {
-            val map = SMap2D.map2D!!
+            val map = SMap2D.map2D
             Map2DGenerator.save(map)
             save = true
             gdxSchedule(2f) {

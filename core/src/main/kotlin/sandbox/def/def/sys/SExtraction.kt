@@ -8,15 +8,14 @@ import dogengine.ecs.components.utility.CDeleteComponent
 import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.systems.SystemPriority
-import dogengine.ecs.systems.tilemap.SMap2D
-import dogengine.map2D.Cell
-import dogengine.map2D.Cell2D
 import dogengine.utils.log
 import map2D.TypeData
+import sandbox.def.def.sys.SWorldHandler
 import sandbox.sandbox.def.def.comp.CExtraction
 import sandbox.sandbox.def.def.comp.CHealth
 import sandbox.go.environment.items.dropOnMap
-import sandbox.go.environment.ItemList
+import sandbox.sandbox.go.objects.ItemList
+import sandbox.sandbox.def.def.world.LayerNames
 
 class SExtraction : IteratingSystem(Family.all(CHealth::class.java, CExtraction::class.java).get()) {
     init {
@@ -43,9 +42,9 @@ class SExtraction : IteratingSystem(Family.all(CHealth::class.java, CExtraction:
             for (x1 in 0..(s.width/32).toInt()) {
                 val x = (CTransforms[entity].position.x/32).toInt()
                 val y =(CTransforms[entity].position.y/32).toInt()
-                log("x = $x y = $y")
-                log(SWorldHandler.getCellInObjectLayer(x+x1, y))
-                SWorldHandler.getCellInObjectLayer(x+x1, y).data.put(TypeData.ObjectOn, null)
+
+                val cell = SWorldHandler.worldManager.getCell(x+x1, y, LayerNames.OBJECTS)
+                cell.data.put(TypeData.ObjectOn, null)
             }
 
         }

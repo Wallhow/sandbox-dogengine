@@ -35,9 +35,6 @@ import dogengine.utils.Size
 import dogengine.utils.system
 import dogengine.utils.vec2
 import sandbox.def.particles.EmitterManager
-import sandbox.go.environment.objects.Rock
-import sandbox.go.environment.objects.Wood
-import sandbox.go.environment.objects.buiding.Workbench
 import sandbox.sandbox.def.def.comp.CNearbyObject
 import sandbox.sandbox.def.def.sys.SDropUpdate
 import sandbox.sandbox.def.def.sys.STools
@@ -46,12 +43,12 @@ import sandbox.sandbox.def.gui.DebugGUI
 import sandbox.sandbox.def.gui.SMainGUI
 import sandbox.sandbox.def.map.CreatedCellMapListener
 import sandbox.sandbox.def.map.Map2DGenerator
-import sandbox.sandbox.go.environment.objects.buiding.Bonfire
 import sandbox.sandbox.go.environment.objects.buiding.CWorkbench
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.Player.DirectionSee.*
 import sandbox.sandbox.go.player.PlayerToolsListener
 import sandbox.sandbox.input.MainInput
+import space.earlygrey.shapedrawer.ShapeDrawer
 
 
 class MainScreen(private val injector: Injector) : ScreenAdapter() {
@@ -100,59 +97,20 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
 
 
         engine.addSystem(SMainGUI(player))
-
         engine.addSystem(STools(player))
         engine.addSystem(SDropUpdate(player))
         engine.addSystem(SWorkbenchDetected(player))
 
 
         system<SMap2D> {
-            tileSize.set(tilesSize, tilesSize)
-            setTileset = {
+            tilesets.createTileSet(Size(tilesSize,tilesSize)) {
                 for (i in 1..12) {
                     it.put(i, TextureAtlas(R.matlas0).findRegion("tile", i))
                 }
             }
         }
         system<SDrawDebug20> {
-            customDebug = {
-                injector.getInstance(World::class.java).drawDebug(camera,it)
-                val c = it.packedColor
-                it.setColor(Color.LIME)
-                engine.getEntitiesFor(Family.all(CWorkbench::class.java).exclude(CHide::class.java).get()).forEach {w ->
-                    if(CWorkbench[w].isNear) {
-                        it.circle(CTransforms[w].getCenterX(),CTransforms[w].getCenterY(),CTransforms[w].size.getRadius(),3f)
-                    }
-
-                }
-                it.setColor(Color.CYAN)
-                engine.getEntitiesFor(Family.all(CNearbyObject::class.java).get()).forEach { w ->
-                    it.circle(CTransforms[w].getCenterX(),CTransforms[w].getCenterY(),CTransforms[w].size.getRadius(),3f)
-                }
-                when(player.directionSee) {
-                    UP -> {
-                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
-                                CTransforms[player].getCenterX(),
-                                CTransforms[player].getCenterY()+player.getCurrentTool().distance)
-                    }
-                    DOWN -> {
-                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
-                                CTransforms[player].getCenterX(),
-                                CTransforms[player].getCenterY()-player.getCurrentTool().distance)
-                    }
-                    LEFT -> {
-                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
-                                CTransforms[player].getCenterX()-player.getCurrentTool().distance,
-                                CTransforms[player].getCenterY())
-                    }
-                    RIGHT -> {
-                        it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
-                                CTransforms[player].getCenterX()+player.getCurrentTool().distance,
-                                CTransforms[player].getCenterY())
-                    }
-                }
-                it.setColor(c)
-            }
+            customDebug = createDrawFunc()
         }
         system<SDefaultPhysics2d> {
             this.world.addContactListener(PlayerToolsListener(player))
@@ -165,6 +123,47 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
 
         //Добавляем главный инпут
         injector.getInstance(InputMultiplexer::class.java).addProcessor(MainInput(injector))
+    }
+
+    private fun createDrawFunc() : ((ShapeDrawer) -> Unit) {
+        return  {
+            injector.getInstance(World::class.java).drawDebug(camera,it)
+            val c = it.packedColor
+            it.setColor(Color.LIME)
+            engine.getEntitiesFor(Family.all(CWorkbench::class.java).exclude(CHide::class.java).get()).forEach {w ->
+                if(CWorkbench[w].isNear) {
+                    it.circle(CTransforms[w].getCenterX(),CTransforms[w].getCenterY(),CTransforms[w].size.getRadius(),3f)
+                }
+
+            }
+            it.setColor(Color.CYAN)
+            engine.getEntitiesFor(Family.all(CNearbyObject::class.java).get()).forEach { w ->
+                it.circle(CTransforms[w].getCenterX(),CTransforms[w].getCenterY(),CTransforms[w].size.getRadius(),3f)
+            }
+            when(player.directionSee) {
+                UP -> {
+                    it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                            CTransforms[player].getCenterX(),
+                            CTransforms[player].getCenterY()+player.getCurrentTool().distance)
+                }
+                DOWN -> {
+                    it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                            CTransforms[player].getCenterX(),
+                            CTransforms[player].getCenterY()-player.getCurrentTool().distance)
+                }
+                LEFT -> {
+                    it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                            CTransforms[player].getCenterX()-player.getCurrentTool().distance,
+                            CTransforms[player].getCenterY())
+                }
+                RIGHT -> {
+                    it.line(CTransforms[player].getCenterX(),CTransforms[player].getCenterY(),
+                            CTransforms[player].getCenterX()+player.getCurrentTool().distance,
+                            CTransforms[player].getCenterY())
+                }
+            }
+            it.setColor(c)
+        }
     }
 
     private fun createMapEntity(toInt: Int): Entity {
