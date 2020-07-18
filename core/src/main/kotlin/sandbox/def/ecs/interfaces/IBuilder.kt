@@ -1,4 +1,4 @@
-package sandbox.def.def.interfaces
+package sandbox.def.ecs.interfaces
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.Vector2

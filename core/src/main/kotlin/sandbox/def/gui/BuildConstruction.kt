@@ -14,7 +14,7 @@ import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.log
 import dogengine.utils.vec2
 import map2D.TypeData
-import sandbox.def.def.sys.SWorldHandler
+import sandbox.def.ecs.sys.SWorldHandler
 import sandbox.sandbox.def.def.world.LayerNames
 import sandbox.sandbox.go.assetAtlas
 import sandbox.sandbox.go.player.Player

@@ -5,9 +5,8 @@ import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.create
 import dogengine.ecs.components.draw.CFixedY
 import dogengine.utils.Size
-import sandbox.def.def.interfaces.IBuilder
-import sandbox.def.def.sys.SWorldHandler
-import sandbox.def.def.world.Builders
+import sandbox.def.ecs.interfaces.IBuilder
+import sandbox.def.ecs.world.Builders
 import sandbox.go.environment.items.AItemOnMap
 import sandbox.go.environment.items.Shadow
 import sandbox.go.environment.objects.buiding.Workbench

@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.def.sys
+package sandbox.def.ecs.sys
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.create
 import dogengine.ecs.components.utility.CDeleteComponent
+import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
@@ -40,17 +41,23 @@ class STools(private val player: Player) : EntitySystem() {
         private val playerPos = Vector2()
         override fun processEntity(entity: Entity, deltaTime: Float) {
             playerPos.set(CTransforms[player].getCenterX(), CTransforms[player].getCenterY())
+            var x = 0f
+            var y = 0f
+            if(CDefaultPhysics2d[entity]!=null) {
+                val phys = CDefaultPhysics2d[entity]
+                val pos = Vector2()
+                phys.rectangleBody?.getCenter(pos)
+                x =pos.x
+                y = pos.y
+            } else {
+                x = CTransforms[entity].getCenterX()
+                y = CTransforms[entity].getCenterY()
+            }
             if (CNearbyObject[entity] == null) {
-                val x = CTransforms[entity].getCenterX()
-                val y = CTransforms[entity].getCenterY()
-
                 if (abs(playerPos.dst(x, y)) <= player.getCurrentTool().distance) {
                     entity.create<CNearbyObject>()
                 }
             } else {
-                val x = CTransforms[entity].getCenterX()
-                val y = CTransforms[entity].getCenterY()
-
                 if (abs(playerPos.dst(x, y)) > player.getCurrentTool().distance) {
                     entity.create<CDeleteComponent> { componentRemove = CNearbyObject[entity] }
                 }

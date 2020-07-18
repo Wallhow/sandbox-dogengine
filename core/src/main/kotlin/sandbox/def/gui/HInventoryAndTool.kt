@@ -17,7 +17,7 @@ import dogengine.ecs.systems.controllers.EventInputListener
 import dogengine.utils.GameCamera
 import dogengine.utils.onLongPress
 import ktx.actors.onClick
-import sandbox.def.def.sys.SWorldHandler
+import sandbox.def.ecs.sys.SWorldHandler
 import sandbox.sandbox.go.objects.ItemList
 import sandbox.go.player.inventory.Inventory
 import sandbox.go.player.inventory.InventoryObserver

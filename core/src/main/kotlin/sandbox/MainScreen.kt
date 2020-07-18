@@ -21,6 +21,7 @@ import dogengine.ecs.components.components
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
 import dogengine.ecs.components.draw.CTextureRegion
+import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.components.utility.visible.CLightBox2D
@@ -36,14 +37,15 @@ import dogengine.utils.system
 import dogengine.utils.vec2
 import sandbox.def.particles.EmitterManager
 import sandbox.sandbox.def.def.comp.CNearbyObject
-import sandbox.sandbox.def.def.sys.SDropUpdate
-import sandbox.sandbox.def.def.sys.STools
+import sandbox.def.ecs.sys.SDropUpdate
+import sandbox.def.ecs.sys.STools
 import sandbox.sandbox.def.def.sys.SWorkbenchDetected
 import sandbox.sandbox.def.gui.DebugGUI
 import sandbox.sandbox.def.gui.SMainGUI
 import sandbox.sandbox.def.map.CreatedCellMapListener
 import sandbox.sandbox.def.map.Map2DGenerator
 import sandbox.sandbox.go.environment.objects.buiding.CWorkbench
+import sandbox.sandbox.go.mobs.Pig
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.Player.DirectionSee.*
 import sandbox.sandbox.go.player.PlayerToolsListener
@@ -86,6 +88,7 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
 
         engine.addEntity(createMapEntity(tilesSize.toInt()))
         engine.addEntity(player)
+        engine.addEntity(Pig(am, Vector2(250f, 1500f)))
 
         engine.addEntity(engine.createEntity {
             components {
@@ -138,7 +141,15 @@ class MainScreen(private val injector: Injector) : ScreenAdapter() {
             }
             it.setColor(Color.CYAN)
             engine.getEntitiesFor(Family.all(CNearbyObject::class.java).get()).forEach { w ->
-                it.circle(CTransforms[w].getCenterX(),CTransforms[w].getCenterY(),CTransforms[w].size.getRadius(),3f)
+                if(CDefaultPhysics2d[w]!=null) {
+                    val phys = CDefaultPhysics2d[w]
+                    val pos = Vector2()
+                    phys.rectangleBody?.getCenter(pos)
+                    val x =pos.x
+                    val y = pos.y
+                    it.circle(x,y,CTransforms[w].size.getRadius(),3f)
+                }
+
             }
             when(player.directionSee) {
                 UP -> {

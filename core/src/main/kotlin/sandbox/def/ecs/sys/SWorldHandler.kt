@@ -1,27 +1,18 @@
-package sandbox.def.def.sys
+package sandbox.def.ecs.sys
 
 import com.badlogic.ashley.core.*
-import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.create
 import dogengine.ecs.components.utility.CDeleteMe
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.systems.SystemPriority
-import dogengine.utils.Size
 import sandbox.sandbox.go.objects.ItemList
-import sandbox.go.environment.items.AItemOnMap
-import sandbox.go.environment.items.Shadow
-import sandbox.go.environment.objects.buiding.Workbench
-import dogengine.ecs.components.draw.CFixedY
 import dogengine.ecs.components.addEntityAddedListener
 import dogengine.ecs.systems.tilemap.CMap2D
-import sandbox.def.def.comp.CToBuild
-import sandbox.def.def.comp.CToDrop
-import sandbox.def.def.interfaces.IBuilder
-import sandbox.def.def.world.Builders
-import sandbox.def.def.world.IWorldManager
-import sandbox.def.def.world.WorldManager
-import sandbox.sandbox.go.objects.ObjectList
-import sandbox.sandbox.go.environment.objects.buiding.Bonfire
+import sandbox.def.ecs.comp.CToBuild
+import sandbox.def.ecs.comp.CToDrop
+import sandbox.def.ecs.world.Builders
+import sandbox.def.ecs.world.IWorldManager
+import sandbox.def.ecs.world.WorldManager
 import sandbox.sandbox.go.objects.BuildersCreator
 
 class SWorldHandler: EntitySystem() {

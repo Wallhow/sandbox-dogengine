@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.def.sys
+package sandbox.def.ecs.sys
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family
@@ -10,7 +10,6 @@ import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.systems.SystemPriority
 import dogengine.utils.log
 import map2D.TypeData
-import sandbox.def.def.sys.SWorldHandler
 import sandbox.sandbox.def.def.comp.CExtraction
 import sandbox.sandbox.def.def.comp.CHealth
 import sandbox.go.environment.items.dropOnMap

@@ -1,8 +1,8 @@
-package sandbox.def.def.world
+package sandbox.def.ecs.world
 
 import com.badlogic.gdx.utils.ArrayMap
 import sandbox.sandbox.go.objects.ItemList
-import sandbox.def.def.interfaces.IBuilder
+import sandbox.def.ecs.interfaces.IBuilder
 import sandbox.sandbox.go.objects.ObjectList
 
 class Builders {

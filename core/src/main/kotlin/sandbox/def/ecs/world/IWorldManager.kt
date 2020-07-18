@@ -1,4 +1,4 @@
-package sandbox.def.def.world
+package sandbox.def.ecs.world
 
 import com.badlogic.gdx.math.Vector2
 import dogengine.map2D.Cell

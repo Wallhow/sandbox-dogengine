@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.def.sys
+package sandbox.def.ecs.sys
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.Family

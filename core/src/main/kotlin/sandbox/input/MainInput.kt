@@ -36,12 +36,12 @@ class MainInput(injector: Injector) : InputAdapter() {
 
     override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
         val pos = camera.unproject(Vector3(screenX.toFloat(), screenY.toFloat(), 0f))
-        SShadow2D.lights.add(PointLight().apply {
+        /*SShadow2D.lights.add(PointLight().apply {
             x = pos.x
             y = pos.y
             color = randomColor()
         })
-        engine.addEntity(getLightIconEntity(Vector2(pos.x, pos.y)))
+        engine.addEntity(getLightIconEntity(Vector2(pos.x, pos.y)))*/
         return true
     }
 

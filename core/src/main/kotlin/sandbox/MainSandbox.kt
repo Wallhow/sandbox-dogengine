@@ -27,11 +27,11 @@ import dogengine.shadow2d.systems.SShadow2D
 import dogengine.utils.GameCamera
 import dogengine.utils.TTFFont
 import dogengine.utils.vec2
-import sandbox.def.def.sys.SWorldHandler
+import sandbox.def.ecs.sys.SWorldHandler
 import sandbox.def.particles.EmitterManager
-import sandbox.sandbox.def.def.sys.SExtraction
-import sandbox.sandbox.def.def.sys.SParticleEmitter
-import sandbox.sandbox.def.def.sys.SShack
+import sandbox.def.ecs.sys.SExtraction
+import sandbox.def.ecs.sys.SParticleEmitter
+import sandbox.def.ecs.sys.SShack
 
 typealias WorldDef = World
 

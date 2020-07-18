@@ -1,4 +1,4 @@
-package sandbox.def.def.comp
+package sandbox.def.ecs.comp
 
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent

@@ -30,7 +30,7 @@ class Wood (position : Vector2) : AGameObjectOnMap(objectType = ObjectList.WOOD)
         }
     }
     private fun befDead()  {
-        dropOnMap(3,5, itemType2)
+        //dropOnMap(1,2, itemType2)
         dropOnMap(3,4, itemType)
         dropOnMap(3,3, ItemList.BRANCH)
     }

@@ -24,7 +24,7 @@ import dogengine.utils.GameCamera
 import dogengine.utils.system
 import ktx.vis.table
 import sandbox.def.gui.HInventoryAndTool
-import sandbox.def.def.sys.SWorldHandler
+import sandbox.def.ecs.sys.SWorldHandler
 import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.player.Player
 import space.earlygrey.shapedrawer.ShapeDrawer

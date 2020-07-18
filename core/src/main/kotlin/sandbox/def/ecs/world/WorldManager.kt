@@ -1,4 +1,4 @@
-package sandbox.def.def.world
+package sandbox.def.ecs.world
 
 import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.components.components
@@ -7,11 +7,10 @@ import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.map2D.Cell
 import dogengine.map2D.Map2D
 import dogengine.utils.extension.addEntity
-import dogengine.utils.log
 import map2D.TypeData
 import sandbox.sandbox.go.objects.ItemList
-import sandbox.def.def.comp.CToBuild
-import sandbox.def.def.comp.CToDrop
+import sandbox.def.ecs.comp.CToBuild
+import sandbox.def.ecs.comp.CToDrop
 import sandbox.sandbox.engine
 import sandbox.sandbox.go.objects.ObjectList
 
@@ -21,7 +20,6 @@ class WorldManager (private val map: Map2D) : IWorldManager {
     }
 
     override fun createConstruction(type: ObjectList, position: Vector2) {
-        log("ddfgggggggggggggggggggggg")
         engine().addEntity {
             components {
                 create<CToBuild> { this.type = type }
