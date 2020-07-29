@@ -45,12 +45,12 @@
           "type": "ROCK"
         },
         {
-          "x": 8,
-          "y": 9,
+          "x": 7,
+          "y": 8,
           "type": "SANDSTONE"
         },
         {
-          "x": 4,
+          "x": 3,
           "y": 12,
           "type": "ROCK"
         },
@@ -85,7 +85,7 @@
           "type": "ROCK"
         },
         {
-          "x": 18,
+          "x": 17,
           "y": 20,
           "type": "SANDSTONE"
         },

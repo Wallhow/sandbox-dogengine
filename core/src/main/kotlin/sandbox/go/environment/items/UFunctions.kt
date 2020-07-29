@@ -3,7 +3,7 @@ package sandbox.go.environment.items
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
 import dogengine.ecs.components.utility.logic.CTransforms
-import sandbox.def.ecs.sys.SWorldHandler
+import sandbox.dev.ecs.sys.SWorldHandler
 import sandbox.sandbox.go.objects.ItemList
 
 fun Entity.dropOnMap(minCount: Int = 1, maxCount: Int = minCount + 1, drop: ItemList = ItemList.ZERO) {

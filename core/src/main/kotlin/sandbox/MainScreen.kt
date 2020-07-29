@@ -35,11 +35,11 @@ import dogengine.shadow2d.components.CShadow
 import dogengine.utils.Size
 import dogengine.utils.system
 import dogengine.utils.vec2
-import sandbox.def.particles.EmitterManager
+import sandbox.dev.particles.EmitterManager
 import sandbox.sandbox.def.def.comp.CNearbyObject
-import sandbox.def.ecs.sys.SDropUpdate
-import sandbox.def.ecs.sys.STools
-import sandbox.sandbox.def.def.sys.SWorkbenchDetected
+import sandbox.dev.ecs.sys.SDropUpdate
+import sandbox.dev.ecs.sys.STools
+import sandbox.dev.ecs.sys.SWorkbenchDetected
 import sandbox.sandbox.def.gui.DebugGUI
 import sandbox.sandbox.def.gui.SMainGUI
 import sandbox.sandbox.def.map.CreatedCellMapListener

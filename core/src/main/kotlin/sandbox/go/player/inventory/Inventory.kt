@@ -3,7 +3,7 @@ package sandbox.go.player.inventory
 
 import com.badlogic.gdx.math.MathUtils
 import dogengine.ecs.components.utility.logic.CTransforms
-import sandbox.def.ecs.sys.SWorldHandler
+import sandbox.dev.ecs.sys.SWorldHandler
 import sandbox.sandbox.go.objects.ItemList
 import sandbox.sandbox.go.player.Player
 import kotlin.properties.Delegates

@@ -1,12 +1,15 @@
 package sandbox
 
+import com.badlogic.ashley.signals.Signal
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
+import com.badlogic.gdx.utils.ArrayMap
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Binder
+import com.google.inject.TypeLiteral
 import com.kotcrab.vis.ui.VisUI
 import dogengine.DogeEngineGame
 import dogengine.Kernel
@@ -27,21 +30,28 @@ import dogengine.shadow2d.systems.SShadow2D
 import dogengine.utils.GameCamera
 import dogengine.utils.TTFFont
 import dogengine.utils.vec2
-import sandbox.def.ecs.sys.SWorldHandler
-import sandbox.def.particles.EmitterManager
-import sandbox.def.ecs.sys.SExtraction
-import sandbox.def.ecs.sys.SParticleEmitter
-import sandbox.def.ecs.sys.SShack
+import sandbox.dev.ecs.sys.SExtraction
+import sandbox.dev.ecs.sys.SParticleEmitter
+import sandbox.dev.ecs.sys.SShack
+import sandbox.dev.ecs.sys.SWorldHandler
+import sandbox.dev.ecs.world.Message
+import sandbox.dev.ecs.world.Messenger
+import sandbox.dev.particles.EmitterManager
+
 
 typealias WorldDef = World
 
 class MainSandbox : DogeEngineGame() {
+    companion object {
+        val signalsKey = object : TypeLiteral<ArrayMap<Int,Signal<Message>>>() {}
+    }
     private val defWorld: WorldDef = WorldDef(0f)
     override lateinit var viewport: Viewport
     lateinit var gameCam: GameCamera
     private val effectsManager = EffectsManager()
     private lateinit var fnt: TTFFont
     private val worldb2d = com.badlogic.gdx.physics.box2d.World(vec2(0f,-9f),false)
+    private val messenger = Messenger()
 
     override val systemConfigure: Kernel.Systems.() -> Unit = {
         use(Kernel.DefSystems.GameObjects)
@@ -76,6 +86,7 @@ class MainSandbox : DogeEngineGame() {
         bind(EmitterManager::class.java).toInstance(eManager)
         bind(GameCamera::class.java).toInstance(gameCam)
         bind(com.badlogic.gdx.physics.box2d.World::class.java).toInstance(worldb2d)
+        bind(Messenger::class.java).toInstance(messenger)
     }
 
 

@@ -66,8 +66,8 @@ class SDrawToFlexBatch @Inject constructor(val camera: OrthographicCamera, val s
 
     override fun addedToEngine(engine: Engine) {
         flexBatch = CompliantBatch(Quad2D::class.java, 10000, false, false)
-        val s = ShaderProgram(Gdx.files.internal("assets/shaders/default/def.vert").readString(),
-                Gdx.files.internal("assets/shaders/default/def.frag").readString())
+        val s = ShaderProgram(Gdx.files.internal("assets/shaders/default/dev.vert").readString(),
+                Gdx.files.internal("assets/shaders/default/dev.frag").readString())
         if (!s.isCompiled)
             Gdx.app.log("shader error", s.log)
         flexBatch.shader = s
