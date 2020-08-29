@@ -35,8 +35,8 @@ import dogengine.utils.*
 import sandbox.R
 import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Wood
-import sandbox.sandbox.def.map.CreatedCellMapListener
-import sandbox.sandbox.def.map.Map2DGenerator
+import sandbox.dev.map.CreatedCellMapListener
+import sandbox.dev.map.Map2DGenerator
 import sandbox.sandbox.drawfunctions.MyDrawBatchFunction
 import sandbox.sandbox.drawfunctions.MyDrawFunct2
 import sandbox.sandbox.go.player.Player
@@ -372,7 +372,7 @@ var d1 = 0f
     private fun Engine.createMapEntity(toInt: Int): Entity {
         return this.createEntity {
             components {
-                val gen = Map2DGenerator(toInt, CreatedCellMapListener(toInt * 1f))
+                val gen = Map2DGenerator(toInt, CreatedCellMapListener(toInt * 1f,player))
                 val map2d = gen.generate()
                 val t = Texture(gen.pixmap)
                 val scale = 4

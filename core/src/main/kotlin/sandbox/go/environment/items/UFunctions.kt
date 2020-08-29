@@ -3,11 +3,15 @@ package sandbox.go.environment.items
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.math.MathUtils
 import dogengine.ecs.components.utility.logic.CTransforms
+import dogengine.utils.Size
 import sandbox.dev.ecs.sys.SWorldHandler
 import sandbox.sandbox.go.objects.ItemList
 
-fun Entity.dropOnMap(minCount: Int = 1, maxCount: Int = minCount + 1, drop: ItemList = ItemList.ZERO) {
-    val size = CTransforms[this].size
+fun Entity.dropOnMap(minCount: Int = 1,
+                     maxCount: Int = minCount + 1,
+                     drop: ItemList = ItemList.ZERO,
+                     size: Size = CTransforms[this].size) {
+
     val count = MathUtils.random(minCount, maxCount)
     if (count == 0) return
     for (i in 1..count) {

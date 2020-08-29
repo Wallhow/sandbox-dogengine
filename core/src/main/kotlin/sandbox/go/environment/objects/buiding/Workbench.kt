@@ -20,8 +20,5 @@ class Workbench (position:Vector2) : AGameObjectOnMap(ObjectList.WORKBENCH) {
         create<CWorkbench> {
             type = objectType
         }
-        create<CBump> {
-            normalMap = atlas.findRegion(ObjectList.WORKBENCH.resourcesName+"_01_n")
-        }
     }
 }

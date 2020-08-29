@@ -15,14 +15,13 @@ import dogengine.map2D.layers.GridLayer
 import dogengine.map2D.layers.Layer
 import dogengine.map2D.layers.LayerProperties
 import dogengine.utils.extension.get
-import dogengine.utils.log
 import map2D.TypeData
 import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Sandstone
 import sandbox.go.environment.objects.Wood
 import sandbox.sandbox.go.environment.AGameObjectOnMap
-import sandbox.sandbox.go.objects.ObjectList
 import sandbox.sandbox.go.environment.objects.buiding.Bonfire
+import sandbox.sandbox.go.objects.ObjectList
 import java.lang.reflect.Type
 
 object SerializerAttributes {
@@ -151,7 +150,7 @@ class MapDeserializer : JsonDeserializer<Map2D> {
                         val x = p[0].toInt()
                         val y = p[1].toInt()
                         val cell = Cell2D(x, y, p[2].toInt())
-                        cell.collidable = true
+                        cell.collidable = p[2].toInt() != HeightTypes.WATER.heightType
                         cell.data.put(TypeData.TypeCell, p[3].toInt())
                         layer.cells.setCell(cell, x, y)
                     }

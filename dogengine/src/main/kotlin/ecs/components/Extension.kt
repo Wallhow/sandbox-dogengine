@@ -52,7 +52,7 @@ inline fun Engine.isEntityAdded(crossinline func : (entity: Entity) -> Unit) : E
 }
 
 inline fun Engine.addEntityAddedListener(family: Family, crossinline func : (entity: Entity) -> Unit) {
-    this.addEntityListener(Family.all(CMap2D::class.java).get(), this.isEntityAdded {
+    this.addEntityListener(family, this.isEntityAdded {
        func(it)
     })
 }

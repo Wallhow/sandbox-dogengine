@@ -1,13 +1,12 @@
 package dogengine.ecs.components.draw
 
-import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.utils.Pool
 import dogengine.ecs.def.ComponentResolver
+import dogengine.ecs.def.PoolableComponent
 
-class CAtlasRegion : Component, Pool.Poolable{
+class CAtlasRegion : PoolableComponent {
     var atlas: TextureAtlas? = null
     var nameRegion: String? = null
     var drawLayer: CDraw.DrawLayer = CDraw.DrawLayer.NO_EFFECT

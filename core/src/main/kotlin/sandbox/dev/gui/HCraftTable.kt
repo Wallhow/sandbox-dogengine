@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.gui
+package sandbox.dev.gui
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input

@@ -6,6 +6,7 @@ import com.badlogic.gdx.math.Vector2
 import dogengine.ecs.def.ComponentResolver
 import dogengine.ecs.def.PoolableComponent
 import dogengine.utils.Size
+import dogengine.utils.vec2
 
 class CTransforms : PoolableComponent {
     companion object : ComponentResolver<CTransforms>(CTransforms::class.java)
@@ -18,6 +19,7 @@ class CTransforms : PoolableComponent {
 
     fun getCenterY() : Float = position.y+size.halfHeight
     fun getCenterX() : Float = position.x+size.halfWidth
+    fun getCenterVector() : Vector2 = vec2(getCenterX(),getCenterY())
 
     fun getRect() : Rectangle = rect.set(position.x,position.y,size.width,size.height)
 

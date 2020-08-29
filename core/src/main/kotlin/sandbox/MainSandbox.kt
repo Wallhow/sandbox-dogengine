@@ -1,15 +1,13 @@
 package sandbox
 
-import com.badlogic.ashley.signals.Signal
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.ai.msg.MessageManager
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.utils.ArrayMap
 import com.badlogic.gdx.utils.viewport.FitViewport
 import com.badlogic.gdx.utils.viewport.Viewport
 import com.google.inject.Binder
-import com.google.inject.TypeLiteral
 import com.kotcrab.vis.ui.VisUI
 import dogengine.DogeEngineGame
 import dogengine.Kernel
@@ -20,6 +18,7 @@ import dogengine.ecs.systems.draw.SDrawable
 import dogengine.ecs.systems.draw.SLightsBox2D
 import dogengine.ecs.systems.physics.SDefaultPhysics2d
 import dogengine.ecs.systems.tilemap.SMap2D
+import dogengine.ecs.systems.update.SAction
 import dogengine.ecs.systems.update.SUpdate
 import dogengine.ecs.systems.utility.SDeleteComponent
 import dogengine.ecs.systems.utility.SDeleteMe
@@ -34,30 +33,25 @@ import sandbox.dev.ecs.sys.SExtraction
 import sandbox.dev.ecs.sys.SParticleEmitter
 import sandbox.dev.ecs.sys.SShack
 import sandbox.dev.ecs.sys.SWorldHandler
-import sandbox.dev.ecs.world.Message
-import sandbox.dev.ecs.world.Messenger
 import sandbox.dev.particles.EmitterManager
 
 
 typealias WorldDef = World
 
 class MainSandbox : DogeEngineGame() {
-    companion object {
-        val signalsKey = object : TypeLiteral<ArrayMap<Int,Signal<Message>>>() {}
-    }
     private val defWorld: WorldDef = WorldDef(0f)
     override lateinit var viewport: Viewport
     lateinit var gameCam: GameCamera
     private val effectsManager = EffectsManager()
     private lateinit var fnt: TTFFont
-    private val worldb2d = com.badlogic.gdx.physics.box2d.World(vec2(0f,-9f),false)
-    private val messenger = Messenger()
+    private val worldb2d = com.badlogic.gdx.physics.box2d.World(vec2(0f, -9f), false)
 
     override val systemConfigure: Kernel.Systems.() -> Unit = {
         use(Kernel.DefSystems.GameObjects)
         use(Kernel.DefSystems.Controller)
         use(Kernel.DefSystems.CameraLook)
 
+        add(SAction::class.java)
         add(SShadow2D::class.java)
         //add(SDrawToFlexBatch::class.java)
         add(SDrawable::class.java)
@@ -86,7 +80,7 @@ class MainSandbox : DogeEngineGame() {
         bind(EmitterManager::class.java).toInstance(eManager)
         bind(GameCamera::class.java).toInstance(gameCam)
         bind(com.badlogic.gdx.physics.box2d.World::class.java).toInstance(worldb2d)
-        bind(Messenger::class.java).toInstance(messenger)
+        bind(MessageManager::class.java).toInstance(messenger)
     }
 
 
@@ -98,10 +92,11 @@ class MainSandbox : DogeEngineGame() {
 
 
     override fun create() {
+
         fnt = TTFFont(R.pixel0)
         val skin = Skin()
-        skin.add("default-font",fnt.get(24))
-        skin.addRegions( TextureAtlas(Gdx.files.internal(("assets/ui/x2/uiskin.atlas"))));
+        skin.add("default-font", fnt.get(24))
+        skin.addRegions(TextureAtlas(Gdx.files.internal(("assets/ui/x2/uiskin.atlas"))));
         skin.load(Gdx.files.internal("assets/ui/x2/uiskin.json"));
         VisUI.load(skin);
 
@@ -112,8 +107,7 @@ class MainSandbox : DogeEngineGame() {
         gameCam.getCamera().near = 1000f
 
 
-        initialize(this)
-
+        initialize()
 
         setScreen(MainScreen(injector))
         //setScreen(DefClass(injector))

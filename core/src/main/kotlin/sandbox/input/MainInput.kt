@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.ai.msg.MessageManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
@@ -12,20 +13,18 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.google.inject.Injector
+import dogengine.Kernel
+import dogengine.MessagesType
 import dogengine.ecs.components.create
 import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.CName
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.systems.draw.SDrawDebug20
 import dogengine.ecs.systems.tilemap.SMap2D
-import dogengine.shadow2d.PointLight
 import dogengine.shadow2d.systems.SShadow2D
-import dogengine.utils.Size
+import dogengine.utils.*
 import dogengine.utils.extension.get
-import dogengine.utils.gdxSchedule
-import dogengine.utils.log
-import dogengine.utils.system
-import sandbox.sandbox.def.map.Map2DGenerator
+import sandbox.dev.map.Map2DGenerator
 
 class MainInput(injector: Injector) : InputAdapter() {
     private val camera = injector[OrthographicCamera::class.java]
@@ -85,6 +84,16 @@ class MainInput(injector: Injector) : InputAdapter() {
                 d = 1
             SShadow2D.setDetailLevelShadow(d)
         }
+        if (keycode == com.badlogic.gdx.Input.Keys.NUMPAD_4) {
+            Kernel.getInjector()[MessageManager::class.java].dispatchMessage(MessagesType.CAMERA_FIXED_BOUNDS,true)
+        }
+        if (keycode == com.badlogic.gdx.Input.Keys.NUMPAD_6) {
+            Kernel.getInjector()[MessageManager::class.java].dispatchMessage(MessagesType.CAMERA_FIXED_BOUNDS,false)
+        }
+        if (keycode == com.badlogic.gdx.Input.Keys.NUMPAD_2) {
+            Kernel.getInjector()[MessageManager::class.java].dispatchMessage(MessagesType.CAMERA_LOOK_BEFORE)
+        }
+
         if(keycode==Input.Keys.BACKSPACE) {
             val map = SMap2D.map2D
             Map2DGenerator.save(map)

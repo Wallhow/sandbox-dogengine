@@ -71,14 +71,14 @@ class SDraw2D @Inject constructor(private val batch: SpriteBatch, private val ga
             batch.end()
         }
 
-        val smap = SShadow2D.shadowMap
+        val shadowMap = SShadow2D.shadowMap
 
         batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE)
         batch.begin()
         batch.enableBlending()
         batch.color.set(1f, 1f, 1f, 0.6f)
-        batch.draw(smap.texture,smap.position.x,smap.position.y
-                ,smap.size.width, smap.size.height)
+        batch.draw(shadowMap.texture,shadowMap.position.x,shadowMap.position.y
+                ,shadowMap.size.width, shadowMap.size.height)
         batch.end()
         batch.color= Color.WHITE
 

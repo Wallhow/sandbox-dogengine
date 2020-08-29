@@ -9,7 +9,7 @@ import dogengine.ecs.components.utility.visible.CLightBox2D
 import dogengine.ecs.components.utility.visible.LightType
 import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
-import sandbox.sandbox.def.def.comp.CParticleEmitter
+import sandbox.dev.ecs.comp.CParticleEmitter
 import sandbox.sandbox.def.particles.Presets
 import sandbox.sandbox.go.environment.AGameObjectOnMap
 import sandbox.sandbox.go.objects.ObjectList

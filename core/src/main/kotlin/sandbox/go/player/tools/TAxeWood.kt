@@ -17,6 +17,7 @@ class TAxeWood : ATool() {
     override val image: TextureRegion = assetAtlas().findRegionOfTool(type)
     init {
         workWith.add(ObjectList.WOOD)
+        workWith.add(ObjectList.TREE)
         workWith.add(ObjectList.WORKBENCH)
     }
 }

@@ -33,6 +33,9 @@ import kotlin.properties.Delegates
 
 
 class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
+    companion object {
+        lateinit var playerInstance: Player;
+    }
     var directionSee = DirectionSee.DOWN
     private val tools = Array<ATool>().apply {
         add(TPickaxeWood())
@@ -106,6 +109,8 @@ class Player(val am: AssetManager, pos: Vector2) : GameEntity(), EventListener {
         create<CStateMachine> { createState(this) }
 
 
+
+        playerInstance = this
     }
     private val hashUp = T.W_UP.hashCode()
     private val hashDown = T.W_DOWN.hashCode()

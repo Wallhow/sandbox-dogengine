@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.def.comp
+package sandbox.dev.ecs.comp
 
 import com.badlogic.gdx.utils.Array
 import dogengine.ecs.def.ComponentResolver

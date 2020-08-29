@@ -8,5 +8,6 @@ enum class ObjectList(val resourcesName: String, val id: Int) {
     WOOD("wood", nextId()),
     SANDSTONE("sandstone", nextId()),
     WORKBENCH("workbench_object",nextId()),
-    BONFIRE1("bonfire_object",nextId())
+    BONFIRE1("bonfire_object",nextId()),
+    TREE("tree_root",nextId())
 }

@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.Family
 import com.badlogic.ashley.systems.IteratingSystem
+import com.badlogic.gdx.ai.msg.MessageManager
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.google.inject.Inject
@@ -27,7 +28,7 @@ import dogengine.utils.GameCamera
 import dogengine.utils.extension.addEntity
 import map2D.TypeData
 
-class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
+class SMap2D @Inject constructor(private val gameCamera: GameCamera, private val messenger: MessageManager) :
         IteratingSystem(Family.all(CMap2D::class.java).get()) {
     val tilesets = Tilesets()
     private val camera = gameCamera.getCamera()
@@ -38,6 +39,7 @@ class SMap2D @Inject constructor(private val gameCamera: GameCamera) :
 
     init {
         priority = SystemPriority.UPDATE + 100
+
     }
 
     override fun addedToEngine(engine: Engine) {

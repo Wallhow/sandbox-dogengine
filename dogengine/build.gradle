@@ -2,6 +2,8 @@ ext {
     shapedrawerVersion = '2.2.0'
     flexbatchVersion = '1.2.1'
     spineVersion = '3.5.51.1'
+    aiVersion = '1.8.2'
+    gameConsole = '1.0.0'
 }
 
 dependencies {
@@ -29,4 +31,9 @@ dependencies {
     //Spine animation
     compile "com.esotericsoftware.spine:spine-libgdx:$spineVersion"
 
+    compile "com.badlogicgames.gdx:gdx-ai:$aiVersion"
+
+
+    //console
+    compile "com.strongjoshua:libgdx-inGameConsole:$gameConsole"
 }

@@ -1,0 +1,19 @@
+# Alias definitions
+import walkLeft:"sandbox.go.mobs.LeftWalkTask"
+import walkRight:"sandbox.go.mobs.RightWalkTask"
+import walkUp:"sandbox.go.mobs.UpWalkTask"
+import walkDown:"sandbox.go.mobs.DownWalkTask"
+import freeWalk:"sandbox.go.mobs.FreeWalkTask"
+
+# Condition
+import playerFar?:"sandbox.go.mobs.PlayerFarCondition"
+
+
+# Tree definition (note that root is optional)
+root
+  selector
+    sequence
+      playerFar?
+      walkLeft
+    invert
+      freeWalk

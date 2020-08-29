@@ -17,8 +17,5 @@ class Sandstone(position : Vector2) : AGameObjectOnMap(objectType = ObjectList.S
         createCTransform(position, Size(tex.regionWidth.toFloat() ,tex.regionHeight * 1f))
         createCPhysicsDef(type = Types.TYPE.DYNAMIC)
         createCHealth(10f,4,itemType)
-        create<CShadow> {
-
-        }
     }
 }

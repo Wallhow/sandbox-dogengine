@@ -37,6 +37,7 @@ subprojects {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
   }
 }
+/*
 
 // Run `gradle pack` task to generate skin.atlas file at assets/ui.
 import com.badlogic.gdx.tools.texturepacker.TexturePacker
@@ -55,3 +56,4 @@ tasks.create("pack").configure {
           'matlas'
   )
 }
+*/

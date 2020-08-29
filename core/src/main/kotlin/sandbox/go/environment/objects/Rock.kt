@@ -1,13 +1,10 @@
 package sandbox.go.environment.objects
 
 import com.badlogic.gdx.math.Vector2
-import dogengine.ecs.components.create
 import dogengine.ecs.components.draw.CAtlasRegion
-import dogengine.ecs.systems.flexbatch.CBump
 import dogengine.redkin.physicsengine2d.variables.Types
-import dogengine.shadow2d.components.CShadow
 import dogengine.utils.Size
-import sandbox.sandbox.def.def.comp.CHealth
+import sandbox.dev.ecs.comp.CHealth
 import sandbox.sandbox.go.environment.AGameObjectOnMap
 import sandbox.go.environment.items.dropOnMap
 import sandbox.sandbox.go.objects.ItemList
@@ -34,12 +31,6 @@ class Rock(position: Vector2) : AGameObjectOnMap(objectType = ObjectList.ROCK) {
                 currentIdx = CAtlasRegion[this@Rock].index
                 dropOnMap(0, 1, itemType)
             }
-
-        }
-        create<CBump> {
-            normalMap = atlas.findRegion(ObjectList.ROCK.resourcesName+"_01_n")
-        }
-        create<CShadow> {
 
         }
     }

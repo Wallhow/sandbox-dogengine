@@ -2,16 +2,17 @@ package dogengine.ecs.components.draw
 
 import com.badlogic.gdx.utils.ArrayMap
 
-class FrameSequence (private var currentSequence: Int = -1)  {
+class FrameSequence ()  {
     val sequences: ArrayMap<Int,FrameArray> = ArrayMap()
     private var currentTime: Float = 0f
     private var add = 1
-
-    fun setCurrentSequence(nameSequence: Int) {
+    var currentSequence: Int = -1
+    set(value) {
         add = 1
         currentTime = 0f
-        currentSequence = nameSequence
+        field = value
     }
+
     fun anim(delta: Float) {
         currentTime+=delta
         val seq = sequences[currentSequence]

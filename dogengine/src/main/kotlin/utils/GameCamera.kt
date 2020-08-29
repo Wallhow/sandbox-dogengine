@@ -1,12 +1,14 @@
 package dogengine.utils
 
 import com.badlogic.gdx.graphics.OrthographicCamera
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.viewport.Viewport
 
 class GameCamera (private val viewport: Viewport) {
     private val worldSize = Size()
+    private var angle = 0f
     fun getViewport() : Viewport = viewport
     fun getCamera() : OrthographicCamera = viewport.camera as OrthographicCamera
     fun setWorldSize(width: Float, height: Float) {
@@ -16,6 +18,15 @@ class GameCamera (private val viewport: Viewport) {
     fun setPosition(x: Float,y: Float) {
         getCamera().position.set(x,y,getCamera().position.z)
     }
+    fun setAngle(angleDegrees: Float) {
+        angle=angleDegrees
+        getCamera().rotate(angleDegrees*MathUtils.degreesToRadians)
+    }
+    fun rotate(angleDegrees: Float) {
+        angle+=angleDegrees
+        getCamera().rotate(angleDegrees)
+    }
+    fun getAngle() : Float = angle
     fun translate(x: Float = 0f, y: Float = 0f) {
         getCamera().translate(x,y)
     }

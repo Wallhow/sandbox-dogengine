@@ -25,6 +25,8 @@ import dogengine.utils.system
 import ktx.vis.table
 import sandbox.dev.gui.HInventoryAndTool
 import sandbox.dev.ecs.sys.SWorldHandler
+import sandbox.dev.gui.BuildConstruction
+import sandbox.dev.gui.HCraftTable
 import sandbox.sandbox.getTextureDot
 import sandbox.sandbox.go.player.Player
 import space.earlygrey.shapedrawer.ShapeDrawer

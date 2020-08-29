@@ -1,4 +1,4 @@
-package sandbox.sandbox.def.map
+package sandbox.dev.map
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -8,14 +8,15 @@ import dogengine.Kernel
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.map2D.Cell
 import dogengine.map2D.Map2D
+import dogengine.utils.log
 import dogengine.utils.vec2
 import map2D.TypeData
-import sandbox.dev.map.HeightTypes
 import sandbox.go.environment.objects.Rock
 import sandbox.go.environment.objects.Sandstone
 import sandbox.go.environment.objects.Wood
+import sandbox.sandbox.go.player.Player
 
-class CreatedCellMapListener (private val tileSize: Float) {
+class CreatedCellMapListener (private val tileSize: Float,val player: Player) {
     fun createCell(cell: Cell, type: HeightTypes, map: Map2D) {
         when (type) {
             HeightTypes.SAND -> {

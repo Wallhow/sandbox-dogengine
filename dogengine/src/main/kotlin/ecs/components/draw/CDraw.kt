@@ -29,9 +29,3 @@ class CDraw : Component, Pool.Poolable {
         offsetY = 0
     }
 }
-fun CDraw.c(textureRegion: TextureRegion, color: Color = Color.WHITE.cpy(), drawLayer: CDraw.DrawLayer = CDraw.DrawLayer.NO_EFFECT) : CDraw {
-    this.texture = textureRegion
-    this.tint = color
-    this.drawLayer = drawLayer
-    return this
-}

@@ -1,9 +1,11 @@
-package sandbox.sandbox.def.gui
+package sandbox.dev.gui
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
+import com.badlogic.gdx.ai.msg.MessageManager
 import com.badlogic.gdx.math.Interpolation
 import com.badlogic.gdx.math.Vector2
+import dogengine.Kernel
 import dogengine.ecs.components.components
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createEntity
@@ -11,11 +13,12 @@ import dogengine.ecs.components.draw.CTextureRegion
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.logic.CUpdate
 import dogengine.ecs.systems.controllers.EventInputListener
-import dogengine.utils.log
+import dogengine.utils.extension.get
 import dogengine.utils.vec2
 import map2D.TypeData
+import map2D.Vector2Int
 import sandbox.dev.ecs.sys.SWorldHandler
-import sandbox.sandbox.def.def.world.LayerNames
+import sandbox.dev.world.MessagesType
 import sandbox.sandbox.go.assetAtlas
 import sandbox.sandbox.go.player.Player
 import kotlin.math.abs
@@ -24,6 +27,7 @@ class BuildConstruction(val player: Player, val engine: Engine) : EventInputList
     private var drawGrid: Boolean = false
     private var build = false
     private val grid: Entity
+    private val messenger = Kernel.getInjector()[MessageManager::class.java]
 
     init {
         grid = gridCreate()
@@ -78,7 +82,7 @@ class BuildConstruction(val player: Player, val engine: Engine) : EventInputList
         if (SWorldHandler.itemIDBuild == player.getInventory().whatSelected() && !build) {
             build = true
             drawGrid = true
-        } else if(SWorldHandler.itemIDBuild != player.getInventory().whatSelected()) {
+        } else if (SWorldHandler.itemIDBuild != player.getInventory().whatSelected()) {
             build = false
             drawGrid = false
             SWorldHandler.itemIDBuild = null
@@ -99,28 +103,23 @@ class BuildConstruction(val player: Player, val engine: Engine) : EventInputList
         val itemBuild = SWorldHandler.itemIDBuild
         val xx = (x / 32).toInt()
         val yy = (y / 32).toInt()
-        val cell = SWorldHandler.worldManager.getCell(xx,yy,"objects")
-        if (!SWorldHandler.worldManager.isEmpty(cell)) {
-            log("not empty this cell")
-        } else {
-            itemBuild?.let {
-                val pos = Vector2(xx.toFloat(), yy.toFloat())
-                val playerOrigin = vec2((CTransforms[player].getCenterX() / 32).toInt() * 1f, (CTransforms[player].getCenterY() / 32).toInt() * 1f)
-                if (it.buildType != null) {
-                    if (abs(playerOrigin.dst(pos)) <= dstToBuild) {
-                        SWorldHandler.worldManager.getCell(xx,yy,LayerNames.OBJECTS).data.put(
-                                TypeData.ObjectOn,
-                                it.buildType)
 
-                        SWorldHandler.worldManager.createConstruction(it.buildType, pos.scl(32f))
-                        player.getInventory().pop()
-                        build = false
-                        drawGrid = false
-                        CTransforms[grid].position.set(Int.MIN_VALUE * 1f, Int.MIN_VALUE * 1f)
-                        SWorldHandler.itemIDBuild = null
-                    }
+        itemBuild?.let {
+            val pos = Vector2(xx.toFloat(), yy.toFloat())
+            val playerOrigin = vec2((CTransforms[player].getCenterX() / 32).toInt() * 1f, (CTransforms[player].getCenterY() / 32).toInt() * 1f)
+            if (it.buildType != null) {
+                if (abs(playerOrigin.dst(pos)) <= dstToBuild) {
+                    //Сообщение о том, что мы собираемся воздвигать постройки
+                    messenger.dispatchMessage(MessagesType.WORLD_BUILD, mapOf(
+                            1 to Vector2Int(xx, yy),
+                            2 to TypeData.ObjectOn,
+                            3 to it.buildType
+                    ))
+                    player.getInventory().pop()
+                    build = false
+                    drawGrid = false
+                    CTransforms[grid].position.set(Int.MIN_VALUE * 1f, Int.MIN_VALUE * 1f)
                 }
-
             }
         }
     }

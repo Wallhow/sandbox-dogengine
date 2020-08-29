@@ -7,7 +7,7 @@ import dogengine.ecs.systems.SystemPriority
 import dogengine.utils.log
 
 class STime : EntitySystem(SystemPriority.BEFORE_UPDATE) {
-    private var accTimeMain = 10f*60f
+    private var accTimeMain = 20f*60f
     var sec = 0f
     var minute = 0f
     var hour = 0f

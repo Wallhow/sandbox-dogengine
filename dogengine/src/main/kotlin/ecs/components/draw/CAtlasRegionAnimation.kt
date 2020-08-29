@@ -6,6 +6,7 @@ import dogengine.ecs.def.ComponentResolver
 
 class CAtlasRegionAnimation : Component, Pool.Poolable {
     companion object : ComponentResolver<CAtlasRegionAnimation>(CAtlasRegionAnimation::class.java)
+
     val frameSequenceArray: FrameSequence = FrameSequence()
     override fun reset() {
         frameSequenceArray.reset()
@@ -13,12 +14,19 @@ class CAtlasRegionAnimation : Component, Pool.Poolable {
 }
 
 
-fun CAtlasRegionAnimation.createSequence(nameIdx: Int,duration: Float,block : FrameSequence.FrameArray.() -> Unit) : CAtlasRegionAnimation {
+fun CAtlasRegionAnimation.createSequence(nameIdx: Int, duration: Float, block: FrameSequence.FrameArray.() -> Unit): CAtlasRegionAnimation {
     frameSequenceArray.sequences.put(nameIdx, FrameSequence.FrameArray(duration).apply {
         block.invoke(this)
     })
     return this
 }
+
 fun CAtlasRegionAnimation.currentSequence(idx: Int) {
-    frameSequenceArray.setCurrentSequence(idx)
+    if (idx != frameSequenceArray.currentSequence)
+        frameSequenceArray.currentSequence = idx
 }
+
+val CAtlasRegionAnimation.currentSequence: Int
+    get() {
+        return frameSequenceArray.currentSequence
+    }

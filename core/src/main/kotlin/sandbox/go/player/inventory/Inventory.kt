@@ -1,18 +1,22 @@
 package sandbox.go.player.inventory
 
 
+import com.badlogic.gdx.ai.msg.MessageManager
 import com.badlogic.gdx.math.MathUtils
+import dogengine.Kernel
 import dogengine.ecs.components.utility.logic.CTransforms
-import sandbox.dev.ecs.sys.SWorldHandler
+import dogengine.utils.extension.get
+import sandbox.dev.world.MessagesType
 import sandbox.sandbox.go.objects.ItemList
 import sandbox.sandbox.go.player.Player
 import kotlin.properties.Delegates
 
-class Inventory(val player: Player, val size: Int = 12)  {
+class Inventory(val player: Player, val size: Int = 12) {
     private val arr: Array<out InvItem> = Array(size) { InvItem() }
     var isDirty = false
     val observers: com.badlogic.gdx.utils.Array<InventoryObserver> = com.badlogic.gdx.utils.Array()
     private val observableItem = ObservableItem(observers)
+    private val messenger = Kernel.getInjector()[MessageManager::class.java]
 
     fun push(itemID: ItemList, count: Int = 1): Boolean {
         //ищим в массиве предмет с поступившим id
@@ -81,8 +85,11 @@ class Inventory(val player: Player, val size: Int = 12)  {
 
         if (currentItem < arr.size && arr[currentItem].itemID != ItemList.ZERO) {
             val d = arr[currentItem]
-            //кидаем в стек объект для дропа в мир из инвентаря
-            SWorldHandler.worldManager.createItem(d.itemID, pos)
+            //кидаем сообщение о предмете для дропа в мир из инвентаря
+            messenger.dispatchMessage(MessagesType.WORLD_DROP_ITEM_ON_MAP, mapOf(
+                    1 to d.itemID,
+                    2 to pos
+            ))
             pop()
         }
     }
@@ -100,7 +107,7 @@ class Inventory(val player: Player, val size: Int = 12)  {
     }
 
     fun whatSelected(): ItemList {
-        return if(currentItem!=-1) arr[currentItem].itemID else ItemList.ZERO
+        return if (currentItem != -1) arr[currentItem].itemID else ItemList.ZERO
     }
 
     var currentItem: Int = 0
@@ -116,10 +123,10 @@ class Inventory(val player: Player, val size: Int = 12)  {
         }
     }
 
-    class ObservableItem (private val observers: com.badlogic.gdx.utils.Array<InventoryObserver>) : InvItem() {
+    class ObservableItem(private val observers: com.badlogic.gdx.utils.Array<InventoryObserver>) : InvItem() {
         override var itemID: ItemList = ItemList.ZERO
         override var count: Int by Delegates.observable(-1) { _, o, n ->
-            observers.forEach{it.countChanged(n,o,this)}
+            observers.forEach { it.countChanged(n, o, this) }
         }
 
 

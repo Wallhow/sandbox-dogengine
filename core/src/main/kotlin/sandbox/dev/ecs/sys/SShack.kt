@@ -9,7 +9,7 @@ import dogengine.ecs.components.utility.CDeleteComponent
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
-import sandbox.sandbox.def.def.comp.CParticleEmitter
+import sandbox.dev.ecs.comp.CParticleEmitter
 import sandbox.sandbox.def.def.comp.CShack
 import sandbox.sandbox.def.particles.Presets
 

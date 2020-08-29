@@ -13,32 +13,35 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Rectangle
 import com.google.inject.*
+import dogengine.drawcore.SAtlasRegions
 import dogengine.ecs.systems.actions.STweenEngine
 import dogengine.ecs.systems.controllers.SInputController
 import dogengine.ecs.systems.draw.*
 import dogengine.ecs.systems.physics.*
 import dogengine.ecs.systems.update.SUpdate
 import dogengine.ecs.systems.update.SVelocity
+import dogengine.ecs.systems.update.SVisibleEntity
 import dogengine.ecs.systems.utility.SCameraLook
 import dogengine.ecs.systems.utility.SDeleteMe
-import dogengine.ecs.systems.update.SVisibleEntity
+import dogengine.ecs.systems.utility.SMessageManager
 
 
 object Kernel {
     private lateinit var inject: Injector
     private val systems = Systems()
     lateinit var dotTexture: TextureRegion
-    var viewBoundsRect : Rectangle = Rectangle()
+    var viewBoundsRect: Rectangle = Rectangle()
 
     fun initialize(bind: (Binder.() -> Unit) = {}) {
         val pixmap = Pixmap(1, 1, Pixmap.Format.RGBA8888).apply {
             setColor(Color.WHITE)
             drawPixel(0, 0)
         }
-        dotTexture =  TextureRegion(Texture(pixmap), 0, 0, 1, 1)
+        dotTexture = TextureRegion(Texture(pixmap), 0, 0, 1, 1)
         pixmap.dispose()
 
-        inject = Guice.createInjector(KernelModule(bind,systems))
+        inject = Guice.createInjector(KernelModule(bind, systems))
+        systems.use(DefSystems.Messanger)
         //Загружаем системы в эшли
         systems.list.forEach {
             val system = inject.getInstance(it)
@@ -57,6 +60,7 @@ object Kernel {
         fun add(system: Class<out EntitySystem>) {
             list.add(system)
         }
+
         fun use(defSystems: DefSystems) {
             defSystems.ordinal
             defSystems.declaringClass
@@ -65,19 +69,13 @@ object Kernel {
             }
 
         }
-
-        object CameraLook {
-            var fixedBounds = false
-        }
-        object SVisibleEntity {
-            var scale = 1.0f
-        }
-
     }
-    enum class DefSystems(vararg val system:Class<out EntitySystem>) {
+
+    enum class DefSystems(vararg val system: Class<out EntitySystem>) {
         GameObjects(SVisibleEntity::class.java,
-                SDrawTextureRegion::class.java,SDrawTextureRegionAnimation::class.java,
-                SDrawAtlasRegion::class.java,SDrawAtlasRegionAnimation::class.java,
+                SDrawTextureRegion::class.java, SDrawTextureRegionAnimation::class.java,
+                SDrawAtlasRegion::class.java, SDrawAtlasRegionAnimation::class.java,
+                SAtlasRegions::class.java,
                 SVelocity::class.java),
         Box2DPhysics(
                 SPhysicsBox2DUpdate::class.java,
@@ -91,12 +89,12 @@ object Kernel {
         Controller(SInputController::class.java),
         Update(SUpdate::class.java),
         DeleteEntity(SDeleteMe::class.java),
-        TweenEngine(STweenEngine::class.java)
-
+        TweenEngine(STweenEngine::class.java),
+        Messanger(SMessageManager::class.java)
     }
 
 
-    private class KernelModule(val bind: Binder.() -> Unit,val systems: Systems) : Module {
+    private class KernelModule(val bind: Binder.() -> Unit, val systems: Systems) : Module {
         //val bloom = Bloom().apply { this.setTreshold(0.85f) }
         override fun configure(binder: Binder) {
             bind.invoke(binder)
@@ -125,14 +123,16 @@ object Kernel {
         fun inputMultiplexer(): InputMultiplexer {
             return InputMultiplexer()
         }
+
         @Provides
         @Singleton
-        fun assetManager() : AssetManager {
+        fun assetManager(): AssetManager {
             return AssetManager()
         }
 
 
     }
+
     @Singleton
     class DotTexture : Provider<TextureRegion> {
         override fun get(): TextureRegion {
@@ -148,5 +148,12 @@ object Kernel {
 }
 
 object PooledEntityCreate {
-    var engine : Engine? = null
+    var engine: Engine? = null
+}
+
+object MessagesType {
+    const val CAMERA_SMOOTH_MOVE = 4003
+    const val CAMERA_LOOK_TO = 4002
+    const val CAMERA_LOOK_BEFORE = 4001
+    const val CAMERA_FIXED_BOUNDS = 4000
 }

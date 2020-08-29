@@ -3,7 +3,7 @@ package sandbox.sandbox.go.environment
 import dogengine.ecs.components.create
 import sandbox.sandbox.go.objects.ItemList
 import sandbox.sandbox.go.objects.ObjectList
-import sandbox.sandbox.def.def.comp.CHealth
+import sandbox.dev.ecs.comp.CHealth
 import sandbox.sandbox.def.def.comp.CObjectOnMap
 import sandbox.sandbox.go.AGameObject
 

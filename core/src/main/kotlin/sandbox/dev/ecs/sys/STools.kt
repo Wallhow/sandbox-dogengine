@@ -15,6 +15,7 @@ import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.visible.CHide
 import dogengine.ecs.systems.SystemPriority
+import sandbox.dev.ecs.comp.CHealth
 import sandbox.sandbox.def.def.comp.*
 import sandbox.sandbox.go.player.Player
 import sandbox.sandbox.go.player.Player.DirectionSee.*

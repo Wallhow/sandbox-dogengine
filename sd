@@ -1,0 +1,10 @@
+1598302253092: > help
+1598302253094: access$getConsole$p : console$1$1
+1598302253095: access$setConsole$p : console$1$1, Console
+1598302253095: camera_look_to : String
+1598302253097: help : 
+1598302253097: help : String
+1598302253098: logView : 
+1598302253098: printLog : String
+1598302253099: exitApp : 
+1598302263342: > printLog sd

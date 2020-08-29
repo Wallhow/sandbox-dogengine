@@ -54,38 +54,9 @@ class Emitter(val config: Configuration, private val drawer: ShapeDrawer) : Pool
                     }
                 }
                 it.timer += delta
-
-
-
             }
             if (particles.isEmpty) {
                 isRun = false
-            }
-
-            particles.forEach {
-                val particle = SDrawToFlexBatch.SolidQuad()
-                particle.color(it.material.color)
-                        .position(position.x + it.x - it.size / 2, position.y + it.y - it.size / 2)
-                        .size(it.size, it.size)
-                        .rotation(it.angle)
-
-                e.addEntity(e.createEntity {
-                    components {
-                        create<CSolidQuad>() {
-                            tint.set(it.material.color)
-                        }
-                        create<CDrawable>() {
-                            this.drawType = DrawTypes.SOLID
-                            entityDeleteAfterDraw = true
-                        }
-                        create<CTransforms>() {
-                            position.set(this@Emitter.position.x + it.x - it.size / 2, this@Emitter.position.y + it.y - it.size / 2)
-                            size.set(it.size, it.size)
-                            angle = it.angle
-                            updateZIndex()
-                        }
-                    }
-                })
             }
         }
     }
@@ -160,12 +131,13 @@ class Emitter(val config: Configuration, private val drawer: ShapeDrawer) : Pool
 
 
     fun draw() {
+        particles.forEach {
+            drawer.setColor(it.material.color)
+            drawer.filledRectangle(position.x + it.x - it.size / 2, position.y + it.y - it.size / 2,
+                    it.size, it.size,
+                    it.angle)
+        }
 
-
-        /*drawer.setColor(it.r, it.g, it.b, it.alpha)
-        drawer.filledRectangle(position.x + it.x - it.size / 2, position.y + it.y - it.size / 2,
-                it.size, it.size,
-                it.angle)*/
 
     }
 

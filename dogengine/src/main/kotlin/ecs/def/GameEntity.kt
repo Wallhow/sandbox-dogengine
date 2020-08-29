@@ -4,8 +4,10 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import dogengine.Kernel
 import dogengine.ecs.components.utility.CName
+import dogengine.utils.extension.get
+import dogengine.utils.extension.injector
 
-abstract class GameEntity(val parallaxLayer: Int = 0,private val cName: CName = CName()) : Entity(){
+abstract class GameEntity(val parallaxLayer: Int = 0,cName: CName = CName()) : Entity(){
     init {
         add(cName)
     }
@@ -16,7 +18,7 @@ abstract class GameEntity(val parallaxLayer: Int = 0,private val cName: CName = 
         get() {return CName[this].name}
 
 
-    protected val engine = Kernel.getInjector().getInstance(Engine::class.java)
+    protected val engine: Engine = injector[Engine::class.java]
     companion object {
         private var idx = 0
         fun newIdx() : Int {

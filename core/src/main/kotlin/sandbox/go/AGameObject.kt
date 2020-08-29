@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.Vector2
+import com.google.inject.Inject
 import dogengine.Kernel
 import dogengine.ecs.components.create
 import dogengine.ecs.components.createBody
@@ -17,16 +18,17 @@ import dogengine.ecs.components.utility.logic.CDefaultPhysics2d
 import dogengine.ecs.components.utility.logic.CTransforms
 import dogengine.ecs.components.utility.logic.CUpdate
 import dogengine.ecs.components.utility.logic.updateZIndex
+import dogengine.ecs.def.GameEntity
 import dogengine.redkin.physicsengine2d.variables.Types
 import dogengine.utils.Size
 import sandbox.R
 
-abstract class AGameObject (name: String) : Entity() {
+abstract class AGameObject (name: String) : GameEntity() {
     open val entity: Entity
         get() = this
+
     protected val assets = Kernel.getInjector().getInstance(AssetManager::class.java)
     protected val atlas = assets.get<TextureAtlas>(R.matlas0)
-    protected val engine = Kernel.getInjector().getInstance(Engine::class.java)
 
     init {
         create<CName> { this.name = name }

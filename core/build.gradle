@@ -12,11 +12,13 @@ dependencies {
   //noinspection DifferentStdlibGradleVersion
   compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
   //implementation 'com.github.czyzby:noise4j:0.1.0'
-  implementation 'com.crashinvaders.vfx:gdx-vfx-core:0.4.3'
-  implementation 'com.crashinvaders.vfx:gdx-vfx-effects:0.4.3'    // Optional, if you need standard filter/effects.
+ /* implementation 'com.crashinvaders.vfx:gdx-vfx-core:0.4.3'
+  implementation 'com.crashinvaders.vfx:gdx-vfx-effects:0.4.3'    // Optional, if you need standard filter/effects.*/
   implementation 'com.sudoplay.joise:joise:1.1.0'
   implementation 'com.google.code.gson:gson:2.8.2'
   implementation 'com.github.salomonbrys.kotson:kotson:2.5.0'
+
+
   compile project(':dogengine')
 }
         

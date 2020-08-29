@@ -1,7 +1,9 @@
-package sandbox.sandbox.def.map
+package sandbox.dev.map
 
+import com.badlogic.gdx.ai.msg.MessageManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.Pixmap
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.utils.Array
 import com.google.gson.Gson
@@ -17,31 +19,46 @@ import dogengine.map2D.layers.GridLayer
 import dogengine.map2D.layers.Layer
 import dogengine.map2D.layers.LayerProperties
 import dogengine.utils.Array2D
+import dogengine.utils.extension.get
+import dogengine.utils.extension.injector
 import dogengine.utils.log
 import map2D.TypeData
 import map2D.Vector2Int
-import sandbox.dev.map.HeightTypes
-import sandbox.dev.map.MapDeserializer
-import sandbox.dev.map.MapSerializer
+import sandbox.dev.gui.DebugGUI.Companion.MSG_DEBUG_GET_MAP_TEXTURE
+import sandbox.dev.gui.DebugGUI.Companion.MSG_DEBUG_GIVE_MAP_TEXTURE
 import java.io.File
 import java.io.PrintWriter
+import java.lang.Math.pow
 import java.util.*
+import kotlin.math.pow
 
 
 class Map2DGenerator(private val tileSize: Int, private val createdCellMapListener: CreatedCellMapListener? = null) {
 
-    val width = 64
-    val height = 64
+    val size = 64
+    val width = size
+    val height = size
 
     //val generator: NoiseGenerator = NoiseGenerator()
-    val seed = 12358132134L
-    val pixmap = Pixmap(width, height, Pixmap.Format.RGBA4444)
-    val prop = LayerProperties(width, height, tileSize, tileSize, 0)
+    var seed_ideal = 3141L
+    val max_chunk = 10
+    val pixmap = Pixmap(max_chunk, max_chunk, Pixmap.Format.RGBA4444)
+    val prop = LayerProperties(width*max_chunk, height*max_chunk, tileSize, tileSize, 0)
 
 
     init {
+        injector[MessageManager::class.java].apply {
+            addListener({
+                log("get texture map")
 
+                this.dispatchMessage(MSG_DEBUG_GIVE_MAP_TEXTURE,
+                        ""//Texture(pixmap)
+                )
+                true
+            }, MSG_DEBUG_GET_MAP_TEXTURE)
+        }
     }
+
     companion object {
         val serializer: Gson = GsonBuilder()
                 .registerTypeAdapter(Map2D::class.java, MapSerializer())
@@ -75,15 +92,18 @@ class Map2DGenerator(private val tileSize: Int, private val createdCellMapListen
             ""
         }
 
-        return if(json!="") deserializer.fromJson(json, Map2D::class.java) else null
+        return if (json != "") deserializer.fromJson(json, Map2D::class.java) else null
     }
-
-    private fun generateGrid(): IntGrid {
+    val grid = IntGrid(width*max_chunk, height*max_chunk)
+    private fun generateGrid(xChunk: Int, yChunk: Int,grid: IntGrid) {
         log("create map")
         val terrainOctaves = 2 // простота мира
         val terrainRidgeOctaves = 3 // детализация
         val terrainFrequency = 1.5 //
         val terrainNoiseScale = 0.8
+
+        var seed = seed_ideal
+       //seed += xChunk + yChunk * max_chunk
 
         val basis = ModuleBasisFunction()
         basis.setType(BasisType.SIMPLEX)
@@ -117,36 +137,63 @@ class Map2DGenerator(private val tileSize: Int, private val createdCellMapListen
         scaleDomain.setScaleX(terrainNoiseScale)
         scaleDomain.setScaleY(terrainNoiseScale)
 
-        val grid = IntGrid(width, height)
 
-        for (x in 0 until width) {
-            for (y in 0 until height) { // Noise range
+        val pixmap1 = Pixmap(width, height, Pixmap.Format.RGBA4444)
+        for (x in xChunk*width until xChunk*width+width) {
+            for (y in yChunk*height until yChunk*height+height) { // Noise range
+                // min max начения
                 val x1 = 0f
-                val x2 = 2f
-                val y1 = 0f
-                val y2 = 2f
+                val x2 = 1f
+                val y1 = 0
+                val y2 = 1f
+
                 val dx = x2 - x1
                 val dy = y2 - y1
+                //перераспределение - больше цифра - более гористая местность
+                val exp = 3
                 // Sample noise at smaller intervals
-                val s = x.toFloat() / width
-                val t = y.toFloat() / height
+                val s = x.toFloat() / (width * max_chunk)
+                val t = y.toFloat() / (height * max_chunk)
                 // Calculate our 4D coordinates
-                val nx: Float = x1 + MathUtils.cos(s * 2 * MathUtils.PI) * dx / (2 * MathUtils.PI)
+                /*val nx: Float =     v      x1 + MathUtils.cos(s * 2 * MathUtils.PI) * dx / (2 * MathUtils.PI)
                 val ny: Float = y1 + MathUtils.cos(t * 2 * MathUtils.PI) * dy / (2 * MathUtils.PI)
                 val nz: Float = x1 + MathUtils.sin(s * 2 * MathUtils.PI) * dx / (2 * MathUtils.PI)
                 val nw: Float = y1 + MathUtils.sin(t * 2 * MathUtils.PI) * dy / (2 * MathUtils.PI)
-                val heightValue = scaleDomain[nx * terrainNoiseScale, ny * terrainNoiseScale, nz * terrainNoiseScale, nw * terrainNoiseScale].toFloat()
-                grid[x, y] = (heightValue * 100).toInt()
-                println(grid[x, y])
+                val heightValue = scaleDomain[nx * terrainNoiseScale, ny * terrainNoiseScale, nz * terrainNoiseScale, nw * terrainNoiseScale].toFloat()*/
+                val heightValue = scaleDomain[s.toDouble(),t.toDouble()]
+                grid[x, y] = (heightValue/*.toDouble().pow(exp)*/ * 100).toInt()
+                //pixmap1.drawPixel(x,y,Color(heightValue,heightValue,heightValue,1f).toIntBits())
             }
 
         }
-
-        return grid
+        //pixmap.drawPixmap(pixmap1,xChunk,yChunk)
     }
 
     fun generate(): Map2D {
-        return getFromFS() ?: getMap2D(generateGrid())
+        val map2d = getFromFS()
+
+        return if(map2d!= null ) {
+            val pixel = Pixmap(1, 1, Pixmap.Format.RGBA8888)
+            map2d.getLayers().forEach {
+                for (x in 0 until it.width) {
+                    for (y in 0 until it.height) {
+                        //drawOnPixmapMap(it.getCell(x,y).heightType,pixel,x,y,pixmap)
+                    }
+                }
+            }
+            map2d
+        } else {
+
+            for (x in 0 until max_chunk) {
+                for (y in 0 until max_chunk)
+                {
+                    generateGrid(x,y,grid)
+                }
+            }
+            log(grid.col)
+
+            getMap2D(grid)
+        }
     }
 
     private fun getMap2D(grid: IntGrid): Map2D {
@@ -156,8 +203,8 @@ class Map2DGenerator(private val tileSize: Int, private val createdCellMapListen
         val objectGroup = GridLayer(prop, "objects")
         map2D.addLayer(objectGroup)
 
-        for (x in 0 until width) {
-            for (y in 0 until height) {
+        for (x in 0 until layer.width) {
+            for (y in 0 until layer.height) {
                 val cell = grid[x, y] / 100f
                 layer.setCell(configHeightTypeCell(cell, pixel, x, y), x, y)
             }
@@ -191,6 +238,9 @@ class Map2DGenerator(private val tileSize: Int, private val createdCellMapListen
         File("map.2d").bufferedWriter().use { out ->
             out.write(serializer.toJson(map2D))
         }
+
+
+
         return map2D
     }
 
@@ -298,9 +348,21 @@ class Map2DGenerator(private val tileSize: Int, private val createdCellMapListen
         pixel.setColor(color)
         pixel.fill()
         //cell2d.userData = Texture(pixel)
-        pixmap.setColor(color)
-        pixmap.drawPixel(x, y)
+        //pixmap.setColor(color)
+        //pixmap.drawPixel(x, y)
         return cell2d
+    }
+
+    private fun drawOnPixmapMap(height: Int, pixel: Pixmap, x: Int, y: Int,pixmapOut: Pixmap){
+        if(height==-1) return
+        val color = Color.WHITE.cpy().apply {
+            HeightTypes.values().first { it.heightType == height }.getColor(this)
+        }
+        color.set(color.r, color.g, color.b, 1f)
+        pixel.setColor(color)
+        pixel.fill()
+        pixmapOut.setColor(color)
+        pixmapOut.drawPixel(x, y)
     }
 
     // Всё для группировки тайлов
@@ -383,7 +445,7 @@ class Map2DGenerator(private val tileSize: Int, private val createdCellMapListen
             waterCellGroups.forEach {
                 for (i in 0 until it.cells.size) {
                     val cell = it.cells[i]
-                    if (cell === Cell.defCell2D) continue
+                    if (cell === Cell.defCell2D || cell.x ==-1) continue
                     setCell(cell, cell.x, cell.y)
                 }
             }
